@@ -47,7 +47,7 @@ const RUNGS = [
         instruction: "Observe the lunar eclipse in the Observatory. Drag the Moon (or use the slider) across the width of the Earth's shadow to measure how many Moon diameters fit inside it, then use this ratio to calculate the Moon's true diameter.",
         calcLabel: "Your Calculation (<i>D<sub>moon</sub></i>):",
         controls: [
-            { id: "ratio", label: "Shadow Width", min: -1.0, max: 4.5, step: 0.1, value: -1.0, unit: " Moons" }
+            { id: "ratio", label: "Shadow Width", min: 0.0, max: 4.5, step: 0.1, value: 0.0, unit: " Moons" }
         ],
         calculate: (vals) => {
             // Earth's diameter is fixed at Eratosthenes' value (12,732 km)
@@ -4211,7 +4211,7 @@ function draw2DEclipseAnim() {
     
     const targetRatio = 3.5;
     const moonRadius2d = 45;
-    const shadowRadius2d = moonRadius2d * targetRatio;
+    const shadowRadius2d = moonRadius2d * 3.0;
     
     // 1. Draw Earth's Penumbra (Soft outer orange-red glow)
     ctx2d.save();
@@ -4244,10 +4244,10 @@ function draw2DEclipseAnim() {
     ctx2d.textAlign = 'center';
     ctx2d.fillText("Earth's Umbra Shadow", cx, cy - shadowRadius2d - 15);
     
-    const startX = cx - shadowRadius2d + moonRadius2d;
+    const startX = cx - shadowRadius2d - moonRadius2d;
     
-    // Draw guide lines / slots across the shadow width
-    for (let i = 0; i < Math.floor(targetRatio); i++) {
+    // Draw guide lines / slots
+    for (let i = 1; i <= Math.floor(targetRatio); i++) {
         const x = startX + (i * moonRadius2d * 2);
         
         // Draw dotted moon slot outline
@@ -4271,8 +4271,7 @@ function draw2DEclipseAnim() {
     // Draw fractional slot if any
     const remainder = targetRatio - Math.floor(targetRatio);
     if (remainder > 0.01) {
-        const i = Math.floor(targetRatio);
-        const x = startX + (i * moonRadius2d * 2);
+        const x = startX + (targetRatio * moonRadius2d * 2);
         
         ctx2d.save();
         ctx2d.strokeStyle = 'rgba(255, 120, 50, 0.15)';
@@ -4288,7 +4287,7 @@ function draw2DEclipseAnim() {
         ctx2d.font = 'bold 12px "Outfit", sans-serif';
         ctx2d.textAlign = 'center';
         ctx2d.textBaseline = 'middle';
-        ctx2d.fillText("+" + remainder.toFixed(2), x - moonRadius2d * (1 - remainder), cy);
+        ctx2d.fillText("+" + remainder.toFixed(2), x, cy);
     }
     
     // 3. Horizontal Shadow Caliper (Span)
@@ -4321,20 +4320,14 @@ function draw2DEclipseAnim() {
         if (newRatio > 4.5) newRatio = 4.5;
         
         // Enforce snapping if close to slot centers
-        for (let i = 0; i <= Math.floor(targetRatio); i++) {
-            const slotX = startX + i * moonRadius2d * 2;
+        const snapPoints = [0, 1, 2, 3, targetRatio];
+        for (const snapRatio of snapPoints) {
+            const slotX = startX + snapRatio * moonRadius2d * 2;
             if (Math.abs(r2MoonX - slotX) < 15) {
                 r2MoonX = slotX; // Snap physically
-                newRatio = i; // Snap ratio
+                newRatio = snapRatio; // Snap ratio
                 break;
             }
-        }
-        
-        // Snap to the fractional target as well
-        const finalSlotX = startX + targetRatio * moonRadius2d * 2;
-        if (Math.abs(r2MoonX - finalSlotX) < 15) {
-            r2MoonX = finalSlotX;
-            newRatio = targetRatio;
         }
 
         ratio = newRatio;
