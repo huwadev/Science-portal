@@ -1332,8 +1332,8 @@ function updateCalculation() {
         if (parseFloat(distInput.value) === 800) distInput.classList.add('slider-correct');
         else distInput.classList.remove('slider-correct');
         
-        // Redraw active 2D city overlay dynamically
-        if (typeof r1ActiveCity !== 'undefined') {
+        // Redraw active 2D city overlay dynamically only if canvas is visible
+        if (typeof r1ActiveCity !== 'undefined' && canvas2d.style.display === 'block') {
             if (r1ActiveCity === 'Syene') {
                 render2DSyene();
             } else if (r1ActiveCity === 'Alexandria') {
@@ -1344,37 +1344,18 @@ function updateCalculation() {
         // Update 3D elements dynamically
         if (typeof earthRadius !== 'undefined') {
             const angRad = ang * Math.PI / 180;
-            const currentAlexPos = getPositionFromLatLon(angRad, 0, earthRadius);
-            const alexNormal = currentAlexPos.clone().normalize();
+            const userAlexPos = getPositionFromLatLon(angRad, 0, earthRadius);
             
-            if (typeof alexMarker !== 'undefined') {
-                alexMarker.position.copy(currentAlexPos).multiplyScalar(1.02);
-            }
-            if (typeof alexHit !== 'undefined') {
-                alexHit.position.copy(currentAlexPos);
-            }
-            if (typeof pole !== 'undefined') {
-                pole.position.copy(currentAlexPos).add(alexNormal.clone().multiplyScalar(0.1));
-                pole.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), alexNormal);
-            }
-            if (typeof shadow !== 'undefined') {
-                shadow.position.copy(currentAlexPos);
-                shadow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), alexNormal);
-                shadow.rotateX(Math.PI / 2);
-                const scaleY = Math.tan(angRad) / Math.tan(7.2 * Math.PI / 180);
-                shadow.scale.set(1, Math.max(0.01, scaleY), 1);
-            }
-            
-            // Helper lines in linesGroup
+            // Helper lines in linesGroup (Visualizes the user's angle measurement)
             if (typeof linesGroup !== 'undefined' && linesGroup.children && linesGroup.children.length >= 6) {
                 const children = linesGroup.children;
-                // alexLine
-                const alexLinePoints = [new THREE.Vector3(0,0,0), currentAlexPos.clone().multiplyScalar(1.5)];
+                // alexLine (the measurement line for the angle)
+                const alexLinePoints = [new THREE.Vector3(0,0,0), userAlexPos.clone().multiplyScalar(1.5)];
                 children[1].geometry.setFromPoints(alexLinePoints);
                 children[1].geometry.computeBoundingSphere();
                 
                 // ray2
-                const ray2Points = [new THREE.Vector3(earthRadius * 2, currentAlexPos.y, currentAlexPos.z), currentAlexPos];
+                const ray2Points = [new THREE.Vector3(earthRadius * 2, userAlexPos.y, userAlexPos.z), userAlexPos];
                 children[3].geometry.setFromPoints(ray2Points);
                 children[3].geometry.computeBoundingSphere();
                 
@@ -1384,23 +1365,29 @@ function updateCalculation() {
                     children[4].geometry.dispose();
                     children[4].geometry = new THREE.TorusGeometry(0.5, 0.01, 8, 32, angRad);
                     
-                    // poleArc
-                    children[5].position.copy(currentAlexPos);
-                    children[5].geometry.dispose();
-                    children[5].geometry = new THREE.TorusGeometry(0.5, 0.01, 8, 32, angRad);
+                    // poleArc (positioned at the actual fixed pole in Alexandria)
+                    if (typeof pole !== 'undefined') {
+                        children[5].position.copy(pole.position);
+                        children[5].geometry.dispose();
+                        children[5].geometry = new THREE.TorusGeometry(0.5, 0.01, 8, 32, angRad);
+                    }
                 }
             }
             
-            // R1 Distance Line and Label
+            // R1 Distance Line and Label (Ruler)
+            const targetAngRad = 7.2 * Math.PI / 180;
+            const distRatio = dst / 800; // ratio of user distance to true distance
+            const userDistAngRad = distRatio * targetAngRad;
+            
             if (typeof r1DistanceLine !== 'undefined' && typeof getR1ArcPoints !== 'undefined') {
-                const arcPoints = getR1ArcPoints(0, angRad, earthRadius);
+                const arcPoints = getR1ArcPoints(0, userDistAngRad, earthRadius);
                 r1DistanceLine.geometry.setFromPoints(arcPoints);
                 r1DistanceLine.geometry.computeBoundingSphere();
                 r1DistanceLine.visible = true;
             }
             
             if (typeof r1DistanceLabel !== 'undefined') {
-                const midLat = angRad / 2;
+                const midLat = userDistAngRad / 2;
                 const labelPos = new THREE.Vector3(
                     earthRadius * Math.cos(midLat),
                     earthRadius * Math.sin(midLat),
@@ -4099,8 +4086,10 @@ function render2DAlexandria() {
     ctx2d.lineTo(cx - poleWidth/4, cy - poleHeight);
     ctx2d.fill();
     
-    // Draw Shadow
-    const shadowLength = poleHeight * Math.tan(drawAngleRad);
+    const fixedTargetAngleRad = 7.2 * Math.PI / 180;
+    
+    // Draw Shadow (Fixed physical shadow!)
+    const shadowLength = poleHeight * Math.tan(fixedTargetAngleRad);
     ctx2d.fillStyle = 'rgba(0, 0, 0, 0.7)';
     ctx2d.beginPath();
     ctx2d.moveTo(cx, cy);
@@ -4109,9 +4098,10 @@ function render2DAlexandria() {
     ctx2d.lineTo(cx - 10, cy + 10);
     ctx2d.fill();
     
-    // Draw Sun Position based on angle
+    // Draw Sun Position based on user's angle measurement (drawAngleRad)
+    const userShadowLength = poleHeight * Math.tan(drawAngleRad);
     const sunDist = 350;
-    const sunX = cx + shadowLength - Math.sin(drawAngleRad) * sunDist;
+    const sunX = cx + userShadowLength - Math.sin(drawAngleRad) * sunDist;
     const sunY = cy - Math.cos(drawAngleRad) * sunDist;
     
     ctx2d.fillStyle = '#ffcc00';
@@ -4122,14 +4112,14 @@ function render2DAlexandria() {
     ctx2d.fill();
     ctx2d.shadowBlur = 0;
     
-    // Draw Sun Ray (Hypotenuse)
+    // Draw Sun Ray (Hypotenuse construction line)
     ctx2d.strokeStyle = 'rgba(255, 220, 100, 0.9)';
     ctx2d.lineWidth = 3;
     ctx2d.setLineDash([15, 10]);
     ctx2d.beginPath();
-    // extend ray slightly past shadow
+    // extend ray slightly past user shadow point
     ctx2d.moveTo(sunX, sunY);
-    ctx2d.lineTo(cx + shadowLength, cy);
+    ctx2d.lineTo(cx + userShadowLength, cy);
     ctx2d.stroke();
     ctx2d.setLineDash([]);
     
