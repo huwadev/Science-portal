@@ -47,17 +47,18 @@ const RUNGS = [
         instruction: "Observe the lunar eclipse in the Observatory. Drag the Moon (or use the slider) across the width of the Earth's shadow to measure how many Moon diameters fit inside it, then use this ratio to calculate the Moon's true diameter.",
         calcLabel: "Your Calculation (<i>D<sub>moon</sub></i>):",
         controls: [
-            { id: "ratio", label: "Shadow Width", min: 1.0, max: 3.5, step: 0.1, value: 1.0, unit: " Moons" }
+            { id: "ratio", label: "Shadow Width", min: -1.0, max: 4.5, step: 0.1, value: -1.0, unit: " Moons" }
         ],
         calculate: (vals) => {
             // Earth's diameter is fixed at Eratosthenes' value (12,732 km)
             return 12732 / vals.ratio;
         },
         verify: (result) => {
-            // Correct answer is roughly 3474 km
-            return Math.abs(result - 3474) < 400; 
+            // Earth's diameter / 3.5 = ~3637 km. 4.0 gives ~3183 km.
+            // Require the user to find 3.5 (result between 3500 and 3800)
+            return result >= 3500 && result <= 3800; 
         },
-        successMsg: "Correct! The Moon's diameter is roughly 3,474 km, about a quarter the size of Earth.",
+        successMsg: "Correct! The Moon's diameter is roughly 3,474 km, about a quarter the size of Earth (Historically calculated as 1/3.5).",
         telemetry: [
             { lbl: "OBSERVATION", val: "Lunar Eclipse" },
             { lbl: "ECLIPSE PHASE", val: "Partial", id: "sim-eclipse-phase" }
@@ -4310,27 +4311,27 @@ function draw2DEclipseAnim() {
     // 4. Draw the interactive draggable Moon
     if (!r2IsDragging) {
         // If not dragging via mouse, position moon directly based on slider
-        r2MoonX = startX + (ratio - 1.0) * moonRadius2d * 2;
+        r2MoonX = startX + ratio * (moonRadius2d * 2);
     } else {
         // If dragging via mouse, map r2MoonX back to ratio and update slider
-        let newRatio = 1.0 + (r2MoonX - startX) / (moonRadius2d * 2);
+        let newRatio = (r2MoonX - startX) / (moonRadius2d * 2);
         
         // Clamp to min/max
-        if (newRatio < 1.0) newRatio = 1.0;
-        if (newRatio > 3.5) newRatio = 3.5;
+        if (newRatio < -1.0) newRatio = -1.0;
+        if (newRatio > 4.5) newRatio = 4.5;
         
         // Enforce snapping if close to slot centers
         for (let i = 0; i <= Math.floor(targetRatio); i++) {
             const slotX = startX + i * moonRadius2d * 2;
             if (Math.abs(r2MoonX - slotX) < 15) {
                 r2MoonX = slotX; // Snap physically
-                newRatio = 1.0 + i; // Snap ratio
+                newRatio = i; // Snap ratio
                 break;
             }
         }
         
         // Snap to the fractional target as well
-        const finalSlotX = startX + (targetRatio - 1.0) * moonRadius2d * 2;
+        const finalSlotX = startX + targetRatio * moonRadius2d * 2;
         if (Math.abs(r2MoonX - finalSlotX) < 15) {
             r2MoonX = finalSlotX;
             newRatio = targetRatio;
