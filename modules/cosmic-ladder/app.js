@@ -3984,76 +3984,15 @@ function drawGround(ctx, w, h, cy) {
 }
 
 function render2DSyene() {
-    r1ActiveCity = 'Syene';
-    canvas2d.style.display = 'block';
-    btnClose2d.style.display = 'block';
-    resize2D();
-    
-    const w = canvas2d.width;
-    const h = canvas2d.height;
-    ctx2d.clearRect(0, 0, w, h);
-    
-    const cx = w / 2;
-    const cy = h / 2 + 50;
-    
-    drawSky(ctx2d, w, h, cy);
-    drawGround(ctx2d, w, h, cy);
-    
-    // Draw Sun directly overhead
-    ctx2d.fillStyle = '#ffcc00';
-    ctx2d.shadowColor = '#ffcc00';
-    ctx2d.shadowBlur = 40;
-    ctx2d.beginPath();
-    ctx2d.arc(cx, 80, 40, 0, Math.PI * 2);
-    ctx2d.fill();
-    ctx2d.shadowBlur = 0; // reset
-    
-    // Draw Well
-    const wellWidth = 100;
-    const wellDepth = 280;
-    ctx2d.fillStyle = '#111'; // dark inside well
-    ctx2d.fillRect(cx - wellWidth/2, cy, wellWidth, wellDepth);
-    
-    // Well walls (bricks)
-    ctx2d.fillStyle = '#5c4a3d';
-    ctx2d.fillRect(cx - wellWidth/2 - 20, cy, 20, wellDepth);
-    ctx2d.fillRect(cx + wellWidth/2, cy, 20, wellDepth);
-    
-    // Draw Sun Rays (Straight down)
-    ctx2d.strokeStyle = 'rgba(255, 220, 100, 0.9)';
-    ctx2d.lineWidth = 4;
-    ctx2d.setLineDash([15, 10]);
-    for(let i = -1; i <= 1; i++) {
-        ctx2d.beginPath();
-        ctx2d.moveTo(cx + i*25, 120);
-        ctx2d.lineTo(cx + i*25, cy + wellDepth);
-        ctx2d.stroke();
-    }
-    ctx2d.setLineDash([]);
-    
-    // Text Box at the bottom of the screen
-    const boxW = 460;
-    const boxH = 80;
-    const boxX = cx - boxW/2;
-    const boxY = h - boxH - 40;
-    
-    ctx2d.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    ctx2d.beginPath();
-    ctx2d.roundRect(boxX, boxY, boxW, boxH, 10);
-    ctx2d.fill();
-    ctx2d.strokeStyle = 'rgba(255,255,255,0.2)';
-    ctx2d.lineWidth = 1;
-    ctx2d.stroke();
-    
-    ctx2d.fillStyle = '#fff';
-    ctx2d.font = '20px "Outfit", sans-serif';
-    ctx2d.textAlign = 'center';
-    ctx2d.fillText("Syene: Sun is directly overhead.", cx, boxY + 32);
-    ctx2d.fillText("Rays reach the well's bottom. No shadow.", cx, boxY + 60);
+    render2DSplitView('Syene');
 }
 
 function render2DAlexandria() {
-    r1ActiveCity = 'Alexandria';
+    render2DSplitView('Alexandria');
+}
+
+function render2DSplitView(activeCity) {
+    r1ActiveCity = activeCity;
     canvas2d.style.display = 'block';
     btnClose2d.style.display = 'block';
     resize2D();
@@ -4062,28 +4001,104 @@ function render2DAlexandria() {
     const h = canvas2d.height;
     ctx2d.clearRect(0, 0, w, h);
     
-    const cx = w / 2;
     const cy = h / 2 + 100;
     
     // Read the user's slider input dynamically if it exists
     const angleInput = document.getElementById('input-angle');
     const angle = angleInput ? parseFloat(angleInput.value) : 7.2; 
     const angleRad = angle * Math.PI / 180;
-    
     const drawAngleRad = Math.max(angleRad, 3 * Math.PI / 180);
     
     drawSky(ctx2d, w, h, cy);
     drawGround(ctx2d, w, h, cy);
     
+    const cxSyene = w * 0.25;
+    const cxAlex = w * 0.75;
+    
+    // ==========================================
+    // SPLIT DIVIDER & HIGHLIGHT (Behind Foreground)
+    // ==========================================
+    // Divider line
+    ctx2d.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx2d.lineWidth = 4;
+    ctx2d.setLineDash([15, 15]);
+    ctx2d.beginPath();
+    ctx2d.moveTo(w/2, 0);
+    ctx2d.lineTo(w/2, h);
+    ctx2d.stroke();
+    ctx2d.setLineDash([]);
+    
+    // Highlight overlay
+    ctx2d.fillStyle = 'rgba(0, 255, 170, 0.15)'; // green highlight
+    ctx2d.fillRect(activeCity === 'Syene' ? 0 : w/2, 0, w/2, h);
+    
+    // Active label
+    ctx2d.fillStyle = '#00ffaa';
+    ctx2d.font = 'bold 28px "Outfit", sans-serif';
+    ctx2d.textAlign = 'center';
+    ctx2d.shadowColor = '#000';
+    ctx2d.shadowBlur = 10;
+    ctx2d.fillText(activeCity.toUpperCase() + " (ACTIVE)", activeCity === 'Syene' ? cxSyene : cxAlex, 60);
+    ctx2d.shadowBlur = 0;
+    
+    // ==========================================
+    // LEFT SIDE: SYENE
+    // ==========================================
+    // Draw Sun directly overhead
+    ctx2d.fillStyle = '#ffcc00';
+    ctx2d.shadowColor = '#ffcc00';
+    ctx2d.shadowBlur = 40;
+    ctx2d.beginPath();
+    ctx2d.arc(cxSyene, 120, 30, 0, Math.PI * 2);
+    ctx2d.fill();
+    ctx2d.shadowBlur = 0; // reset
+    
+    // Draw Well
+    const wellWidth = 80;
+    const wellDepth = 240;
+    ctx2d.fillStyle = '#111'; // dark inside well
+    ctx2d.fillRect(cxSyene - wellWidth/2, cy, wellWidth, wellDepth);
+    
+    // Well walls (bricks)
+    ctx2d.fillStyle = '#5c4a3d';
+    ctx2d.fillRect(cxSyene - wellWidth/2 - 15, cy, 15, wellDepth);
+    ctx2d.fillRect(cxSyene + wellWidth/2, cy, 15, wellDepth);
+    
+    // Draw Sun Rays (Straight down)
+    ctx2d.strokeStyle = 'rgba(255, 220, 100, 0.9)';
+    ctx2d.lineWidth = 3;
+    ctx2d.setLineDash([15, 10]);
+    for(let i = -1; i <= 1; i++) {
+        ctx2d.beginPath();
+        ctx2d.moveTo(cxSyene + i*20, 150);
+        ctx2d.lineTo(cxSyene + i*20, cy + wellDepth);
+        ctx2d.stroke();
+    }
+    ctx2d.setLineDash([]);
+    
+    // Text Box Syene
+    ctx2d.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx2d.beginPath();
+    ctx2d.roundRect(cxSyene - 160, h - 90, 320, 60, 10);
+    ctx2d.fill();
+    ctx2d.fillStyle = '#fff';
+    ctx2d.font = '16px "Outfit", sans-serif';
+    ctx2d.textAlign = 'center';
+    ctx2d.fillText("Syene: Sun is directly overhead.", cxSyene, h - 60);
+    ctx2d.fillText("No shadow in the well.", cxSyene, h - 40);
+    
+    // ==========================================
+    // RIGHT SIDE: ALEXANDRIA
+    // ==========================================
     // Draw Pole (Obelisk style)
-    const poleHeight = 280;
-    const poleWidth = 16;
+    const poleHeight = 240;
+    const poleWidth = 14;
     ctx2d.fillStyle = '#ddd';
     ctx2d.beginPath();
-    ctx2d.moveTo(cx - poleWidth/2, cy);
-    ctx2d.lineTo(cx + poleWidth/2, cy);
-    ctx2d.lineTo(cx + poleWidth/4, cy - poleHeight);
-    ctx2d.lineTo(cx - poleWidth/4, cy - poleHeight);
+    ctx2d.moveTo(cxAlex - poleWidth/2, cy);
+    ctx2d.lineTo(cxAlex + poleWidth/2, cy);
+    ctx2d.lineTo(cxAlex + poleWidth/4, cy - poleHeight);
+    ctx2d.lineTo(cxAlex - poleWidth/4, cy - poleHeight);
     ctx2d.fill();
     
     const fixedTargetAngleRad = 7.2 * Math.PI / 180;
@@ -4092,23 +4107,23 @@ function render2DAlexandria() {
     const shadowLength = poleHeight * Math.tan(fixedTargetAngleRad);
     ctx2d.fillStyle = 'rgba(0, 0, 0, 0.7)';
     ctx2d.beginPath();
-    ctx2d.moveTo(cx, cy);
-    ctx2d.lineTo(cx + shadowLength, cy);
-    ctx2d.lineTo(cx + shadowLength - 10, cy + 10); // slight skew
-    ctx2d.lineTo(cx - 10, cy + 10);
+    ctx2d.moveTo(cxAlex, cy);
+    ctx2d.lineTo(cxAlex + shadowLength, cy);
+    ctx2d.lineTo(cxAlex + shadowLength - 8, cy + 8); // slight skew
+    ctx2d.lineTo(cxAlex - 8, cy + 8);
     ctx2d.fill();
     
     // Draw Sun Position based on user's angle measurement (drawAngleRad)
     const userShadowLength = poleHeight * Math.tan(drawAngleRad);
-    const sunDist = 350;
-    const sunX = cx + userShadowLength - Math.sin(drawAngleRad) * sunDist;
+    const sunDist = 300;
+    const sunX = cxAlex + userShadowLength - Math.sin(drawAngleRad) * sunDist;
     const sunY = cy - Math.cos(drawAngleRad) * sunDist;
     
     ctx2d.fillStyle = '#ffcc00';
     ctx2d.shadowColor = '#ffcc00';
     ctx2d.shadowBlur = 40;
     ctx2d.beginPath();
-    ctx2d.arc(sunX, sunY, 30, 0, Math.PI * 2);
+    ctx2d.arc(sunX, sunY, 25, 0, Math.PI * 2);
     ctx2d.fill();
     ctx2d.shadowBlur = 0;
     
@@ -4117,9 +4132,8 @@ function render2DAlexandria() {
     ctx2d.lineWidth = 3;
     ctx2d.setLineDash([15, 10]);
     ctx2d.beginPath();
-    // extend ray slightly past user shadow point
     ctx2d.moveTo(sunX, sunY);
-    ctx2d.lineTo(cx + userShadowLength, cy);
+    ctx2d.lineTo(cxAlex + userShadowLength, cy);
     ctx2d.stroke();
     ctx2d.setLineDash([]);
     
@@ -4128,42 +4142,32 @@ function render2DAlexandria() {
     ctx2d.lineWidth = 2;
     ctx2d.setLineDash([5, 5]);
     ctx2d.beginPath();
-    ctx2d.moveTo(cx, cy - poleHeight);
-    ctx2d.lineTo(cx, cy - poleHeight - 100);
+    ctx2d.moveTo(cxAlex, cy - poleHeight);
+    ctx2d.lineTo(cxAlex, cy - poleHeight - 80);
     ctx2d.stroke();
     ctx2d.setLineDash([]);
     
     ctx2d.strokeStyle = '#00ffaa';
     ctx2d.lineWidth = 3;
     ctx2d.beginPath();
-    ctx2d.arc(cx, cy - poleHeight, 50, Math.PI/2 - drawAngleRad, Math.PI/2);
+    ctx2d.arc(cxAlex, cy - poleHeight, 40, Math.PI/2 - drawAngleRad, Math.PI/2);
     ctx2d.stroke();
     
-    // Text Box at the bottom of the screen
-    const boxW = 480;
-    const boxH = 80;
-    const boxX = cx - boxW/2;
-    const boxY = h - boxH - 40;
+    // Angle Label
+    ctx2d.fillStyle = '#00ffaa';
+    ctx2d.font = 'bold 20px "Outfit", sans-serif';
+    ctx2d.fillText("θ = " + angle.toFixed(1) + "°", cxAlex + 15 + Math.sin(drawAngleRad/2)*60, cy - poleHeight - 50);
     
+    // Text Box Alexandria
     ctx2d.fillStyle = 'rgba(0, 0, 0, 0.7)';
     ctx2d.beginPath();
-    ctx2d.roundRect(boxX, boxY, boxW, boxH, 10);
+    ctx2d.roundRect(cxAlex - 180, h - 90, 360, 60, 10);
     ctx2d.fill();
-    ctx2d.strokeStyle = 'rgba(255,255,255,0.2)';
-    ctx2d.lineWidth = 1;
-    ctx2d.stroke();
-    
     ctx2d.fillStyle = '#fff';
-    ctx2d.font = '20px "Outfit", sans-serif';
+    ctx2d.font = '16px "Outfit", sans-serif';
     ctx2d.textAlign = 'center';
-    ctx2d.fillText("Alexandria: Earth's curvature causes", cx, boxY + 32);
-    ctx2d.fillText("sun rays to strike at an angle.", cx, boxY + 60);
-    
-    // Angle Label (Positioned near the arc, pushed slightly higher to avoid the sun)
-    ctx2d.fillStyle = '#00ffaa';
-    ctx2d.font = 'bold 24px "Outfit", sans-serif';
-    // Position label based on drawn angle, but display real angle text
-    ctx2d.fillText("θ = " + angle.toFixed(1) + "°", cx + 25 + Math.sin(drawAngleRad/2)*70, cy - poleHeight - 70);
+    ctx2d.fillText("Alexandria: Earth's curvature", cxAlex, h - 60);
+    ctx2d.fillText("causes sun rays to strike at an angle.", cxAlex, h - 40);
 }
 
 function render2DLunarEclipse() {
