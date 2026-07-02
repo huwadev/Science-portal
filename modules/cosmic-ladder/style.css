@@ -1,0 +1,1395 @@
+/* CSS for The Cosmic Distance Ladder Module */
+
+.cosmic-ladder-app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(circle at bottom right, #050b14, #000000);
+    overflow: hidden;
+}
+
+.ladder-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    padding: 20px;
+    gap: 20px;
+}
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: rgba(2, 16, 52, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-brand h1 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--color-neutral-base);
+}
+
+.back-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-cosmic-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: #fff;
+}
+
+.back-link svg {
+    width: 18px;
+    height: 18px;
+}
+
+.header-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00ffaa;
+    box-shadow: 0 0 10px #00ffaa;
+}
+
+.status-text {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+}
+/* --- Ladder Progress Bar --- */
+.ladder-progress {
+    width: 60px;
+    background: rgba(2, 16, 52, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    gap: 10px;
+    position: relative;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.ladder-progress::-webkit-scrollbar { display: none; }
+
+.ladder-line {
+    position: absolute;
+    top: 30px;
+    bottom: 30px;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    z-index: 1;
+}
+
+.rung-node {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #021034;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.5);
+    z-index: 2;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.rung-node:not(.locked):hover {
+    border-color: var(--color-cosmic-base);
+    background: rgba(18, 93, 255, 0.15);
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.rung-node:not(.locked):active {
+    transform: scale(0.9);
+    transition-duration: 0.05s;
+}
+
+.rung-node.completed {
+    background: rgba(18, 93, 255, 0.2);
+    border-color: var(--color-cosmic-base);
+    color: var(--color-cosmic-base);
+}
+
+.rung-node.active,
+.rung-node.active:hover {
+    background: var(--color-cosmic-base);
+    border-color: #fff;
+    color: #fff;
+    transform: scale(1.2);
+    box-shadow: 0 0 15px rgba(18, 93, 255, 0.8);
+}
+
+.rung-node.locked {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.rung-node.locked:hover {
+    cursor: not-allowed;
+}
+
+/* --- The Notebook (Left) --- */
+.notebook-panel {
+    flex: 0 0 450px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 30px;
+    background: rgba(10, 15, 30, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-lg);
+}
+
+.notebook-header {
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 16px;
+}
+
+.notebook-header h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    color: var(--color-neutral-base);
+}
+
+.scientist-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: rgba(255, 170, 0, 0.1);
+    color: #ffaa00;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.card {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.card h3 {
+    font-size: 1rem;
+    color: var(--color-cosmic-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+}
+
+.history-card p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--color-neutral-secondary);
+}
+
+.math-block {
+    background: #000;
+    padding: 15px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    border-left: 3px solid var(--color-cosmic-base);
+    color: #fff;
+    overflow-x: auto;
+}
+
+.equation-legend {
+    list-style: none;
+    font-size: 0.85rem;
+    color: var(--color-neutral-secondary);
+    padding-left: 0;
+}
+
+.equation-legend li {
+    margin-bottom: 6px;
+    display: flex;
+    gap: 8px;
+}
+
+.instruction {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 16px;
+    font-style: italic;
+}
+
+.control-group {
+    margin-bottom: 16px;
+}
+
+.control-group label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    color: var(--color-neutral-base);
+}
+
+.control-group input[type="range"] {
+    width: 100%;
+    accent-color: var(--color-cosmic-base);
+}
+
+.control-group input[type="range"].slider-correct {
+    accent-color: #00ffaa;
+}
+
+.control-group input[type="range"].slider-locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+    accent-color: #888;
+}
+
+.calculation-result {
+    margin-top: 24px;
+    padding: 16px;
+    background: rgba(18, 93, 255, 0.1);
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(18, 93, 255, 0.2);
+}
+
+.calculation-result .lbl {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.calculation-result .val {
+    font-family: 'Fira Code', monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.btn-verify {
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px;
+    font-size: 1rem;
+}
+
+.verification-feedback {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+.verification-feedback.success { color: #00ffaa; }
+.verification-feedback.error { color: #ff4444; }
+
+/* --- The Observatory (Right) --- */
+.observatory-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.observatory-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+    z-index: 10;
+    pointer-events: none;
+}
+
+.observatory-header h3 {
+    font-family: 'Outfit', sans-serif;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.view-toggles {
+    display: flex;
+    gap: 8px;
+    pointer-events: auto;
+}
+
+.toggle-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.6);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toggle-btn.active {
+    background: var(--color-cosmic-base);
+    color: #fff;
+    border-color: var(--color-cosmic-base);
+}
+
+.observatory-viewport {
+    flex: 1;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.viewport-telemetry {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    display: flex;
+    gap: 20px;
+    pointer-events: none;
+}
+
+.telemetry-item {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(18, 93, 255, 0.3);
+    padding: 10px 16px;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+}
+
+.telemetry-item .lbl {
+    font-size: 0.65rem;
+    color: rgba(18, 93, 255, 0.8);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.telemetry-item .val {
+    font-family: 'Fira Code', monospace;
+    font-size: 1.1rem;
+    color: #fff;
+}
+
+/* =========================================
+   RUNG 9 HTML UI OVERLAYS
+========================================= */
+#r9-ui-container {
+    position: absolute;
+    top: 60px; left: 0; right: 0; bottom: 0;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: 58% 42%;
+    padding: 20px;
+    gap: 15px;
+    pointer-events: none;
+}
+
+.r9-panel {
+    background: rgba(10, 14, 30, 0.85);
+    border: 1px solid rgba(222, 235, 255, 0.12);
+    border-radius: 12px;
+    padding: 15px;
+    position: relative;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Prevent visual spilling */
+}
+
+#r9-telescope-panel {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+#r9-lc-panel {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+#r9-pl-panel {
+    grid-column: 2;
+    grid-row: 1 / 3;
+}
+
+.r9-panel-header {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: #ffffff;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.r9-canvas-container {
+    flex: 1;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.r9-canvas-container canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.r9-btn {
+    background: rgba(0, 255, 170, 0.15);
+    border: 1px solid #00ffaa;
+    color: #00ffaa;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    font-size: 11px;
+    padding: 6px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.r9-btn:hover:not(:disabled) {
+    background: #00ffaa;
+    color: #0b0e14;
+}
+
+.r9-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.3);
+}
+
+.r9-instruction-box {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-top: 8px;
+    text-align: center;
+    font-family: 'Outfit', sans-serif;
+}
+
+.r9-instruction-box.success {
+    background: rgba(0, 255, 170, 0.1);
+    border-color: rgba(0, 255, 170, 0.3);
+}
+
+.r9-instruction-box h4 {
+    margin: 0 0 5px 0;
+    color: #ffffff;
+    font-size: 12px;
+}
+.r9-instruction-box.success h4 {
+    color: #00ffaa;
+}
+.r9-instruction-box p {
+    margin: 0;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.r9-telescope-layout {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+    min-height: 0;
+}
+.r9-viewfinder-container {
+    width: 230px;
+    height: 230px;
+    flex: 0 0 230px;
+    position: relative;
+}
+.r9-telescope-layout #r9-telescope-instructions {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+}
+
+/* =========================================
+   RUNG 9 (H-R DIAGRAM) HTML UI OVERLAYS
+========================================= */
+#hr-ui-container {
+    position: absolute;
+    top: 60px; left: 0; right: 0; bottom: 0;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: 48% 52%;
+    grid-template-rows: 1fr 130px;
+    padding: 20px;
+    gap: 15px;
+    pointer-events: none;
+}
+
+#hr-chart-panel {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+}
+
+#hr-telescope-panel {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+#hr-info-panel {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.hr-panel {
+    background: rgba(10, 14, 30, 0.85);
+    border: 1px solid rgba(222, 235, 255, 0.12);
+    border-radius: 12px;
+    padding: 15px;
+    position: relative;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.hr-panel-header {
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #a5b4fc;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(222, 235, 255, 0.08);
+    padding-bottom: 6px;
+}
+
+.hr-canvas-container {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Make Chart.js canvas fill its container, same as r9-canvas-container */
+.hr-canvas-container canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Telescope viewfinder canvas: fixed size, not stretched */
+#hr-telescope-canvas {
+    display: block;
+    width: 230px;
+    height: 230px;
+}
+#r9-telescope-canvas {
+    display: block;
+    width: 230px;
+    height: 230px;
+}
+
+.hr-telescope-layout {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+    min-height: 0;
+}
+
+.hr-viewfinder-container {
+    width: 230px;
+    height: 230px;
+    flex: 0 0 230px;
+    position: relative;
+}
+
+.hr-telescope-layout #hr-telescope-instructions {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+}
+
+.hr-btn {
+    background: linear-gradient(135deg, #125DFF 0%, #00d4ff 100%);
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.hr-btn:hover:not(:disabled) {
+    box-shadow: 0 0 12px rgba(18, 93, 255, 0.4);
+    transform: translateY(-1px);
+}
+
+.hr-btn:disabled {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.3);
+    cursor: not-allowed;
+}
+
+.hr-instruction-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(222, 235, 255, 0.08);
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 10px;
+    text-align: left;
+}
+
+.hr-instruction-box.success {
+    border-color: rgba(0, 255, 170, 0.3);
+    background: rgba(0, 255, 170, 0.02);
+}
+
+.hr-instruction-box h4 {
+    margin: 0 0 4px 0;
+    font-size: 11px;
+    font-family: 'Outfit', sans-serif;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.hr-instruction-box.success h4 {
+    color: #00ffaa;
+}
+
+.hr-instruction-box p {
+    margin: 0;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .notebook-panel {
+        flex: 0 0 340px;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 800px) {
+    .cosmic-ladder-app {
+        height: auto;
+        min-height: 100vh;
+    }
+    .ladder-container {
+        flex-direction: column;
+        padding: 10px;
+        gap: 10px;
+    }
+    .notebook-panel {
+        flex: none;
+        width: 100%;
+        max-height: 50vh;
+        padding: 16px;
+    }
+    .observatory-panel {
+        min-height: 400px;
+    }
+    .ladder-progress {
+        flex-direction: row;
+        width: 100%;
+        height: auto;
+        padding: 8px 4px;
+        overflow-x: auto;
+    }
+    .rung-node {
+        width: 32px;
+        height: 32px;
+        font-size: 0.7rem;
+        flex-shrink: 0;
+    }
+}
+
+/* Rung 9 Spectrometry Analyzer Hover Effects */
+.hr-analyzer-tab {
+    transition: all 0.2s ease-in-out !important;
+}
+.hr-analyzer-tab:hover:not(.active) {
+    color: rgba(255, 255, 255, 0.95) !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+.filter-toggle-btn {
+    transition: all 0.2s ease-in-out !important;
+}
+.filter-toggle-btn:hover:not(.active) {
+    border-color: rgba(255, 255, 255, 0.35) !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+}
+.filter-toggle-btn.active:hover {
+    background: rgba(0, 212, 255, 0.25) !important;
+}
+#hr-btn-analyze-spec:hover {
+    background: rgba(0, 212, 255, 0.25) !important;
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
+/* =========================================
+   WIKI TAB STYLES
+========================================= */
+#wiki-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 6;
+    background: linear-gradient(160deg, rgba(8, 12, 28, 0.97), rgba(3, 6, 18, 0.98));
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    padding: 70px 40px 40px 40px;
+}
+
+/* Custom Scrollbar */
+#wiki-container::-webkit-scrollbar {
+    width: 6px;
+}
+#wiki-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+#wiki-container::-webkit-scrollbar-thumb {
+    background: rgba(18, 93, 255, 0.3);
+    border-radius: 3px;
+}
+#wiki-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(18, 93, 255, 0.5);
+}
+
+/* Wiki Content Typography */
+.wiki-content {
+    max-width: 720px;
+    margin: 0 auto;
+    font-family: 'Inter', sans-serif;
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.75;
+    font-size: 0.92rem;
+}
+
+.wiki-content h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.wiki-content h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #a5b4fc;
+    margin: 32px 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(165, 180, 252, 0.15);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.wiki-content h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #e0e7ff;
+    margin: 24px 0 8px 0;
+}
+
+.wiki-content h4 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #c7d2fe;
+    margin: 16px 0 6px 0;
+}
+
+.wiki-content p {
+    margin: 0 0 14px 0;
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.wiki-content strong {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.wiki-content em {
+    color: rgba(255, 255, 255, 0.7);
+    font-style: italic;
+}
+
+.wiki-content a {
+    color: #6d9fff;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(109, 159, 255, 0.3);
+    transition: all 0.2s;
+}
+
+.wiki-content a:hover {
+    color: #a5c4ff;
+    border-bottom-color: #a5c4ff;
+}
+
+/* Lists */
+.wiki-content ul,
+.wiki-content ol {
+    padding-left: 24px;
+    margin: 0 0 14px 0;
+}
+
+.wiki-content li {
+    margin-bottom: 6px;
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.wiki-content li::marker {
+    color: rgba(165, 180, 252, 0.5);
+}
+
+/* Blockquotes — for "Did You Know?" sections */
+.wiki-content blockquote {
+    margin: 20px 0;
+    padding: 16px 20px;
+    background: rgba(18, 93, 255, 0.06);
+    border-left: 3px solid rgba(18, 93, 255, 0.5);
+    border-radius: 0 8px 8px 0;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.88rem;
+}
+
+.wiki-content blockquote p {
+    margin: 0 0 8px 0;
+}
+
+.wiki-content blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+.wiki-content blockquote strong {
+    color: #6d9fff;
+}
+
+/* Code blocks */
+.wiki-content code {
+    font-family: 'Fira Code', monospace;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: #c7d2fe;
+}
+
+.wiki-content pre {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    margin: 16px 0;
+}
+
+.wiki-content pre code {
+    background: none;
+    padding: 0;
+    font-size: 0.85rem;
+}
+
+/* Tables */
+.wiki-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 0.85rem;
+}
+
+.wiki-content thead th {
+    background: rgba(18, 93, 255, 0.12);
+    color: #a5b4fc;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid rgba(165, 180, 252, 0.2);
+}
+
+.wiki-content tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.wiki-content tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.015);
+}
+
+.wiki-content tbody tr:hover {
+    background: rgba(18, 93, 255, 0.05);
+}
+
+/* Horizontal rules */
+.wiki-content hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(165, 180, 252, 0.2), transparent);
+    margin: 28px 0;
+}
+
+/* Math display blocks */
+.wiki-content .MathJax {
+    font-size: 1.1em !important;
+}
+
+/* Images */
+.wiki-content img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 24px auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #ffffff; /* White background cards for transparent diagrams */
+    padding: 12px;       /* Padding around the diagram */
+    box-sizing: border-box;
+}
+
+.wiki-content img.portrait {
+    float: left;
+    clear: left;
+    max-width: 200px;
+    margin: 6px 20px 16px 0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    display: inline;
+    background: transparent; /* Reset white card background for portraits */
+    padding: 0;              /* Reset padding for portraits */
+}
+
+.wiki-content h2,
+.wiki-content h3,
+.wiki-content h4,
+.wiki-content hr,
+.wiki-content blockquote,
+.wiki-content table {
+    clear: left;
+}
+
+/* Rung 13 UI Styles */
+#r13-ui-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    box-sizing: border-box;
+    gap: 12px;
+}
+
+.r13-flex-container {
+    display: flex;
+    flex: 1;
+    gap: 16px;
+    min-height: 0;
+}
+
+.r13-left-panel {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.r13-right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.r13-tabs {
+    display: flex;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 4px;
+}
+
+.r13-tab {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: #8e9bb0;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 8px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.r13-tab:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.r13-tab.active {
+    color: #00ffaa;
+    background: rgba(0, 255, 170, 0.1);
+    border: 1px solid rgba(0, 255, 170, 0.2);
+}
+
+.r13-tab.verified {
+    border-color: rgba(0, 255, 170, 0.4);
+}
+
+.r13-tab.verified::after {
+    content: " ✓";
+    color: #00ffaa;
+}
+
+.r13-details-box {
+    background: rgba(30, 41, 59, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.r13-details-box h4 {
+    margin: 0;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    color: #ffffff;
+}
+
+.r13-details-box p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.r13-snr-container {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.r13-snr-title {
+    font-size: 0.75rem;
+    color: #8e9bb0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.r13-snr-bar-bg {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.r13-snr-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #ff0055, #ffcc00, #00ffaa);
+    transition: width 0.1s ease-out;
+}
+
+.r13-snr-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: right;
+}
+
+.r13-canvas-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    color: #8e9bb0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.r13-canvas-wrapper {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    min-height: 250px;
+}
+
+#r13-wave-canvas, #r13-lightcurve-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* RUNG 14: GRAVITATIONAL WAVE STANDARD SIRENS classes */
+.r14-flex-container {
+    display: flex;
+    flex: 1;
+    gap: 16px;
+    min-height: 0;
+}
+
+.r14-left-panel {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.r14-right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.r14-tabs {
+    display: flex;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 4px;
+}
+
+.r14-tab {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: #8e9bb0;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 8px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.r14-tab:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.r14-tab.active {
+    color: #00ffaa;
+    background: rgba(0, 255, 170, 0.1);
+    border: 1px solid rgba(0, 255, 170, 0.2);
+}
+
+.r14-tab.verified {
+    border-color: rgba(0, 255, 170, 0.4);
+}
+
+.r14-tab.verified::after {
+    content: " ✓";
+    color: #00ffaa;
+}
+
+.r14-details-box {
+    background: rgba(30, 41, 59, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.r14-details-box h4 {
+    margin: 0;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    color: #ffffff;
+}
+
+.r14-details-box p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.r14-snr-container {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.r14-snr-title {
+    font-size: 0.75rem;
+    color: #8e9bb0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.r14-snr-bar-bg {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.r14-snr-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #ff0055, #ffcc00, #00ffaa);
+    transition: width 0.1s ease-out;
+}
+
+.r14-snr-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: right;
+}
+
+.r14-canvas-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    color: #8e9bb0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.r14-canvas-wrapper {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    min-height: 250px;
+}
+
+#r14-wave-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}

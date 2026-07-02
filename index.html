@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">ESSS Science Portal | Ethiopian Space Science Society</title>
+    <meta name="description" content="Explore the Ethiopian Space Science Society (ESSS) Science Portal. Access interactive tools, track satellites, search exoplanet archives, and walk in the solar system.">
+    <link rel="icon" href="esss-badge.png">
+    <link rel="apple-touch-icon" href="esss-badge.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#060814">
+    <!-- Google Fonts: Outfit for headlines, Inter for body -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Starry background decoration -->
+    <canvas id="space-canvas"></canvas>
+    <div class="stars-container" aria-hidden="true">
+        <div class="glow-orb" id="glow-orb-1"></div>
+        <div class="glow-orb" id="glow-orb-2"></div>
+    </div>
+
+    <!-- Header & Navigation -->
+    <header class="main-header">
+        <div class="container header-wrapper">
+            <a href="#" class="logo-link" id="logo-main" aria-label="ESSS Home">
+                <img src="esss-logo.png" alt="Ethiopian Space Science Society Logo" class="esss-logo">
+            </a>
+
+            <nav class="main-nav" aria-label="Main Navigation">
+                <ul class="nav-list">
+                    <li><a href="#" class="nav-link active" data-i18n="nav_home" id="nav-home">Home</a></li>
+                    <li><a href="#projects" class="nav-link" data-i18n="nav_projects" id="nav-projects">Projects</a></li>
+                    <li><a href="#projects" class="nav-link" data-i18n="nav_data" id="nav-data">Data</a></li>
+                    <li><a href="#about" class="nav-link" data-i18n="nav_about" id="nav-about">About</a></li>
+                </ul>
+            </nav>
+
+            <div class="header-controls">
+                <div class="moon-widget-wrapper" title="Live Lunar Phase">
+                    <div class="moon-phase" id="live-moon"></div>
+                </div>
+                <div class="lang-switch-wrapper">
+                    <button id="lang-btn" class="lang-toggle-btn" aria-label="Switch Language / ቋንቋ ይቀይሩ">
+                        <span class="lang-indicator active-lang" id="lang-en">EN</span>
+                        <span class="lang-divider">|</span>
+                        <span class="lang-indicator" id="lang-am">አማ</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container hero-wrapper">
+            <div class="hero-content">
+                <span class="hero-badge" data-i18n="hero_badge" id="hero-badge-txt">ESSS Science & Innovation</span>
+                <h1 class="hero-title"><span class="text-gradient" data-i18n="hero_title" id="hero-title-txt">Ethiopian Space Science Society</span></h1>
+                <p class="hero-subtitle" data-i18n="hero_subtitle" id="hero-subtitle-txt">Exploration, Innovation, and Inspiration for Africa's Space Future.</p>
+                <div class="hero-actions">
+                    <a href="#featured-project" class="btn btn-primary" data-i18n="hero_cta" id="hero-cta-btn">Explore the Universe</a>
+                    <a href="#projects" class="btn btn-secondary" data-i18n="hero_secondary" id="hero-secondary-btn">View Projects</a>
+                </div>
+            </div>
+            <!-- Aesthetic Dashboard Grid/Orbit wireframe (NASA/ESA style) -->
+            <div class="hero-visual">
+                <div class="dashboard-wireframe">
+                    <canvas id="hero-mesh-canvas"></canvas>
+                    <div class="telemetry-node top-left">
+                        <span class="telemetry-label">SYS.LAT</span>
+                        <span class="telemetry-val">9.0300° N</span>
+                    </div>
+                    <div class="telemetry-node top-right">
+                        <span class="telemetry-label">SYS.LON</span>
+                        <span class="telemetry-val">38.7400° E</span>
+                    </div>
+                    <div class="telemetry-node bottom-left">
+                        <span class="telemetry-label">ALT.ORBIT</span>
+                        <span class="telemetry-val">628 KM</span>
+                    </div>
+                    <div class="telemetry-node bottom-right" id="sw-node" title="Live Space Weather (Kp Index)">
+                        <span class="telemetry-label" style="color: var(--color-neutral-secondary);">SPACE WX</span>
+                        <span class="telemetry-val" id="sw-val">FETCHING...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="main-content" id="projects">
+        <div class="container">
+            
+            <!-- Featured Project: Walk in the Solar System -->
+            <section class="featured-section" id="featured-project">
+                <div class="section-header text-center">
+                    <span class="section-tag" data-i18n="featured_tag" id="featured-tag-txt">Flagship Project</span>
+                    <h2 class="section-title"><span class="text-gradient" data-i18n="featured_title_main" id="featured-title-main-txt">Featured Interactive Map</span></h2>
+                </div>
+
+                <div class="featured-card glass-panel">
+                    <div class="featured-info">
+                        <span class="status-badge live" data-i18n="status_active" id="status-active-txt">Interactive Tool</span>
+                        <h3 class="featured-project-title" data-i18n="featured_title" id="featured-title-txt">Walk in the Solar System</h3>
+                        <p class="featured-project-desc" data-i18n="featured_desc" id="featured-desc-txt">
+                            Experience our neighborhood in space with this interactive 3D map. Explore accurate orbital mechanics, scaled celestial bodies, and immersive physics-based simulation.
+                        </p>
+                        
+                        <div class="project-features">
+                            <h4 class="features-heading" data-i18n="features_title" id="features-title-txt">Key Features:</h4>
+                            <ul class="features-list">
+                                <li>
+                                    <svg class="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                                    <span data-i18n="feat_1" id="feat-1-txt">Interactive 3D celestial navigation</span>
+                                </li>
+                                <li>
+                                    <svg class="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                                    <span data-i18n="feat_2" id="feat-2-txt">Accurate orbital mechanics & scaling</span>
+                                </li>
+                                <li>
+                                    <svg class="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                                    <span data-i18n="feat_3" id="feat-3-txt">Bilingual guidance & rich educational details</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="featured-actions">
+                            <a href="modules/walk-in-solar-system/index.html" class="btn btn-primary btn-large btn-icon" id="launch-btn">
+                                <span data-i18n="featured_button" id="featured-button-txt">Launch Interactive Map</span>
+                                <svg class="btn-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Clean SVG/CSS Orbit Simulation Visual -->
+                    <div class="featured-visual-container">
+                        <div class="solar-system-schematic">
+                            <!-- Sun -->
+                            <div class="schematic-sun">
+                                <div class="sun-glow"></div>
+                            </div>
+                            
+                            <!-- Orbits & Planets -->
+                            <div class="schematic-orbit orbit-mercury">
+                                <div class="schematic-planet planet-mercury" data-tooltip="Mercury"></div>
+                            </div>
+                            
+                            <div class="schematic-orbit orbit-venus">
+                                <div class="schematic-planet planet-venus" data-tooltip="Venus"></div>
+                            </div>
+                            
+                            <div class="schematic-orbit orbit-earth">
+                                <div class="schematic-planet planet-earth" data-tooltip="Earth">
+                                    <div class="schematic-moon"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="schematic-orbit orbit-mars">
+                                <div class="schematic-planet planet-mars" data-tooltip="Mars"></div>
+                            </div>
+
+                            <div class="schematic-orbit orbit-jupiter">
+                                <div class="schematic-planet planet-jupiter" data-tooltip="Jupiter"></div>
+                            </div>
+
+                            <div class="orbit-lines-overlay"></div>
+                        </div>
+                        
+                        <div class="visual-panel-telemetry">
+                            <div class="telemetry-bar">
+                                <span class="lbl">SIM TIME SPEED</span>
+                                <span class="val">1.0x (REAL)</span>
+                            </div>
+                            <div class="telemetry-bar">
+                                <span class="lbl">CELESTIAL NODES</span>
+                                <span class="val">8/9 ACTIVE</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Future Projects Modular Grid -->
+            <section class="grid-section">
+                <div class="section-header">
+                    <span class="section-tag" data-i18n="future_tag" id="future-tag-txt">Pipeline</span>
+                    <h2 class="section-title" data-i18n="future_title" id="future-title-txt">Future Initiatives</h2>
+                    <p class="section-subtitle" data-i18n="future_subtitle" id="future-subtitle-txt">Upcoming scientific tools and portals currently in development by ESSS.</p>
+                </div>
+
+                <!-- Dynamic Module Dashboard injected via JS -->
+                <div class="module-dashboard glass-panel" id="module-dashboard-container">
+                    <!-- Dashboard UI will be populated by modules-data.js -->
+                </div>
+            </section>
+
+            <!-- About Section / Organization Info -->
+            <section class="about-section" id="about">
+                <div class="about-card glass-panel">
+                    <div class="about-content">
+                        <span class="about-tag" data-i18n="about_tag" id="about-tag-txt">About the Society</span>
+                        <h2 class="about-title" data-i18n="about_title" id="about-title-txt">Ethiopian Space Science Society (ESSS)</h2>
+                        <p class="about-desc" data-i18n="about_desc" id="about-desc-txt">
+                            Established in 2004, the Ethiopian Space Science Society (ESSS) is a non-governmental organization composed of members representing space science professionals, space technology enthusiasts, and interested individuals. ESSS operates with a mission to develop space science and technology capacity in Ethiopia, making the country an active contributor to space applications in East Africa.
+                        </p>
+                    </div>
+                    <div class="about-stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-num">2004</span>
+                            <span class="stat-lbl" data-i18n="stat_est" id="stat-est-txt">Established</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-num">10K+</span>
+                            <span class="stat-lbl" data-i18n="stat_members" id="stat-members-txt">Active Members</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-num">15+</span>
+                            <span class="stat-lbl" data-i18n="stat_branches" id="stat-branches-txt">Regional Branches</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container footer-wrapper">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <img src="esss-logo-white.png" alt="Ethiopian Space Science Society Logo" class="esss-logo-footer" style="height: 60px; width: auto; margin-left: -10px;">
+                </div>
+                <p class="footer-tagline" data-i18n="footer_tagline" id="footer-tagline-txt">Advancing astronomical sciences and space technology research in Ethiopia.</p>
+            </div>
+            
+            <div class="footer-links-group">
+                <h4 class="footer-group-title" data-i18n="footer_links_title" id="footer-links-title-txt">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="#" data-i18n="nav_home" id="footer-home">Home</a></li>
+                    <li><a href="#projects" data-i18n="nav_projects" id="footer-projects">Projects</a></li>
+                    <li><a href="#projects" data-i18n="nav_data" id="footer-data">Data</a></li>
+                    <li><a href="#about" data-i18n="nav_about" id="footer-about">About Us</a></li>
+                    <li><a href="https://ethiosss.org.et" target="_blank" rel="noopener noreferrer" data-i18n="footer_main_site" id="footer-main-site-txt">Official Website</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-social-group">
+                <h4 class="footer-group-title" data-i18n="footer_social_title" id="footer-social-title-txt">Connect</h4>
+                <div class="social-links">
+                    <!-- Facebook Icon -->
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Facebook">
+                        <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
+                    </a>
+                    <!-- Twitter / X Icon -->
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Twitter / X">
+                        <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </a>
+                    <!-- Telegram Icon -->
+                    <a href="https://t.me" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Telegram">
+                        <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.37.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .24z"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="container footer-bottom">
+            <p class="copyright">&copy; <span id="copyright-year">2026</span> <span data-i18n="footer_copyright" id="footer-copyright-txt">Ethiopian Space Science Society (ESSS). All rights reserved.</span></p>
+        </div>
+    </footer>
+
+    <!-- App JavaScript for toggling translations and interactivity -->
+    <script src="modules-data.js"></script>
+    <script src="app.js"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swPath = window.location.pathname.includes('/modules/') ? '../../sw.js' : './sw.js';
+                navigator.serviceWorker.register(swPath)
+                    .then(reg => console.log('Service Worker registered successfully with scope:', reg.scope))
+                    .catch(err => console.error('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+
+</body>
+</html>

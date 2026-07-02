@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="manifest" href="../../manifest.json">
+    <meta name="theme-color" content="#060814">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEO Satellite Pass & Doppler Calculator | ESSS</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo="> <!-- Prevents favicon 404 -->
+    
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Global & Module Styles -->
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="style.css?v=1.0.2">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- External JS Libraries -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/satellite.js/4.0.0/satellite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="module-body">
+    <!-- Starry Background -->
+    <div class="stargazer-bg">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="lab-header glass-panel">
+        <a href="../../index.html" class="btn btn-secondary back-btn">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to Hub
+        </a>
+        <div class="lab-title-group">
+            <h1>LEO Satellite Pass & Doppler Calculator</h1>
+            <span class="badge complexity-medium">Medium Complexity</span>
+        </div>
+        <button id="audio-toggle" class="btn btn-icon" title="Toggle Radio Beacon Audio">
+            <img src="speaker-icon.svg" alt="Toggle Audio" width="20" height="20">
+        </button>
+    </header>
+
+    <!-- Main Workspace: 3 Column Layout -->
+    <main class="lab-workspace">
+        
+        <!-- Column 1: Settings & Orbit Config -->
+        <section class="pane settings-pane glass-panel">
+            <div class="pane-header">
+                <h2>Ground Station & Satellite</h2>
+            </div>
+            
+            <div class="pane-body">
+                <div class="accordion-container">
+                    
+                    <!-- Section 1: Ground Station Config -->
+                    <details open>
+                        <summary>Ground Station Settings</summary>
+                        <div class="details-content">
+                            <div class="slider-group select-group">
+                                <label>Station Location</label>
+                                <select id="station-preset">
+                                    <option value="addis-ababa" selected>Entoto, Addis Ababa (Ethiopia)</option>
+                                    <option value="tromso">Tromsø (Norway - Polar)</option>
+                                    <option value="mcmurdo">McMurdo Station (Antarctica)</option>
+                                    <option value="custom">Custom Coordinates</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Custom Coordinates Panel -->
+                            <div id="custom-station-coords" class="nested-controls" style="display: none;">
+                                <div class="slider-group">
+                                    <label>Latitude (deg) <span id="lbl-station-lat" class="val">9.096</span></label>
+                                    <input type="range" id="station-lat" min="-90" max="90" step="0.001" value="9.096">
+                                </div>
+                                <div class="slider-group">
+                                    <label>Longitude (deg) <span id="lbl-station-lon" class="val">38.722</span></label>
+                                    <input type="range" id="station-lon" min="-180" max="180" step="0.001" value="38.722">
+                                </div>
+                                <div class="slider-group">
+                                    <label>Altitude (m) <span id="lbl-station-alt" class="val">3200</span></label>
+                                    <input type="range" id="station-alt" min="0" max="5000" step="50" value="3200">
+                                </div>
+                            </div>
+                            
+                            <div class="slider-group">
+                                <label>Min Elevation Threshold (deg) <span id="lbl-min-el" class="val">5.0</span></label>
+                                <input type="range" id="min-el-threshold" min="0" max="25" step="1" value="5">
+                            </div>
+                        </div>
+                    </details>
+                    
+                    <!-- Section 2: Satellite Orbit (TLE) Settings -->
+                    <details open>
+                        <summary>Satellite Preset & TLE</summary>
+                        <div class="details-content">
+                            <div class="slider-group select-group">
+                                <label>Target Satellite</label>
+                                <select id="sat-preset">
+                                    <option value="etrss-1" selected>ETRSS-1 (Ethiopia Remote Sensing)</option>
+                                    <option value="iss">ISS (Zarya - Space Station)</option>
+                                    <option value="noaa-19">NOAA 19 (Weather Satellite)</option>
+                                    <option value="ao-91">AO-91 (Amateur FM Cubesat)</option>
+                                    <option value="custom">Custom TLE Input</option>
+                                </select>
+                            </div>
+                            
+                            <!-- TLE Input Area -->
+                            <div id="tle-custom-inputs" class="nested-controls" style="display: none;">
+                                <div class="tle-input-group">
+                                    <label>TLE Line 1</label>
+                                    <textarea id="tle-line-1" rows="1" spellcheck="false" class="tle-textarea"></textarea>
+                                </div>
+                                <div class="tle-input-group" style="margin-top: 8px;">
+                                    <label>TLE Line 2</label>
+                                    <textarea id="tle-line-2" rows="1" spellcheck="false" class="tle-textarea"></textarea>
+                                </div>
+                                <button id="btn-apply-tle" class="btn btn-secondary action-btn" style="margin-top: 10px; padding: 6px;">Apply Custom TLE</button>
+                            </div>
+                        </div>
+                    </details>
+                    
+                    <!-- Section 3: Radio Config & Beacon Sonification -->
+                    <details open>
+                        <summary>Radio & Audio Settings</summary>
+                        <div class="details-content">
+                            <div class="slider-group">
+                                <label>Baseline TX Frequency (MHz) <span id="lbl-tx-freq" class="val">137.500</span></label>
+                                <input type="range" id="tx-freq" min="100.000" max="1000.000" step="0.005" value="137.500">
+                            </div>
+                            <div class="slider-group select-group">
+                                <label>Audio Beacon Sound</label>
+                                <select id="beacon-sound-type">
+                                    <option value="telemetry-ping" selected>Pulsed Telemetry Ping</option>
+                                    <option value="morse-esss">Morse Code Beacon ("ESSS")</option>
+                                </select>
+                            </div>
+                            <div class="slider-group">
+                                <label>Beacon Volume <span id="lbl-volume" class="val">40%</span></label>
+                                <input type="range" id="beacon-volume" min="0" max="100" step="5" value="40">
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- Column 2: Maps and Radar Tracking -->
+        <section class="pane map-pane glass-panel">
+            <div class="pane-header">
+                <h2>Real-Time Footprint & Sky Track</h2>
+                <div class="map-mode-indicator">
+                    <span id="tracker-status-dot" class="pulse-dot active-tracking"></span> <span id="tracker-status-lbl">Tracking: Active</span>
+                </div>
+            </div>
+            
+            <!-- Map Viewport -->
+            <div class="map-viewport-wrapper">
+                <div id="leaflet-map"></div>
+            </div>
+            
+            <!-- Polar Sky Track Plot (Horizon Radar) -->
+            <div class="radar-panel">
+                <div class="radar-header">
+                    <h3>Ground Station Local Horizon (Radar view)</h3>
+                </div>
+                <div class="radar-svg-container">
+                    <svg id="sky-polar-plot" viewBox="0 0 220 220" width="100%" height="100%">
+                        <!-- Grids -->
+                        <circle cx="110" cy="110" r="100" class="radar-grid-line radar-ring-outer" />
+                        <circle cx="110" cy="110" r="66" class="radar-grid-line radar-ring-mid" />
+                        <circle cx="110" cy="110" r="33" class="radar-grid-line radar-ring-inner" />
+                        <line x1="110" y1="10" x2="110" y2="210" class="radar-grid-line cross-v" />
+                        <line x1="10" y1="110" x2="210" y2="110" class="radar-grid-line cross-h" />
+                        
+                        <!-- Labels -->
+                        <text x="110" y="22" class="radar-lbl dir-n">N</text>
+                        <text x="198" y="114" class="radar-lbl dir-e">E</text>
+                        <text x="110" y="206" class="radar-lbl dir-s">S</text>
+                        <text x="22" y="114" class="radar-lbl dir-w">W</text>
+                        
+                        <!-- Elevation Ring Labels -->
+                        <text x="114" y="14" class="radar-ring-lbl">0&#176;</text>
+                        <text x="114" y="44" class="radar-ring-lbl">30&#176;</text>
+                        <text x="114" y="77" class="radar-ring-lbl">60&#176;</text>
+                        
+                        <!-- Sky Path and Satellite Marker -->
+                        <path id="sky-pass-path" d="" fill="none" class="sky-track-line" />
+                        <g id="sky-sat-marker" style="display: none;">
+                            <circle cx="0" cy="0" r="4" class="radar-sat-dot" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Column 3: Telemetry, Passes, & Doppler S-Curve -->
+        <section class="pane analysis-pane glass-panel">
+            <div class="pane-header">
+                <h2>Telemetry & Pass Schedule</h2>
+            </div>
+            
+            <div class="pane-body">
+                <!-- Live Look Angle & Doppler Telemetry -->
+                <div class="telemetry-grid">
+                    <div class="telemetry-box">
+                        <span class="t-label">Elevation</span>
+                        <span class="t-value" id="t-elevation">-- <small>&#176;</small></span>
+                    </div>
+                    <div class="telemetry-box">
+                        <span class="t-label">Azimuth</span>
+                        <span class="t-value" id="t-azimuth">-- <small>&#176;</small></span>
+                    </div>
+                    <div class="telemetry-box">
+                        <span class="t-label">Range</span>
+                        <span class="t-value" id="t-range">-- <small>km</small></span>
+                    </div>
+                    <div class="telemetry-box">
+                        <span class="t-label">Range Rate</span>
+                        <span class="t-value" id="t-range-rate">-- <small>km/s</small></span>
+                    </div>
+                    <div class="telemetry-box">
+                        <span class="t-label">Doppler Shift</span>
+                        <span class="t-value" id="t-doppler-shift">-- <small>kHz</small></span>
+                    </div>
+                    <div class="telemetry-box">
+                        <span class="t-label">RX Frequency</span>
+                        <span class="t-value" id="t-rx-freq">-- <small>MHz</small></span>
+                    </div>
+                </div>
+
+                <!-- Simulation Pass Scrubber Panel -->
+                <div class="scrubber-panel">
+                    <div class="scrubber-header">
+                        <span id="lbl-scrubber-time">Pass Simulation: Idle</span>
+                        <button id="btn-live-mode" class="btn btn-secondary" style="padding: 2px 8px; font-size: 0.7rem; font-weight: bold; border-color: rgba(0, 255, 128, 0.3); color: #00FF80; background: rgba(0, 255, 128, 0.05); display: none;">SWITCH TO LIVE</button>
+                        <span id="lbl-scrubber-status" class="status-tag idle">IDLE</span>
+                    </div>
+                    <div class="scrubber-row">
+                        <button id="btn-play-pause" class="btn btn-primary scrubber-btn">PLAY</button>
+                        <input type="range" id="pass-timeline" min="0" max="100" step="0.1" value="0" class="timeline-slider">
+                    </div>
+                    <div class="speed-row">
+                        <span>Time Warp:</span>
+                        <div class="speed-btns">
+                            <button class="speed-btn active" data-speed="1">1x</button>
+                            <button class="speed-btn" data-speed="10">10x</button>
+                            <button class="speed-btn" data-speed="60">60x</button>
+                            <button class="speed-btn" data-speed="300">300x</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pass Schedule List -->
+                <div class="pass-schedule-container">
+                    <h3>Upcoming Passes (Next 24h)</h3>
+                    <div class="table-scroll">
+                        <table class="pass-table">
+                            <thead>
+                                <tr>
+                                    <th>AOS (Local)</th>
+                                    <th>Duration</th>
+                                    <th>Max El</th>
+                                    <th>Direction</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pass-table-body">
+                                <tr>
+                                    <td colspan="4" class="table-empty">Loading pass predictions...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Chart.js Doppler S-Curve Plot -->
+                <div class="chart-section">
+                    <h3>Pass Analysis S-Curve</h3>
+                    <div class="chart-container">
+                        <canvas id="dopplerChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Educational Info -->
+                <div class="edu-card">
+                    <h3>Radio Doppler Shift & LEO Tracking</h3>
+                    <p>Low Earth Orbit (LEO) satellites travel at extremely high relative velocities ($\approx 7.5\text{ km/s}$ at $\approx 600\text{ km}$ altitude) to counteract gravity. Due to the **Doppler Effect**, electromagnetic waves emitted by an approaching satellite appear compressed (frequency shifted upward), while waves from a receding satellite appear stretched (frequency shifted downward). Radio transceivers must adjust their tuning in real time to match this S-curve frequency drift, which sweeps steepest when the satellite reaches its **Closest Approach (TCA)** and the range rate swings from negative to positive.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Main Module Script -->
+    <script src="app.js?v=1.0.2"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swPath = window.location.pathname.includes('/modules/') ? '../../sw.js' : './sw.js';
+                navigator.serviceWorker.register(swPath)
+                    .then(reg => console.log('Service Worker registered successfully with scope:', reg.scope))
+                    .catch(err => console.error('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+
+</body>
+</html>

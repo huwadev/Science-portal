@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="manifest" href="../../manifest.json">
+    <meta name="theme-color" content="#060814">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravitational Slingshot Sandbox | ESSS</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="lab-header">
+        <a href="../../index.html" class="btn btn-secondary back-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to Hub
+        </a>
+        <div class="lab-title">
+            <h1>Gravitational Slingshot Sandbox</h1>
+            <span class="badge complexity-high">High Complexity</span>
+        </div>
+        <button id="audio-toggle" class="btn btn-icon" title="Toggle Sonification">
+            <img src="speaker-icon.svg" alt="Toggle Audio" width="20" height="20">
+        </button>
+    </header>
+
+    <main class="lab-container">
+        <!-- Main Simulation Area -->
+        <section class="simulation-pane">
+            <div class="canvas-container">
+                <canvas id="simCanvas" width="800" height="500"></canvas>
+                <button id="btn-reset-view" class="btn btn-secondary reset-view-btn" title="Reset Camera View">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16" style="margin-right: 6px; display: inline-block; vertical-align: middle;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3 3 3m-3-3v12"/>
+                    </svg>
+                    Reset View
+                </button>
+            </div>
+            
+            <div class="controls-panel">
+                <div class="control-group">
+                    <label><span>Simulation Mode</span></label>
+                    <div class="radio-group" style="display: flex; flex-direction: column; gap: 5px; margin-top: 5px;">
+                        <label><input type="radio" name="sim-mode" value="single" checked> Single Planet Flyby</label>
+                        <label><input type="radio" name="sim-mode" value="3body"> Earth-Moon (3-Body)</label>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label><span>Mission Presets</span></label>
+                    <select id="mission-preset" class="preset-dropdown">
+                        <option value="custom">Custom Sandbox</option>
+                        <option value="voyager">Voyager 1 (Jupiter Boost)</option>
+                        <option value="artemis">Artemis II (Lunar Free-Return)</option>
+                        <option value="ulysses">Ulysses (Polar Fling)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>
+                        <span>Horizontal Offset (Z)</span>
+                        <span id="angle-val" class="value-display">0 km</span>
+                    </label>
+                    <input type="range" id="probe-angle" min="-1000" max="1000" value="100" step="1">
+                </div>
+                
+                <div class="control-group">
+                    <label>
+                        <span>Vertical Offset (Y)</span>
+                        <span id="vertical-val" class="value-display">0 km</span>
+                    </label>
+                    <input type="range" id="probe-vertical" min="-1000" max="1000" value="0" step="1">
+                </div>
+                
+                <div class="control-group">
+                    <label>
+                        <span>Initial Velocity (V<sub>in</sub>)</span>
+                        <span id="velocity-val" class="value-display">10.0 km/s</span>
+                    </label>
+                    <input type="range" id="probe-velocity" min="0.1" max="50.0" value="10.0" step="0.01">
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        <span id="lbl-planet-mass">Planet Mass (10<sup>24</sup> kg)</span>
+                        <span id="mass-val" class="value-display">5.97 x10<sup>24</sup> kg</span>
+                    </label>
+                    <input type="range" id="planet-mass" min="-2.0" max="3.5" value="0.77" step="0.01">
+                </div>
+                <div class="control-group">
+                    <label>
+                        <span id="lbl-planet-speed">Planet Speed (km/s)</span>
+                        <span id="planet-speed-val" class="value-display">0.0 km/s</span>
+                    </label>
+                    <input type="range" id="planet-speed" min="0" max="30" value="0" step="0.01">
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        <span>Simulation Speed</span>
+                        <span id="sim-speed-val" class="value-display">1.00 hr/s</span>
+                    </label>
+                    <input type="range" id="sim-speed" min="0.05" max="6.0" value="1.0" step="0.05">
+                </div>
+
+                <div class="control-group" id="control-moon-angle" style="display: none;">
+                    <label>
+                        <span>Moon Start Angle</span>
+                        <span id="moon-angle-val" class="value-display">44.1°</span>
+                    </label>
+                    <input type="range" id="moon-angle" min="0" max="360" value="44.1" step="0.1">
+                </div>
+
+                <div class="control-group" id="control-launch-alt" style="display: none;">
+                    <label>
+                        <span>Launch Altitude</span>
+                        <span id="launch-alt-val" class="value-display">400 km</span>
+                    </label>
+                    <input type="range" id="launch-altitude" min="150" max="2000" value="400" step="10">
+                </div>
+
+                <button id="btn-launch" class="btn btn-primary action-btn">LAUNCH PROBE</button>
+            </div>
+        </section>
+
+        <!-- Analytics and Telemetry Area -->
+        <section class="analysis-pane">
+            <div class="telemetry-card">
+                <h3>Mission Telemetry</h3>
+                <div class="telemetry-grid">
+                    <div class="t-item">
+                        <span class="t-label">Live Speed (V)</span>
+                        <span class="t-value" id="t-live-v">0.00 <span class="unit">km/s</span></span>
+                    </div>
+                    <div class="t-item highlight">
+                        <span class="t-label">ΔV Boost</span>
+                        <span class="t-value" id="t-delta-v">+0.00 <span class="unit">km/s</span></span>
+                    </div>
+                    <div class="t-item">
+                        <span class="t-label">Planet Speed</span>
+                        <span class="t-value" id="t-planet-v">2.00 <span class="unit">km/s</span></span>
+                    </div>
+                    <div class="t-item">
+                        <span class="t-label">Closest Approach</span>
+                        <span class="t-value" id="t-periapsis">-- <span class="unit">km</span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="edu-card">
+                <h3>Gravity Assist Mechanics</h3>
+                <p>A <strong>Gravitational Slingshot</strong> (or Gravity Assist) involves a spacecraft flying close to a massive planet. While energy is conserved in the planet's reference frame (the probe leaves at the same speed it arrived), in the <strong>Sun's reference frame</strong>, the planet is moving.</p>
+                <p>As the probe falls into the gravity well, it gets dragged along by the planet's orbital momentum. If it flies *behind* the planet (relative to its orbit), it steals some of the planet's kinetic energy, achieving an immense velocity boost (up to <strong>V<sub>out</sub> ≈ V<sub>in</sub> + 2V<sub>planet</sub></strong>).</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- 3D Rendering Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <script src="app.js"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swPath = window.location.pathname.includes('/modules/') ? '../../sw.js' : './sw.js';
+                navigator.serviceWorker.register(swPath)
+                    .then(reg => console.log('Service Worker registered successfully with scope:', reg.scope))
+                    .catch(err => console.error('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+
+</body>
+</html>

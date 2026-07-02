@@ -1,0 +1,13 @@
+# System & Editor Files
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+.vscode/
+.idea/
+
+# Agent Workspaces and logs
+.agents/
+.gemini/
+scratch/
+transcript*.jsonl

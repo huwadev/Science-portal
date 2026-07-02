@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="manifest" href="../../manifest.json">
+    <meta name="theme-color" content="#060814">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Aperture Synthesis Visualizer | ESSS</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo="> <!-- Prevents favicon 404 -->
+    
+    <!-- Global & Module Styles -->
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="style.css?v=1.0.0">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="module-body">
+    <!-- Starry Background -->
+    <div class="stargazer-bg">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="lab-header glass-panel">
+        <a href="../../index.html" class="btn btn-secondary back-btn">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to Hub
+        </a>
+        <div class="lab-title-group">
+            <h1>Radio Aperture Synthesis Visualizer</h1>
+            <span class="badge complexity-ultra">Ultra Complexity</span>
+        </div>
+        <div style="width: 100px;"></div> <!-- Spacer for symmetry -->
+    </header>
+
+    <!-- Main Workspace: 3 Column Layout -->
+    <main class="lab-workspace">
+        
+        <!-- Column 1: Array Configuration & Settings -->
+        <section class="pane settings-pane glass-panel">
+            <div class="pane-header">
+                <h2>Antenna Array Configuration</h2>
+            </div>
+            
+            <div class="pane-body">
+                <div class="accordion-container">
+                    
+                    <!-- Section 1: Array Geometry Layout -->
+                    <details open>
+                        <summary>Antenna Array Geometry</summary>
+                        <div class="details-content">
+                            <div class="slider-group select-group">
+                                <label>Array Configuration Preset</label>
+                                <select id="array-preset">
+                                    <option value="vla-y" selected>VLA (Y-Shape / 27 antennas)</option>
+                                    <option value="alma-spiral">ALMA (Spiral / 50 antennas)</option>
+                                    <option value="compact-circle">Compact Ring (12 antennas)</option>
+                                    <option value="vlba-sparse">VLBA (Sparse Continental / 10 antennas)</option>
+                                    <option value="custom">Custom (Draw/Click Array)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="slider-group">
+                                <label>Array Scale / Expansion <span id="lbl-array-scale" class="val">1.0x</span></label>
+                                <input type="range" id="array-scale" min="0.2" max="2.5" step="0.05" value="1.0">
+                            </div>
+                            
+                            <!-- Interactive Antenna Positioning Pad -->
+                            <div class="antenna-pad-container">
+                                <span class="pad-label">Interactive Antenna Map (X-Y Coordinates)</span>
+                                <div class="canvas-wrapper">
+                                    <canvas id="antennaCanvas" width="260" height="200"></canvas>
+                                </div>
+                                <span class="pad-help">Click to add/remove custom antennas (max 50)</span>
+                            </div>
+                        </div>
+                    </details>
+                    
+                    <!-- Section 2: Observational Configuration -->
+                    <details open>
+                        <summary>Observational Controls</summary>
+                        <div class="details-content">
+                            <div class="slider-group">
+                                <label>Source Declination <span id="lbl-declination" class="val">30&#176;</span></label>
+                                <input type="range" id="declination" min="-90" max="90" step="1" value="30">
+                            </div>
+                            <div class="slider-group">
+                                <label>Earth Rotation Track <span id="lbl-duration" class="val">4.0 hrs</span></label>
+                                <input type="range" id="duration" min="0.1" max="12.0" step="0.5" value="4.0">
+                            </div>
+                            <div class="slider-group">
+                                <label>Observation Frequency <span id="lbl-frequency" class="val">15.0 GHz</span></label>
+                                <input type="range" id="frequency" min="1.0" max="50.0" step="0.5" value="15.0">
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- Column 2: Fourier & UV space -->
+        <section class="pane fourier-pane glass-panel">
+            <div class="pane-header">
+                <h2>Fourier Plane & Synthesized Beam</h2>
+            </div>
+            
+            <div class="pane-body">
+                <!-- UV Coverage Visualizer -->
+                <div class="canvas-card">
+                    <div class="card-header">
+                        <h3>UV Spatial Frequency Coverage ($u, v$ Plane)</h3>
+                        <span class="badge-tech">Fourier Space</span>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <canvas id="uvCanvas" width="300" height="300"></canvas>
+                    </div>
+                    <div class="card-footer">
+                        <span>Total UV points sampled: <strong id="lbl-uv-points">0</strong></span>
+                    </div>
+                </div>
+                
+                <!-- Synthesized Beam (Dirty Beam / PSF) -->
+                <div class="canvas-card" style="margin-top: 16px;">
+                    <div class="card-header">
+                        <h3>Synthesized Beam (Point Spread Function)</h3>
+                        <span class="badge-tech">Image Space</span>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <canvas id="beamCanvas" width="300" height="300"></canvas>
+                    </div>
+                    <div class="card-footer">
+                        <span>Ang. Resolution ($\theta \approx \lambda/B_{\text{max}}$): <strong id="lbl-resolution">--</strong> arcsec</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Column 3: CLEAN Imaging Lab -->
+        <section class="pane analysis-pane glass-panel">
+            <div class="pane-header">
+                <h2>CLEAN Deconvolution Lab</h2>
+            </div>
+            
+            <div class="pane-body">
+                <!-- Select Imaging Target -->
+                <div class="target-selection">
+                    <label>Observational Target</label>
+                    <select id="target-source">
+                        <option value="blackhole" selected>M87* Black Hole Ring (EHT)</option>
+                        <option value="double-lobes">Cygnus A Double Radio Lobes</option>
+                        <option value="binary-stars">Close Binary Radio Stars</option>
+                        <option value="point-source">Point Source (Calibration Star)</option>
+                    </select>
+                </div>
+                
+                <!-- True Source Image -->
+                <div class="image-grid">
+                    <div class="image-box">
+                        <span class="box-label">1. True Sky Source</span>
+                        <div class="canvas-wrapper square-canvas">
+                            <canvas id="trueImageCanvas" width="128" height="128"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Observed Dirty Image -->
+                    <div class="image-box">
+                        <span class="box-label">2. Dirty Observed Image</span>
+                        <div class="canvas-wrapper square-canvas">
+                            <canvas id="dirtyImageCanvas" width="128" height="128"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Clean Components -->
+                    <div class="image-box">
+                        <span class="box-label">3. Clean Components</span>
+                        <div class="canvas-wrapper square-canvas">
+                            <canvas id="componentsCanvas" width="128" height="128"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Restored Image -->
+                    <div class="image-box">
+                        <span class="box-label">4. Restored Reconstructed</span>
+                        <div class="canvas-wrapper square-canvas">
+                            <canvas id="restoredCanvas" width="128" height="128"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CLEAN Algorithm Control Station -->
+                <div class="clean-controls glass-subpanel">
+                    <h3>CLEAN Algorithm Controls</h3>
+                    
+                    <div class="control-row">
+                        <div class="slider-group short-slider">
+                            <label>Loop Gain ($\gamma$) <span id="lbl-loop-gain" class="val">0.10</span></label>
+                            <input type="range" id="loop-gain" min="0.02" max="0.25" step="0.01" value="0.10">
+                        </div>
+                        <div class="slider-group short-slider">
+                            <label>Max Iterations <span id="lbl-max-iter" class="val">150</span></label>
+                            <input type="range" id="max-iter" min="50" max="500" step="10" value="150">
+                        </div>
+                    </div>
+                    
+                    <div class="button-row">
+                        <button id="btn-step-clean" class="btn btn-secondary">STEP CLEAN</button>
+                        <button id="btn-auto-clean" class="btn btn-primary">AUTO CLEAN</button>
+                        <button id="btn-reset-clean" class="btn btn-secondary">RESET</button>
+                    </div>
+                    
+                    <!-- Live Stats Telemetry -->
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <span class="s-lbl">Iterations</span>
+                            <span class="s-val" id="val-clean-iter">0</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="s-lbl">Peak Residual</span>
+                            <span class="s-val" id="val-peak-residual">100%</span>
+                        </div>
+                        <div class="stat-box flex-wide">
+                            <span class="s-lbl">Status</span>
+                            <span class="s-val status-badge idle" id="val-clean-status">IDLE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Educational Explanation -->
+                <div class="edu-card">
+                    <h3>Aperture Synthesis & CLEAN</h3>
+                    <p>Single radio dishes are limited in resolution by their size. **Aperture Synthesis** solves this by correlating signals from an array of smaller antennas, mapping telescope baselines to spatial frequency measurements in the **$uv$-plane**. As Earth rotates, the baselines sweep out elliptical tracks, filling the Fourier plane. The raw image is "dirty" because it is convolved with the **Synthesized Beam** (dirty beam) containing strong sidelobes. The **CLEAN algorithm** deconvolves this by iteratively finding the brightest spots in the dirty image, subtracting the dirty beam, and adding a clean, smoothed Gaussian beam in its place to reconstruct a clean image.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Main Module Script -->
+    <script src="app.js?v=1.0.0"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swPath = window.location.pathname.includes('/modules/') ? '../../sw.js' : './sw.js';
+                navigator.serviceWorker.register(swPath)
+                    .then(reg => console.log('Service Worker registered successfully with scope:', reg.scope))
+                    .catch(err => console.error('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+
+</body>
+</html>
