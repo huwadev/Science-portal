@@ -44,10 +44,10 @@ const RUNGS = [
             `\\(D_{earth}\\): Diameter of the Earth (12,732 km)`,
             `\\(Ratio\\): Ratio of Earth's shadow to Moon's diameter`
         ],
-        instruction: "Observe the lunar eclipse in the Observatory. Estimate how many times the Moon could fit across the width of the Earth's shadow curve, then calculate the Moon's diameter.",
+        instruction: "Observe the lunar eclipse in the Observatory. Drag the Moon (or use the slider) across the width of the Earth's shadow to measure how many Moon diameters fit inside it, then use this ratio to calculate the Moon's true diameter.",
         calcLabel: "Your Calculation (<i>D<sub>moon</sub></i>):",
         controls: [
-            { id: "ratio", label: "Shadow Ratio", min: 1.0, max: 6.0, step: 0.05, value: 1.0, unit: "x" }
+            { id: "ratio", label: "Shadow Width", min: 1.0, max: 3.5, step: 0.1, value: 1.0, unit: " Moons" }
         ],
         calculate: (vals) => {
             // Earth's diameter is fixed at Eratosthenes' value (12,732 km)
@@ -4206,10 +4206,11 @@ function draw2DEclipseAnim() {
     
     // Read the user's ratio slider dynamically
     const ratioInput = document.getElementById('input-ratio');
-    const ratio = ratioInput ? parseFloat(ratioInput.value) : 3.5;
+    let ratio = ratioInput ? parseFloat(ratioInput.value) : 1.0;
     
+    const targetRatio = 3.5;
     const moonRadius2d = 45;
-    const shadowRadius2d = moonRadius2d * ratio;
+    const shadowRadius2d = moonRadius2d * targetRatio;
     
     // 1. Draw Earth's Penumbra (Soft outer orange-red glow)
     ctx2d.save();
@@ -4245,7 +4246,7 @@ function draw2DEclipseAnim() {
     const startX = cx - shadowRadius2d + moonRadius2d;
     
     // Draw guide lines / slots across the shadow width
-    for (let i = 0; i < Math.floor(ratio); i++) {
+    for (let i = 0; i < Math.floor(targetRatio); i++) {
         const x = startX + (i * moonRadius2d * 2);
         
         // Draw dotted moon slot outline
@@ -4267,9 +4268,9 @@ function draw2DEclipseAnim() {
     }
     
     // Draw fractional slot if any
-    const remainder = ratio - Math.floor(ratio);
+    const remainder = targetRatio - Math.floor(targetRatio);
     if (remainder > 0.01) {
-        const i = Math.floor(ratio);
+        const i = Math.floor(targetRatio);
         const x = startX + (i * moonRadius2d * 2);
         
         ctx2d.save();
@@ -4290,7 +4291,7 @@ function draw2DEclipseAnim() {
     }
     
     // 3. Horizontal Shadow Caliper (Span)
-    const isCorrect = (ratio === 3.5);
+    const isCorrect = (Math.abs(ratio - 3.5) < 0.05);
     ctx2d.strokeStyle = isCorrect ? '#00ffaa' : '#00e5ff';
     ctx2d.lineWidth = 2;
     ctx2d.beginPath();
@@ -4307,18 +4308,40 @@ function draw2DEclipseAnim() {
     ctx2d.stroke();
     
     // 4. Draw the interactive draggable Moon
-    if (r2MoonX === null) {
-        r2MoonX = cx - shadowRadius2d - 80;
-    }
-    
-    // Snap to slot centers if close during dragging
-    if (r2IsDragging) {
-        for (let i = 0; i <= Math.floor(ratio); i++) {
+    if (!r2IsDragging) {
+        // If not dragging via mouse, position moon directly based on slider
+        r2MoonX = startX + (ratio - 1.0) * moonRadius2d * 2;
+    } else {
+        // If dragging via mouse, map r2MoonX back to ratio and update slider
+        let newRatio = 1.0 + (r2MoonX - startX) / (moonRadius2d * 2);
+        
+        // Clamp to min/max
+        if (newRatio < 1.0) newRatio = 1.0;
+        if (newRatio > 3.5) newRatio = 3.5;
+        
+        // Enforce snapping if close to slot centers
+        for (let i = 0; i <= Math.floor(targetRatio); i++) {
             const slotX = startX + i * moonRadius2d * 2;
             if (Math.abs(r2MoonX - slotX) < 15) {
-                r2MoonX = slotX; // Snap!
+                r2MoonX = slotX; // Snap physically
+                newRatio = 1.0 + i; // Snap ratio
                 break;
             }
+        }
+        
+        // Snap to the fractional target as well
+        const finalSlotX = startX + (targetRatio - 1.0) * moonRadius2d * 2;
+        if (Math.abs(r2MoonX - finalSlotX) < 15) {
+            r2MoonX = finalSlotX;
+            newRatio = targetRatio;
+        }
+
+        ratio = newRatio;
+        
+        // Update DOM slider and calculations if ratio changed
+        if (ratioInput && Math.abs(parseFloat(ratioInput.value) - ratio) > 0.01) {
+            ratioInput.value = ratio.toFixed(2);
+            updateCalculation();
         }
     }
     
