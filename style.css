@@ -1761,10 +1761,7 @@ a {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background-color: #DEEBFF; /* Base moon color */
-    position: relative;
-    overflow: hidden;
-    /* Box shadow will be updated via JS for the shadow phase */
+    /* Canvas drawing will handle the colors */
 }
 
 /* ==========================================================================

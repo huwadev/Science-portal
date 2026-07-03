@@ -631,17 +631,47 @@ document.addEventListener('DOMContentLoaded', () => {
         
         function updateMoonUI() {
             const phase = getMoonPhase();
-            // A simple CSS trick: we cast a shadow over the moon based on the fraction
-            // fraction 0 = New Moon, 0.5 = Full Moon, 1.0 = New Moon
-            let lightPer = Math.abs((phase.fraction - 0.5) * 2); // 1 = new, 0 = full
+            const fraction = phase.fraction;
             
-            // We use box-shadow to simulate the phase.
-            let shadowSize = 20 * lightPer; // 0 to 20
-            let direction = phase.fraction > 0.5 ? -1 : 1; 
-            
-            // If it's waxing (0 to 0.5), shadow on left
-            // If waning (0.5 to 1.0), shadow on right
-            moonWidget.style.boxShadow = `inset ${direction * shadowSize}px 0px 0px 0px #010614`;
+            // Draw accurate lunar phase on canvas
+            const ctx = moonWidget.getContext('2d');
+            if (ctx) {
+                ctx.clearRect(0, 0, 20, 20);
+                
+                // 1. Draw base dark moon
+                ctx.fillStyle = '#010614';
+                ctx.beginPath();
+                ctx.arc(10, 10, 10, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 2. Draw lit semi-circle
+                const isWaxing = fraction <= 0.5;
+                ctx.fillStyle = '#DEEBFF';
+                ctx.beginPath();
+                // If waxing, lit side is Right. If waning, lit side is Left.
+                // arc(x, y, r, startAngle, endAngle, counterclockwise)
+                // -PI/2 to PI/2 is the right side (clockwise).
+                ctx.arc(10, 10, 10, -Math.PI / 2, Math.PI / 2, !isWaxing);
+                ctx.fill();
+                
+                // 3. Draw the terminator ellipse
+                // The fraction of the phase cycle dictates the width of the ellipse.
+                // Waxing: 0 to 0.5 -> 0 to 1
+                // Waning: 0.5 to 1.0 -> 1 to 0
+                const ill = isWaxing ? (fraction * 2) : (2 - fraction * 2);
+                
+                // Ellipse width varies with the cosine of the illumination angle
+                const eWidth = Math.abs(Math.cos(ill * Math.PI)) * 10;
+                
+                // Decide ellipse color: 
+                // If ill < 0.5 (crescent), it covers part of the lit semi-circle with dark.
+                // If ill > 0.5 (gibbous), it covers part of the dark semi-circle with lit.
+                ctx.fillStyle = ill < 0.5 ? '#010614' : '#DEEBFF';
+                
+                ctx.beginPath();
+                ctx.ellipse(10, 10, eWidth, 10, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
             
             // Set tooltip text
             let phaseName = "";
