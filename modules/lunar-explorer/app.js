@@ -309,4 +309,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // --- Layer Collapse/Expand Logic ---
+    const layerHeader = document.getElementById('layers-header-toggle');
+    const layerContent = document.getElementById('layers-content');
+    const layerChevron = document.getElementById('layers-chevron');
+    if (layerHeader && layerContent && layerChevron) {
+        layerHeader.addEventListener('click', () => {
+            if (layerContent.style.display === 'none') {
+                layerContent.style.display = 'block';
+                layerChevron.style.transform = 'rotate(0deg)';
+                layerHeader.style.borderBottom = '1px solid rgba(255,255,255,0.2)';
+                layerHeader.style.marginBottom = '10px';
+                layerHeader.style.paddingBottom = '5px';
+            } else {
+                layerContent.style.display = 'none';
+                layerChevron.style.transform = 'rotate(-90deg)';
+                layerHeader.style.borderBottom = 'none';
+                layerHeader.style.marginBottom = '0';
+                layerHeader.style.paddingBottom = '0';
+            }
+        });
+    }
+
 });
