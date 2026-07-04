@@ -182,7 +182,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                 distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0.0, 5000000)
             },
-            properties: site // Store custom data for the click handler
+            properties: site, // Store custom data for the click handler
+            _layerType: site.type
         });
     });
 
@@ -300,11 +301,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (typeof viewer !== 'undefined' && viewer.entities) {
                 viewer.entities.values.forEach(entity => {
-                    if (entity.properties) {
-                        const site = entity.properties.getValue(viewer.clock.currentTime);
-                        if (site && site.type === layerType) {
-                            entity.show = isVisible;
-                        }
+                    if (entity._layerType === layerType) {
+                        entity.show = isVisible;
                     }
                 });
             }
