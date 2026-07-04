@@ -43,13 +43,25 @@ document.addEventListener('DOMContentLoaded', () => {
             appTitle: "Lunar Explorer",
             appSubtitle: "Deep Zoom LROC Tile Streaming",
             backToPortal: "&larr; Back to Portal",
-            credits: 'Map Data: <a href="https://www.openplanetary.org/" target="_blank" rel="noopener">OpenPlanetary</a> &amp; NASA LROC'
+            credits: 'Map Data: <a href="https://www.openplanetary.org/" target="_blank" rel="noopener">OpenPlanetary</a> &amp; NASA LROC',
+            layersTitle: "Layers",
+            layerMission: "Missions",
+            layerCrater: "Craters",
+            layerMare: "Maria",
+            layerMountain: "Mountains",
+            layerPlanned: "Planned"
         },
         am: {
             appTitle: "የጨረቃ ማሰሻ",
             appSubtitle: "ጥልቅ ማጉላት የLROC ካርታ ስርጭት",
             backToPortal: "&larr; ወደ ፖርታል ተመለስ",
-            credits: 'የካርታ መረጃ: <a href="https://www.openplanetary.org/" target="_blank" rel="noopener">OpenPlanetary</a> እና NASA LROC'
+            credits: 'የካርታ መረጃ: <a href="https://www.openplanetary.org/" target="_blank" rel="noopener">OpenPlanetary</a> እና NASA LROC',
+            layersTitle: "ማጣሪያዎች",
+            layerMission: "ተልዕኮዎች",
+            layerCrater: "ሸለቆዎች",
+            layerMare: "የጨረቃ ባህሮች",
+            layerMountain: "ተራሮች",
+            layerPlanned: "የታቀዱ"
         }
     };
     
@@ -70,6 +82,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (uiSubtitle) uiSubtitle.innerText = t.appSubtitle;
         if (uiBackBtn) uiBackBtn.innerHTML = t.backToPortal;
         if (creditsPanel) creditsPanel.innerHTML = t.credits;
+        
+        // Update layer UI
+        const layersTitle = document.getElementById('layers-title');
+        if (layersTitle) layersTitle.innerText = t.layersTitle;
+        const lblMission = document.getElementById('label-mission');
+        if (lblMission) lblMission.innerText = t.layerMission;
+        const lblCrater = document.getElementById('label-crater');
+        if (lblCrater) lblCrater.innerText = t.layerCrater;
+        const lblMare = document.getElementById('label-mare');
+        if (lblMare) lblMare.innerText = t.layerMare;
+        const lblMountain = document.getElementById('label-mountain');
+        if (lblMountain) lblMountain.innerText = t.layerMountain;
+        const lblPlanned = document.getElementById('label-planned');
+        if (lblPlanned) lblPlanned.innerText = t.layerPlanned;
         
         // Update globe labels
         if (typeof viewer !== 'undefined' && viewer.entities) {
@@ -120,6 +146,18 @@ document.addEventListener('DOMContentLoaded', () => {
         mountain: makeIcon(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF7777" stroke-width="2"><path d="M3 20l9-16 9 16z"/></svg>`),
         planned: makeIcon(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00FF00" stroke-width="2" stroke-dasharray="3 3"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/></svg>`)
     };
+    
+    // Inject icons into Layer UI
+    const iMission = document.getElementById('icon-mission');
+    if (iMission) iMission.src = icons.mission;
+    const iCrater = document.getElementById('icon-crater');
+    if (iCrater) iCrater.src = icons.crater;
+    const iMare = document.getElementById('icon-mare');
+    if (iMare) iMare.src = icons.mare;
+    const iMountain = document.getElementById('icon-mountain');
+    if (iMountain) iMountain.src = icons.mountain;
+    const iPlanned = document.getElementById('icon-planned');
+    if (iPlanned) iPlanned.src = icons.planned;
 
     // Add POIs to the globe
     lunarSites.forEach(site => {
@@ -262,10 +300,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (typeof viewer !== 'undefined' && viewer.entities) {
                 viewer.entities.values.forEach(entity => {
-                    // Check if the entity has our custom properties object and a matching type
-                    if (entity.properties && entity.properties.type) {
-                        const t = entity.properties.type.getValue ? entity.properties.type.getValue() : entity.properties.type;
-                        if (t === layerType) {
+                    if (entity.properties) {
+                        const site = entity.properties.getValue(viewer.clock.currentTime);
+                        if (site && site.type === layerType) {
                             entity.show = isVisible;
                         }
                     }
