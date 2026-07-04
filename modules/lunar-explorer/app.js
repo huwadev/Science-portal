@@ -365,9 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('close-btn').addEventListener('click', () => {
         document.getElementById('info-panel').classList.add('hidden');
     });
-});
-
-function showInfoPanel(site) {
+    function showInfoPanel(site) {
     const panel = document.getElementById('info-panel');
     const title = document.getElementById('site-title');
     const coords = document.getElementById('site-coords');
@@ -400,3 +398,5 @@ function showInfoPanel(site) {
 
     panel.classList.remove('hidden');
 }
+
+});
