@@ -4244,11 +4244,11 @@ function draw2DEclipseAnim() {
     ctx2d.textAlign = 'center';
     ctx2d.fillText("Earth's Umbra Shadow", cx, cy - shadowRadius2d - 15);
     
-    const startX = cx - shadowRadius2d - moonRadius2d;
+    const shadowLeftEdge = cx - shadowRadius2d;
     
     // Draw guide lines / slots
-    for (let i = 1; i <= Math.floor(targetRatio); i++) {
-        const x = startX + (i * moonRadius2d * 2);
+    for (let i = 0; i < Math.floor(targetRatio); i++) {
+        const x = shadowLeftEdge + moonRadius2d + (i * moonRadius2d * 2);
         
         // Draw dotted moon slot outline
         ctx2d.save();
@@ -4271,23 +4271,33 @@ function draw2DEclipseAnim() {
     // Draw fractional slot if any
     const remainder = targetRatio - Math.floor(targetRatio);
     if (remainder > 0.01) {
-        const x = startX + (targetRatio * moonRadius2d * 2);
+        // Place the 4th slot correctly so it perfectly touches the 3rd moon
+        const i = Math.floor(targetRatio);
+        const x = shadowLeftEdge + moonRadius2d + (i * moonRadius2d * 2);
         
         ctx2d.save();
-        ctx2d.strokeStyle = 'rgba(255, 120, 50, 0.15)';
+        ctx2d.strokeStyle = 'rgba(255, 120, 50, 0.3)';
         ctx2d.setLineDash([2, 2]);
         ctx2d.lineWidth = 1.0;
         ctx2d.beginPath();
         ctx2d.arc(x, cy, moonRadius2d, 0, Math.PI * 2);
         ctx2d.stroke();
+        
+        // Solid line for the left half which is inside the shadow
+        ctx2d.strokeStyle = 'rgba(255, 120, 50, 0.8)';
+        ctx2d.lineWidth = 2;
+        ctx2d.setLineDash([]);
+        ctx2d.beginPath();
+        ctx2d.arc(x, cy, moonRadius2d, Math.PI/2, 3*Math.PI/2);
+        ctx2d.stroke();
         ctx2d.restore();
         
-        // Draw partial filled bar/label
-        ctx2d.fillStyle = 'rgba(255, 120, 50, 0.35)';
+        // Draw label in the shadowed half
+        ctx2d.fillStyle = 'rgba(255, 120, 50, 0.8)';
         ctx2d.font = 'bold 12px "Outfit", sans-serif';
         ctx2d.textAlign = 'center';
         ctx2d.textBaseline = 'middle';
-        ctx2d.fillText("+" + remainder.toFixed(2), x, cy);
+        ctx2d.fillText("+" + remainder.toFixed(2), x - 15, cy);
     }
     
     // 3. Horizontal Shadow Caliper (Span)
@@ -4310,19 +4320,21 @@ function draw2DEclipseAnim() {
     // 4. Draw the interactive draggable Moon
     if (!r2IsDragging) {
         // If not dragging via mouse, position moon directly based on slider
-        r2MoonX = startX + ratio * (moonRadius2d * 2);
+        const shadowLeftEdge = cx - shadowRadius2d;
+        r2MoonX = shadowLeftEdge + moonRadius2d + (ratio * moonRadius2d * 2);
     } else {
         // If dragging via mouse, map r2MoonX back to ratio and update slider
-        let newRatio = (r2MoonX - startX) / (moonRadius2d * 2);
+        const shadowLeftEdge = cx - shadowRadius2d;
+        let newRatio = (r2MoonX - (shadowLeftEdge + moonRadius2d)) / (moonRadius2d * 2);
         
         // Clamp to min/max
         if (newRatio < -1.0) newRatio = -1.0;
         if (newRatio > 4.5) newRatio = 4.5;
         
         // Enforce snapping if close to slot centers
-        const snapPoints = [0, 1, 2, 3, targetRatio];
-        for (const snapRatio of snapPoints) {
-            const slotX = startX + snapRatio * moonRadius2d * 2;
+        const shadowLeftEdge = cx - shadowRadius2d;
+        for (let snapRatio = 0; snapRatio <= Math.ceil(targetRatio); snapRatio++) {
+            const slotX = shadowLeftEdge + moonRadius2d + (snapRatio * moonRadius2d * 2);
             if (Math.abs(r2MoonX - slotX) < 15) {
                 r2MoonX = slotX; // Snap physically
                 newRatio = snapRatio; // Snap ratio
@@ -4339,11 +4351,21 @@ function draw2DEclipseAnim() {
         }
     }
     
-    // Draw the Moon! It gets red-tinted inside the Earth's shadow
-    const distToCenter = Math.abs(r2MoonX - cx);
-    const isInsideShadow = distToCenter < shadowRadius2d;
+    // Draw the Moon! It dynamically splits coloring based on shadow overlap
+    drawMoon2D(r2MoonX, cy, moonRadius2d, 1.0, false);
     
-    drawMoon2D(r2MoonX, cy, moonRadius2d, 1.0, isInsideShadow);
+    // Draw the black-red shadow OVER the moon, clipping strictly to the moon's bounds
+    ctx2d.save();
+    ctx2d.beginPath();
+    ctx2d.arc(r2MoonX, cy, moonRadius2d, 0, Math.PI * 2);
+    ctx2d.clip();
+    
+    // The umbra casts over the clipped moon area
+    ctx2d.fillStyle = 'rgba(80, 20, 15, 0.9)';
+    ctx2d.beginPath();
+    ctx2d.arc(cx, cy, shadowRadius2d, 0, Math.PI * 2);
+    ctx2d.fill();
+    ctx2d.restore();
     
     // Draw Moon caliper
     ctx2d.strokeStyle = r2IsDragging ? '#ffff33' : '#ffff00';
