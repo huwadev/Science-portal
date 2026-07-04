@@ -1769,6 +1769,8 @@ function verifyCalculation() {
 // ---------------------------------------------------------
 const canvas = document.getElementById('main-canvas');
 const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 50000);
@@ -1800,6 +1802,7 @@ const r2Distance = 4.0; // Distance from earth to moon
 const r2EarthGeo = new THREE.SphereGeometry(r2EarthRadius, 32, 32);
 const r2EarthMat = new THREE.MeshPhongMaterial({ color: 0x125d98 });
 const r2Earth = new THREE.Mesh(r2EarthGeo, r2EarthMat);
+r2Earth.castShadow = true;
 moonGroup.add(r2Earth);
 
 // Shadow Cone (Cylinder to represent Aristarchus' assumption)
@@ -1834,13 +1837,30 @@ moonGroup.add(penumbraRays);
 const r2MoonGeo = new THREE.SphereGeometry(r2MoonRadius, 32, 32);
 const r2MoonMat = new THREE.MeshPhongMaterial({ color: 0xdddddd });
 const r2Moon = new THREE.Mesh(r2MoonGeo, r2MoonMat);
+r2Moon.receiveShadow = true;
+r2Moon.castShadow = true;
+r2Moon.layers.enable(1);
 moonGroup.add(r2Moon);
 
 const moonAmbient = new THREE.AmbientLight(0xffffff, 0.1);
 moonGroup.add(moonAmbient);
 const moonLight = new THREE.DirectionalLight(0xffffff, 1.2);
 moonLight.position.set(10, 0, 0); // Sun is far right (+X)
+moonLight.castShadow = true;
+moonLight.shadow.mapSize.width = 1024;
+moonLight.shadow.mapSize.height = 1024;
+moonLight.shadow.camera.near = 0.5;
+moonLight.shadow.camera.far = 20;
+moonLight.shadow.camera.left = -2;
+moonLight.shadow.camera.right = 2;
+moonLight.shadow.camera.top = 2;
+moonLight.shadow.camera.bottom = -2;
 moonGroup.add(moonLight);
+
+const redFillLight = new THREE.DirectionalLight(0xff3333, 0.6);
+redFillLight.position.set(10, 0, 0);
+redFillLight.layers.set(1);
+moonGroup.add(redFillLight);
 
 // Assumption Label (Sprite)
 const canvasUI = document.createElement('canvas');
@@ -4211,7 +4231,7 @@ function draw2DEclipseAnim() {
     
     const targetRatio = 3.5;
     const moonRadius2d = 45;
-    const shadowRadius2d = moonRadius2d * 3.0;
+    const shadowRadius2d = moonRadius2d * 3.5;
     
     // 1. Draw Earth's Penumbra (Soft outer orange-red glow)
     ctx2d.save();
@@ -4320,18 +4340,18 @@ function draw2DEclipseAnim() {
     // 4. Draw the interactive draggable Moon
     if (!r2IsDragging) {
         // If not dragging via mouse, position moon directly based on slider
-        r2MoonX = shadowLeftEdge + moonRadius2d + (ratio * moonRadius2d * 2);
+        r2MoonX = shadowLeftEdge - moonRadius2d + (ratio * moonRadius2d * 2);
     } else {
         // If dragging via mouse, map r2MoonX back to ratio and update slider
-        let newRatio = (r2MoonX - (shadowLeftEdge + moonRadius2d)) / (moonRadius2d * 2);
+        let newRatio = (r2MoonX - (shadowLeftEdge - moonRadius2d)) / (moonRadius2d * 2);
         
         // Clamp to min/max
-        if (newRatio < -1.0) newRatio = -1.0;
+        if (newRatio < 0.0) newRatio = 0.0;
         if (newRatio > 4.5) newRatio = 4.5;
         
         // Enforce snapping if close to slot centers
         for (let snapRatio = 0; snapRatio <= Math.ceil(targetRatio); snapRatio++) {
-            const slotX = shadowLeftEdge + moonRadius2d + (snapRatio * moonRadius2d * 2);
+            const slotX = shadowLeftEdge - moonRadius2d + (snapRatio * moonRadius2d * 2);
             if (Math.abs(r2MoonX - slotX) < 15) {
                 r2MoonX = slotX; // Snap physically
                 newRatio = snapRatio; // Snap ratio
@@ -6345,19 +6365,16 @@ function animate() {
                     telObs.textContent = "Total Eclipse";
                     telObs.style.color = "#ff5555";
                 }
-                r2Moon.material.color.setHex(0x552222); // Red-grey during total eclipse
             } else if (distToCenter < r2EarthRadius + r2MoonRadius) {
                 if (telObs) {
                     telObs.textContent = "Partial Eclipse";
                     telObs.style.color = "#ffaa00";
                 }
-                r2Moon.material.color.setHex(0xaa8888); // Dimming during partial
             } else {
                 if (telObs) {
                     telObs.textContent = "No Eclipse";
                     telObs.style.color = "#ffffff";
                 }
-                r2Moon.material.color.setHex(0xdddddd); // Bright white outside shadow
             }
         }
     } // <-- Close currentRung === 2 block
