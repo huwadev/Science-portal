@@ -90,6 +90,51 @@ const lunarSites = [
         description: 'One of the brightest formations on the lunar surface, visible to the naked eye. The crater has high albedo due to fresh, unweathered material excavated by a relatively recent impact.',
         descriptionAm: 'በጨረቃ ገጽ ላይ በዓይን ከሚታዩ በጣም ብሩህ ስፍራዎች አንዱ ነው። ይህ ሸለቆ በቅርብ ጊዜ በተፈጠረ ተፅዕኖ ምክንያት አዲስ እና ያልተሸረሸረ ቁስ ስለወጣ ከፍተኛ የብርሃን ነጸብራቅ (albedo) አለው።',
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Aristarchus_Crater_-_LROC_-_WAC.jpg/960px-Aristarchus_Crater_-_LROC_-_WAC.jpg'
+    },
+    {
+        id: 'mare-serenitatis',
+        name: 'Mare Serenitatis (Sea of Serenity)',
+        lat: 28.0,
+        lon: 17.5,
+        description: 'A prominent lunar mare located to the east of Mare Imbrium. It was visited by Apollo 17 and Luna 21. It is notable for its distinct darker basaltic ring and lighter inner region.',
+        descriptionAm: 'ከማሬ ኢምብሪየም (Mare Imbrium) በስተምስራቅ የሚገኝ ታዋቂ የላቫ ሜዳ ነው። በአፖሎ 17 (Apollo 17) እና ሉና 21 (Luna 21) የጠፈር ተልዕኮዎች ተጎብኝቷል። ውጨኛው ክፍሉ ጥቁር የባዝልት አለት ያለው ሲሆን፣ ውስጠኛው ክፍሉ ደግሞ ደመቅ ያለ በመሆኑ ይታወቃል።',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Mare_Serenitatis_%28LRO%29.png/960px-Mare_Serenitatis_%28LRO%29.png'
+    },
+    {
+        id: 'clavius',
+        name: 'Clavius Crater',
+        lat: -58.4,
+        lon: -14.4,
+        description: 'One of the largest crater formations on the Moon and the second largest visible from Earth. In 2020, NASA\'s SOFIA observatory confirmed the presence of water molecules (H2O) in its sunlit soil.',
+        descriptionAm: 'በጨረቃ ላይ ከሚገኙት ትልልቅ የእሳተ ገሞራ ሸለቆዎች አንዱ ሲሆን፣ ከመሬት ሆኖ በማየት በግዙፍነቱ ሁለተኛው ነው። እ.ኤ.አ. በ2020 የናሳው (NASA) ሶፊያ (SOFIA) ታዛቢ ማዕከል በፀሐይ ብርሃን በሚያገኘው አፈሩ ውስጥ የውሃ ሞለኪውሎች (H2O) መኖራቸውን አረጋግጧል።',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Clavius_%28LRO%29_2.png/960px-Clavius_%28LRO%29_2.png'
+    },
+    {
+        id: 'mare-crisium',
+        name: 'Mare Crisium (Sea of Crises)',
+        lat: 17.0,
+        lon: 59.1,
+        description: 'A circular mare isolated from the other lunar seas, located in the Moon\'s Crisium basin. It is very dark, smooth, and stands out conspicuously on the north-eastern edge of the Moon\'s face.',
+        descriptionAm: 'ከሌሎች የጨረቃ ባህሮች ተነጥሎ በክሪሲየም ሸለቆ (Crisium basin) ውስጥ የሚገኝ ክብ ማሪያ ነው። በጣም ጥቁር እና ለስላሳ ሲሆን፣ በጨረቃ የፊት ክፍል ሰሜናዊ ምስራቅ ጠርዝ ላይ በጉልህ ይታያል።',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Mare_Crisium_%28LRO%29.png/960px-Mare_Crisium_%28LRO%29.png'
+    },
+    {
+        id: 'south-pole-aitken',
+        name: 'South Pole-Aitken Basin',
+        lat: -53.0,
+        lon: -169.0,
+        description: 'An immense impact crater on the far side of the Moon. Spanning roughly 2,500 km in diameter and 13 km deep, it is one of the largest known impact craters in the Solar System.',
+        descriptionAm: 'በጨረቃ ሩቅ/ጀርባ ክፍል ላይ የሚገኝ እጅግ ግዙፍ የእሳተ ገሞራ ሸለቆ ነው። ወደ 2,500 ኪ.ሜ የሚጠጋ ስፋት እና 13 ኪ.ሜ ጥልቀት ያለው ሲሆን፣ በስርዓተ-ፀሐይ ውስጥ ከሚታወቁት ትላልቅ የእሳተ ገሞራ ሸለቆዎች አንዱ ነው።',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Moon_South_Pole-Aitken_basin_topo.jpg/960px-Moon_South_Pole-Aitken_basin_topo.jpg'
+    },
+    {
+        id: 'luna-2',
+        name: 'Luna 2 Impact Site',
+        lat: 29.1,
+        lon: 0.0,
+        description: 'The site where the Soviet spacecraft Luna 2 intentionally crashed on September 14, 1959. It was the first human-made object to ever reach the surface of the Moon.',
+        descriptionAm: 'መስከረም 14 ቀን 1959 ዓ.ም የሶቪየት ህብረቱ ሉና 2 (Luna 2) የጠፈር መንኮራኩር ሆን ተብሎ ያረፈበት/የተከሰከሰበት ስፍራ ነው። ይህ የሰው ልጅ የሰራው እና የጨረቃን ገጽ ለመጀመሪያ ጊዜ የነካ ታሪካዊ ቁስ ነው።',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Luna_2_spacecraft.jpg/960px-Luna_2_spacecraft.jpg'
     }
 ];
 
