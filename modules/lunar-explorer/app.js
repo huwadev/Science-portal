@@ -109,22 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        // Update info panel if open
+        // Update wiki sidebar if open
         const wikiTitle = document.getElementById('wiki-title');
-        const wikiExtract = document.getElementById('wiki-extract');
         if (wikiTitle && document.getElementById('wiki-sidebar').classList.contains('active')) {
             const currentTitle = wikiTitle.getAttribute('data-original-name');
             if (currentTitle) {
-                wikiTitle.innerText = currentLang === 'am' && siteTranslations[currentTitle] 
-                    ? siteTranslations[currentTitle] 
-                    : currentTitle;
-                    
-                // Find the site object to get its description
                 const activeSite = lunarSites.find(s => s.name === currentTitle);
-                if (activeSite && wikiExtract) {
-                    wikiExtract.innerText = currentLang === 'am' && activeSite.descriptionAm 
-                        ? activeSite.descriptionAm 
-                        : activeSite.description;
+                if (activeSite) {
+                    openWikiSidebar(activeSite);
                 }
             }
         }
@@ -281,10 +273,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const lonStr = Math.abs(site.lon).toFixed(2) + '&deg; ' + (site.lon >= 0 ? 'E' : 'W');
         coords.innerHTML = `Lat: ${latStr}, Lon: ${lonStr}`;
         
-        // Set local description
-        extract.innerText = (typeof currentLang !== 'undefined' && currentLang === 'am' && site.descriptionAm) 
+        // Set local description and placeholder for long extract
+        const localDesc = (typeof currentLang !== 'undefined' && currentLang === 'am' && site.descriptionAm) 
             ? site.descriptionAm 
             : site.description;
+            
+        extract.innerHTML = localDesc + '<br><br><span style="color: rgba(222,235,255,0.5); font-style: italic; font-size: 13px;">Fetching extended details from Wikipedia...</span>';
 
         // Reset Wiki Elements
         image.style.display = 'none';
@@ -293,14 +287,51 @@ document.addEventListener('DOMContentLoaded', () => {
         if (site.wikiTitle) {
             loader.style.display = 'flex';
             
-            // Fetch from Wikipedia API for Image and Link
-            fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(site.wikiTitle)}`)
-                .then(res => {
-                    if (!res.ok) throw new Error('Wikipedia page not found');
-                    return res.json();
-                })
-                .then(data => {
+            // Helper to fetch with fallback
+            const fetchWiki = async () => {
+                const isAm = (typeof currentLang !== 'undefined' && currentLang === 'am');
+                
+                try {
+                    // Try Amharic first if requested
+                    if (isAm) {
+                        const amRes = await fetch(`https://am.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(site.wikiTitle)}`);
+                        if (amRes.ok) {
+                            const data = await amRes.json();
+                            return { data, isFallback: false };
+                        }
+                    }
+                    
+                    // Fallback to English
+                    const enRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(site.wikiTitle)}`);
+                    if (enRes.ok) {
+                        const data = await enRes.json();
+                        return { data, isFallback: isAm };
+                    }
+                    
+                    throw new Error('Not found in any language');
+                } catch (e) {
+                    throw e;
+                }
+            };
+            
+            fetchWiki()
+                .then(({data, isFallback}) => {
                     loader.style.display = 'none';
+                    
+                    const longExtract = data.extract_html || data.extract || '';
+                    let extractHtml = localDesc;
+                    
+                    if (longExtract) {
+                        extractHtml += '<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(222, 235, 255, 0.9);">';
+                        if (isFallback) {
+                            extractHtml += '<div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #ffcc00; margin-bottom: 8px;">(Extended details available in English only)</div>';
+                        }
+                        extractHtml += longExtract;
+                        extractHtml += '</div>';
+                    }
+                    
+                    extract.innerHTML = extractHtml;
+                    
                     if (data.thumbnail && data.thumbnail.source) {
                         image.src = data.thumbnail.source;
                         image.style.display = 'block';
@@ -316,9 +347,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 .catch(err => {
                     console.error(err);
                     loader.style.display = 'none';
+                    extract.innerHTML = localDesc + '<br><br><span style="color: #ff7777; font-size: 13px;">Extended details unavailable.</span>';
                 });
         } else {
             loader.style.display = 'none';
+            extract.innerHTML = localDesc;
         }
 
         sidebar.classList.add('active');

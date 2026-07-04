@@ -176,13 +176,14 @@ h1, h2, h3, h4, h5, h6 {
 .wiki-sidebar {
     position: absolute;
     top: 70px;
-    right: 20px;
+    left: 20px;
+    right: auto;
     width: 350px;
     max-height: calc(100vh - 100px);
     overflow-y: auto;
     border-radius: 16px;
     z-index: 100;
-    transform: translateX(120%);
+    transform: translateX(-120%);
     opacity: 0;
     pointer-events: none;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
