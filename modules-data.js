@@ -132,6 +132,7 @@ const modulesData = [
 ];
 
 const CATEGORIES = [
+    "Planetary Science",
     "Astrophysics",
     "Cosmology & Relativity",
     "Astrobiology",
@@ -150,10 +151,16 @@ function renderModuleDashboard() {
 
     let isFirst = true;
 
-    CATEGORIES.forEach((category, idx) => {
-        // First category is expanded by default
-        const isExpanded = idx === 0 || idx === 3 ? 'expanded' : ''; 
-        // We'll expand Aerospace as well just so user sees some modules 
+    let categoryIndex = 0;
+    CATEGORIES.forEach((category) => {
+        const categoryModules = modulesData.filter(m => m.category === category && m.status !== 'pending');
+        
+        if (categoryModules.length === 0) {
+            return; // Skip empty categories
+        }
+
+        // First rendered category is expanded by default
+        const isExpanded = categoryIndex === 0 ? 'expanded' : ''; 
         
         tabsHTML += `<div class="category-group ${isExpanded}">`;
         
@@ -168,72 +175,125 @@ function renderModuleDashboard() {
             <div class="category-content">
         `;
         
-        const categoryModules = modulesData.filter(m => m.category === category);
-        
-        if (categoryModules.length === 0) {
+        categoryModules.forEach(mod => {
+            const isActive = isFirst ? 'active' : '';
+            const complexityClass = mod.complexity.toLowerCase() === 'ultra' ? 'ultra' :
+                                    mod.complexity.toLowerCase() === 'high' ? 'high' :
+                                    mod.complexity.toLowerCase() === 'medium' ? 'medium' : 'low';
+            
+            let buttonHTML = `<a href="${mod.href}" class="btn btn-primary btn-launch">
+                                Launch Module
+                                <svg class="btn-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                </svg>
+                              </a>`;
+
+            // Tab Button
             tabsHTML += `
-                <div class="empty-category-msg">
-                    <span data-i18n="cat_coming_soon">Modules in development...</span>
-                </div>
+                <button class="module-tab ${isActive}" data-id="${mod.id}">
+                    <div class="tab-icon">${mod.iconSvg}</div>
+                    <div class="tab-label">
+                        <span class="tab-num">${mod.num}</span>
+                        <span class="tab-title">${mod.title}</span>
+                    </div>
+                </button>
             `;
-        } else {
-            categoryModules.forEach(mod => {
-                const isActive = isFirst ? 'active' : '';
-                const complexityClass = mod.complexity.toLowerCase() === 'ultra' ? 'ultra' :
-                                        mod.complexity.toLowerCase() === 'high' ? 'high' :
-                                        mod.complexity.toLowerCase() === 'medium' ? 'medium' : 'low';
-                
-                let buttonHTML = `<a href="#" class="btn btn-primary btn-launch disabled" onclick="return false;">Pending</a>`;
-                if (mod.status === 'build') {
-                    buttonHTML = `<a href="${mod.href}" class="btn btn-primary btn-launch">
-                                    Launch Module
-                                    <svg class="btn-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                                    </svg>
-                                  </a>`;
-                }
 
-                // Tab Button
-                tabsHTML += `
-                    <button class="module-tab ${isActive}" data-id="${mod.id}">
-                        <div class="tab-icon">${mod.iconSvg}</div>
-                        <div class="tab-label">
-                            <span class="tab-num">${mod.num}</span>
-                            <span class="tab-title">${mod.title}</span>
-                        </div>
-                    </button>
-                `;
-
-                // Showcase Pane
-                showcaseHTML += `
-                    <div class="module-pane ${isActive}" id="pane-${mod.id}">
-                        <div class="pane-visual">
-                            <div class="visual-placeholder">
-                                ${mod.iconSvg}
-                            </div>
-                        </div>
-                        <div class="pane-content">
-                            <div class="pane-meta">
-                                <span class="meta-tag complexity-${complexityClass}">${mod.complexity} Complexity</span>
-                                <span class="meta-tag audience">${mod.audience}</span>
-                            </div>
-                            <span class="category-lbl">${mod.category}</span>
-                            <h3>${mod.title}</h3>
-                            <p>${mod.concept}</p>
-                            <div class="pane-tech">
-                                <span>Powered by:</span> ${mod.tech}
-                            </div>
-                            ${buttonHTML}
+            // Showcase Pane
+            showcaseHTML += `
+                <div class="module-pane ${isActive}" id="pane-${mod.id}">
+                    <div class="pane-visual">
+                        <div class="visual-placeholder">
+                            ${mod.iconSvg}
                         </div>
                     </div>
-                `;
-                
-                isFirst = false;
-            });
-        }
+                    <div class="pane-content">
+                        <div class="pane-meta">
+                            <span class="meta-tag complexity-${complexityClass}">${mod.complexity} Complexity</span>
+                            <span class="meta-tag audience">${mod.audience}</span>
+                        </div>
+                        <span class="category-lbl">${mod.category}</span>
+                        <h3>${mod.title}</h3>
+                        <p>${mod.concept}</p>
+                        <div class="pane-tech">
+                            <span>Powered by:</span> ${mod.tech}
+                        </div>
+                        ${buttonHTML}
+                    </div>
+                </div>
+            `;
+            
+            isFirst = false;
+        });
         
         tabsHTML += `</div></div>`; // Close category-content and category-group
+        categoryIndex++;
     });
+
+    const pendingModules = modulesData.filter(m => m.status === 'pending');
+    if (pendingModules.length > 0) {
+        tabsHTML += `<hr class="module-divider" style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">`;
+        tabsHTML += `<div class="category-group">`;
+        
+        // Render category header button with chevron
+        tabsHTML += `
+            <button class="category-header">
+                <span class="category-name" data-i18n="in_development">In Development</span>
+                <svg class="chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+            <div class="category-content">
+        `;
+        
+        pendingModules.forEach(mod => {
+            const isActive = isFirst ? 'active' : '';
+            const complexityClass = mod.complexity.toLowerCase() === 'ultra' ? 'ultra' :
+                                    mod.complexity.toLowerCase() === 'high' ? 'high' :
+                                    mod.complexity.toLowerCase() === 'medium' ? 'medium' : 'low';
+            
+            let buttonHTML = `<a href="#" class="btn btn-primary btn-launch disabled" onclick="return false;">Pending</a>`;
+
+            // Tab Button
+            tabsHTML += `
+                <button class="module-tab ${isActive}" data-id="${mod.id}">
+                    <div class="tab-icon">${mod.iconSvg}</div>
+                    <div class="tab-label">
+                        <span class="tab-num">${mod.num}</span>
+                        <span class="tab-title">${mod.title}</span>
+                    </div>
+                </button>
+            `;
+
+            // Showcase Pane
+            showcaseHTML += `
+                <div class="module-pane ${isActive}" id="pane-${mod.id}">
+                    <div class="pane-visual">
+                        <div class="visual-placeholder">
+                            ${mod.iconSvg}
+                        </div>
+                    </div>
+                    <div class="pane-content">
+                        <div class="pane-meta">
+                            <span class="meta-tag complexity-${complexityClass}">${mod.complexity} Complexity</span>
+                            <span class="meta-tag audience">${mod.audience}</span>
+                        </div>
+                        <span class="category-lbl">${mod.category}</span>
+                        <h3>${mod.title}</h3>
+                        <p>${mod.concept}</p>
+                        <div class="pane-tech">
+                            <span>Powered by:</span> ${mod.tech}
+                        </div>
+                        ${buttonHTML}
+                    </div>
+                </div>
+            `;
+            
+            isFirst = false;
+        });
+        
+        tabsHTML += `</div></div>`; // Close category-content and category-group
+    }
 
     tabsHTML += '</div>';
     showcaseHTML += '</div>';

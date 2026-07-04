@@ -1,5 +1,12 @@
-// modules/lunar-explorer/app.js
+﻿// modules/lunar-explorer/app.js
 
+// Application state
+let currentLang = 'en'; // Default language
+let selectedLayer = null;
+let viewer = null;
+
+// Global translations XML document
+let translationsXml = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -12,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Initialize Cesium Viewer configured for the Moon
-    const viewer = new Cesium.Viewer('canvas-container', {
+    viewer = new Cesium.Viewer('canvas-container', {
         globe: new Cesium.Globe(Cesium.Ellipsoid.MOON),
         baseLayerPicker: false,
         baseLayer: new Cesium.ImageryLayer(moonImagery), // Bypasses Cesium Ion default earth imagery (fixes 401 error)
@@ -36,6 +43,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Make the background space dark
     viewer.scene.backgroundColor = Cesium.Color.BLACK;
     viewer.scene.globe.depthTestAgainstTerrain = true;
+    
+    // Load Translations XML
+    fetch('translations.xml')
+        .then(res => {
+            if (!res.ok) throw new Error('Failed to load translations.xml');
+            return res.text();
+        })
+        .then(str => {
+            const parser = new DOMParser();
+            translationsXml = parser.parseFromString(str, "application/xml");
+        })
+        .catch(err => console.error(err));
 
     // Translations Dictionary
     const translations = {
@@ -58,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             credits: 'የካርታ መረጃ: <a href="https://www.openplanetary.org/" target="_blank" rel="noopener">OpenPlanetary</a> እና NASA LROC',
             layersTitle: "ማጣሪያዎች",
             layerMission: "ተልዕኮዎች",
-            layerCrater: "ሸለቆዎች",
+            layerCrater: "ቆሬዎች",
             layerMare: "የጨረቃ ባህሮች",
             layerMountain: "ተራሮች",
             layerPlanned: "የታቀዱ"
@@ -278,79 +297,63 @@ document.addEventListener('DOMContentLoaded', () => {
             ? site.descriptionAm 
             : site.description;
             
-        extract.innerHTML = localDesc + '<br><br><span style="color: rgba(222,235,255,0.5); font-style: italic; font-size: 13px;">Fetching extended details from Wikipedia...</span>';
-
         // Reset Wiki Elements
         image.style.display = 'none';
         link.style.display = 'none';
         
-        if (site.wikiTitle) {
-            loader.style.display = 'flex';
+        if (site.wikiTitle && typeof translationsXml !== 'undefined' && translationsXml) {
+            const isAm = (typeof currentLang !== 'undefined' && currentLang === 'am');
             
-            // Helper to fetch with fallback
-            const fetchWiki = async () => {
-                const isAm = (typeof currentLang !== 'undefined' && currentLang === 'am');
+            const poiNode = translationsXml.querySelector(`poi[id="${site.id}"]`);
+            if (poiNode) {
+                const enNode = poiNode.querySelector('en extract');
+                const amNode = poiNode.querySelector('am extract');
                 
-                try {
-                    // Try Amharic first if requested
-                    if (isAm) {
-                        const amRes = await fetch(`https://am.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(site.wikiTitle)}`);
-                        if (amRes.ok) {
-                            const data = await amRes.json();
-                            return { data, isFallback: false };
-                        }
+                const enExtract = enNode ? enNode.textContent : '';
+                const amExtract = amNode ? amNode.textContent : '';
+                
+                let longExtract = '';
+                let isFallback = false;
+                
+                if (isAm) {
+                    if (amExtract && amExtract.trim().length > 0 && amExtract !== enExtract) {
+                        longExtract = amExtract;
+                    } else if (enExtract) {
+                        longExtract = enExtract;
+                        isFallback = true;
                     }
-                    
-                    // Fallback to English
-                    const enRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(site.wikiTitle)}`);
-                    if (enRes.ok) {
-                        const data = await enRes.json();
-                        return { data, isFallback: isAm };
-                    }
-                    
-                    throw new Error('Not found in any language');
-                } catch (e) {
-                    throw e;
+                } else {
+                    longExtract = enExtract;
                 }
-            };
-            
-            fetchWiki()
-                .then(({data, isFallback}) => {
-                    loader.style.display = 'none';
-                    
-                    const longExtract = data.extract_html || data.extract || '';
-                    let extractHtml = localDesc;
-                    
-                    if (longExtract) {
-                        extractHtml += '<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(222, 235, 255, 0.9);">';
-                        if (isFallback) {
-                            extractHtml += '<div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #ffcc00; margin-bottom: 8px;">(Extended details available in English only)</div>';
-                        }
-                        extractHtml += longExtract;
-                        extractHtml += '</div>';
+                
+                let extractHtml = localDesc;
+                
+                if (longExtract) {
+                    extractHtml += '<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(222, 235, 255, 0.9);">';
+                    if (isFallback) {
+                        extractHtml += '<div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #ffcc00; margin-bottom: 8px;">(Extended details available in English only)</div>';
                     }
-                    
-                    extract.innerHTML = extractHtml;
-                    
-                    if (data.thumbnail && data.thumbnail.source) {
-                        image.src = data.thumbnail.source;
-                        image.style.display = 'block';
-                    } else if (data.originalimage && data.originalimage.source) {
-                        image.src = data.originalimage.source;
-                        image.style.display = 'block';
-                    }
-                    if (data.content_urls && data.content_urls.desktop) {
-                        link.href = data.content_urls.desktop.page;
-                        link.style.display = 'block';
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    loader.style.display = 'none';
-                    extract.innerHTML = localDesc + '<br><br><span style="color: #ff7777; font-size: 13px;">Extended details unavailable.</span>';
-                });
+                    extractHtml += longExtract;
+                    extractHtml += '</div>';
+                }
+                
+                extract.innerHTML = extractHtml;
+                
+                const imgUrl = poiNode.getAttribute('image');
+                const pageUrl = poiNode.getAttribute('url');
+                
+                if (imgUrl) {
+                    image.src = imgUrl;
+                    image.style.display = 'block';
+                }
+                if (pageUrl) {
+                    link.href = pageUrl;
+                    link.style.display = 'block';
+                }
+            } else {
+                extract.innerHTML = localDesc + '<br><br><span style="color: #ff7777; font-size: 13px;">Extended details unavailable.</span>';
+            }
         } else {
-            loader.style.display = 'none';
             extract.innerHTML = localDesc;
         }
 

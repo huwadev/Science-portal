@@ -1,4 +1,4 @@
-const CACHE_NAME = 'esss-science-portal-v18';
+const CACHE_NAME = 'esss-science-portal-v19';
 const RUNTIME_CACHE = 'esss-science-portal-runtime';
 
 // Assets to pre-cache immediately on service worker install
@@ -12,6 +12,13 @@ const PRECACHE_ASSETS = [
   './esss-logo-white.png',
   './esss-badge.png',
   './manifest.json',
+
+  // Lunar Explorer Core
+  './modules/lunar-explorer/index.html',
+  './modules/lunar-explorer/app.js',
+  './modules/lunar-explorer/style.css',
+  './modules/lunar-explorer/data.js',
+  './modules/lunar-explorer/translations.xml',
 
   // Cosmic Ladder Core
   './modules/cosmic-ladder/index.html',
