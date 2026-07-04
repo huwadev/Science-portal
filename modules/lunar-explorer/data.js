@@ -41,16 +41,21 @@ const lunarSites = [
     {type: 'crater', id: 'copernicus', name: 'Copernicus Crater', lat: 9.62, lon: -20.08, description: 'A magnificent impact crater visible with binoculars, located in eastern Oceanus Procellarum.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Copernicus_%28LRO%29_2.png/960px-Copernicus_%28LRO%29_2.png'},
     {type: 'crater', id: 'aristarchus', name: 'Aristarchus Crater', lat: 23.7, lon: -47.4, description: 'Considered the brightest of the large formations on the lunar surface.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Aristarchus_crater_4150_h3.jpg'},
     {type: 'crater', id: 'clavius', name: 'Clavius Crater', lat: -58.4, lon: -14.4, description: 'One of the largest crater formations on the Moon and the second largest crater on the visible near side.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/73/Clavius_LROC.jpg'},
-
+    {type: 'crater', id: 'plato', name: 'Plato Crater', lat: 51.6, lon: -9.3, description: 'A lava-filled lunar impact crater on the northern near side of the Moon.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Plato_crater_4128_h3.jpg/640px-Plato_crater_4128_h3.jpg'},
+    {type: 'crater', id: 'kepler', name: 'Kepler Crater', lat: 8.0, lon: -38.0, description: 'A lunar impact crater that lies between the Oceanus Procellarum to the west and Mare Insularum in the east.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Kepler_LRO.png/640px-Kepler_LRO.png'},
+    {type: 'crater', id: 'ptolemaeus', name: 'Ptolemaeus Crater', lat: -9.2, lon: -1.8, description: 'An ancient lunar impact crater close to the center of the near side.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Ptolemaeus_%28LRO%29.png/640px-Ptolemaeus_%28LRO%29.png'},
     // MARIA
     {type: 'mare', id: 'mare-imbrium', name: 'Mare Imbrium (Sea of Showers)', lat: 32.8, lon: -15.6, description: 'A vast lunar mare created when lava flooded the giant crater formed by a massive asteroid impact.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/0/03/Mare_Imbrium_%28LRO%29.png'},
     {type: 'mare', id: 'oceanus-procellarum', name: 'Oceanus Procellarum (Ocean of Storms)', lat: 10.4, lon: -53.4, description: 'The largest of the lunar maria, stretching 2,500 kilometers across its north-south axis.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Oceanus_Procellarum_%28LRO%29.png'},
     {type: 'mare', id: 'mare-serenitatis', name: 'Mare Serenitatis (Sea of Serenity)', lat: 28.0, lon: 17.5, description: 'A lunar mare located to the east of Mare Imbrium.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Mare_Serenitatis_-_Clementine.jpg'},
     {type: 'mare', id: 'mare-crisium', name: 'Mare Crisium (Sea of Crises)', lat: 17.0, lon: 59.1, description: 'A lunar mare located in the Moon\'s Crisium basin, just northeast of Mare Tranquillitatis.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/66/Mare_Crisium_%28LRO%29.png'},
-
+    {type: 'mare', id: 'mare-tranquillitatis', name: 'Mare Tranquillitatis (Sea of Tranquility)', lat: 8.5, lon: 31.4, description: 'A lunar mare that served as the landing site for Apollo 11.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/42/Mare_Tranquillitatis_%28LRO%29.png'},
+    {type: 'mare', id: 'mare-nectaris', name: 'Mare Nectaris (Sea of Nectar)', lat: -15.2, lon: 34.6, description: 'A small lunar mare located south of Mare Tranquillitatis.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/24/Mare_Nectaris_%28LRO%29.png'},
+    {type: 'mare', id: 'mare-fecunditatis', name: 'Mare Fecunditatis (Sea of Fecundity)', lat: -7.8, lon: 51.3, description: 'A lunar mare in the eastern half of the visible Moon.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/77/Mare_Fecunditatis_%28LRO%29.png'},
+    {type: 'mare', id: 'mare-frigoris', name: 'Mare Frigoris (Sea of Cold)', lat: 56.0, lon: 1.4, description: 'A lunar mare located in the far north of the Moon.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/70/Mare_Frigoris_%28LRO%29.png'},
     // MOUNTAINS
     {type: 'mountain', id: 'mons-huygens', name: 'Mons Huygens', lat: 19.92, lon: -2.86, description: 'The Moon\'s tallest mountain, rising over 5.5 kilometers (18,000 ft) high.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/4f/Mons_Ampere_Mons_Huygens_4109_h3.jpg'},
-
+    {type: 'mountain', id: 'montes-apenninus', name: 'Montes Apenninus', lat: 19.0, lon: -4.0, description: 'A rugged mountain range on the northern part of the Moon\'s near side, home to the Apollo 15 landing site.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/b/b3/Montes_Apenninus_%28LRO%29.png'},
     // PLANNED
     {type: 'planned', id: 'artemis3-shackleton', name: 'Artemis III: Shackleton Crater', lat: -89.9, lon: 0.0, description: 'A planned candidate landing region for NASA\'s Artemis III mission, located exactly at the lunar South Pole. The crater interior is permanently shadowed, potentially trapping water ice.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/1/18/Shackleton_crater_LRO_WAC.jpg'},
     {type: 'planned', id: 'artemis3-malapert', name: 'Artemis III: Malapert Massif', lat: -85.99, lon: -2.94, description: 'Another prime candidate landing region for Artemis III. This prominent mountain near the South Pole receives near-continuous sunlight and offers line-of-sight communication with Earth.', imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Lunar_south_pole.jpg'}
@@ -93,5 +98,13 @@ const siteTranslations = {
     'Mare Crisium (Sea of Crises)': 'ማሬ ክሪሲየም (የቀውስ ባህር)',
     'Mons Huygens': 'ሁይገንስ ተራራ',
     'Artemis III: Shackleton Crater': 'አርጤምስ 3: ሻክልተን ሸለቆ',
-    'Artemis III: Malapert Massif': 'አርጤምስ 3: ማላፐርት ተራራ'
+    'Artemis III: Malapert Massif': 'አርጤምስ 3: ማላፐርት ተራራ',
+    'Plato Crater': 'ፕላቶ ሸለቆ',
+    'Kepler Crater': 'ኬፕለር ሸለቆ',
+    'Ptolemaeus Crater': 'ቶለሚ ሸለቆ',
+    'Mare Tranquillitatis (Sea of Tranquility)': 'ማሬ ትራንኩሊቲ (የጸጥታ ባህር)',
+    'Mare Nectaris (Sea of Nectar)': 'ማሬ ኔክታሪስ (የኔክታር ባህር)',
+    'Mare Fecunditatis (Sea of Fecundity)': 'ማሬ ፌኩንዲቲ (የምርታማነት ባህር)',
+    'Mare Frigoris (Sea of Cold)': 'ማሬ ፍሪጎሪስ (የብርድ ባህር)',
+    'Montes Apenninus': 'አፔኒነስ ተራሮች'
 };
