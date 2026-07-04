@@ -2,6 +2,7 @@
 
 const lunarSites = [
     {
+        type: 'mission',
         id: 'apollo11',
         name: 'Apollo 11 Landing Site',
         lat: 0.6740,
@@ -11,6 +12,7 @@ const lunarSites = [
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/A_Man_on_the_Moon%2C_AS11-40-5903_%28cropped%29.jpg/960px-A_Man_on_the_Moon%2C_AS11-40-5903_%28cropped%29.jpg'
     },
     {
+        type: 'crater',
         id: 'tycho',
         name: 'Tycho Crater',
         lat: -43.30,
@@ -20,6 +22,7 @@ const lunarSites = [
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Tycho_LRO.png/960px-Tycho_LRO.png'
     },
     {
+        type: 'crater',
         id: 'copernicus',
         name: 'Copernicus Crater',
         lat: 9.62,
@@ -29,6 +32,7 @@ const lunarSites = [
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Copernicus_%28LRO%29_2.png/960px-Copernicus_%28LRO%29_2.png'
     },
     {
+        type: 'mission',
         id: 'chang-e-4',
         name: 'Chang\'e 4 (Von Kármán)',
         lat: -45.45,
@@ -38,6 +42,7 @@ const lunarSites = [
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/ChangE-4_-_PCAM.png/960px-ChangE-4_-_PCAM.png'
     },
     {
+        type: 'mountain',
         id: 'mons-huygens',
         name: 'Mons Huygens',
         lat: 19.92,
@@ -47,6 +52,7 @@ const lunarSites = [
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/4f/Mons_Ampere_Mons_Huygens_4109_h3.jpg'
     },
     {
+        type: 'mission',
         id: 'apollo15',
         name: 'Apollo 15 (Hadley Rille)',
         lat: 26.13,
@@ -56,6 +62,7 @@ const lunarSites = [
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/AS15-88-11866_-_Apollo_15_flag%2C_rover%2C_LM%2C_Irwin_-_restoration1.jpg/960px-AS15-88-11866_-_Apollo_15_flag%2C_rover%2C_LM%2C_Irwin_-_restoration1.jpg'
     },
     {
+        type: 'mare',
         id: 'mare-imbrium',
         name: 'Mare Imbrium (Sea of Showers)',
         lat: 32.8,
@@ -65,6 +72,7 @@ const lunarSites = [
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/0/03/Mare_Imbrium_%28LRO%29.png'
     },
     {
+        type: 'mare',
         id: 'oceanus-procellarum',
         name: 'Oceanus Procellarum (Ocean of Storms)',
         lat: 10.4,
@@ -74,6 +82,7 @@ const lunarSites = [
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Oceanus_Procellarum_%28LRO%29.png'
     },
     {
+        type: 'mission',
         id: 'apollo17',
         name: 'Apollo 17 (Taurus-Littrow)',
         lat: 20.1908,
@@ -83,6 +92,7 @@ const lunarSites = [
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Eugene_Cernan_at_the_LM%2C_Apollo_17%2C_AS17-134-20378.jpg'
     },
     {
+        type: 'crater',
         id: 'aristarchus',
         name: 'Aristarchus Crater',
         lat: 23.7,
@@ -92,6 +102,7 @@ const lunarSites = [
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Aristarchus_crater_4150_h3.jpg'
     },
     {
+        type: 'mare',
         id: 'mare-serenitatis',
         name: 'Mare Serenitatis (Sea of Serenity)',
         lat: 28.0,
@@ -101,6 +112,7 @@ const lunarSites = [
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Mare_Serenitatis_-_Clementine.jpg'
     },
     {
+        type: 'crater',
         id: 'clavius',
         name: 'Clavius Crater',
         lat: -58.4,
@@ -110,6 +122,7 @@ const lunarSites = [
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/73/Clavius_LROC.jpg'
     },
     {
+        type: 'mare',
         id: 'mare-crisium',
         name: 'Mare Crisium (Sea of Crises)',
         lat: 17.0,
@@ -119,6 +132,7 @@ const lunarSites = [
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/66/Mare_Crisium_%28LRO%29.png'
     },
     {
+        type: 'crater',
         id: 'south-pole-aitken',
         name: 'South Pole-Aitken Basin',
         lat: -53.0,
@@ -128,6 +142,7 @@ const lunarSites = [
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/3/32/Moon_back-view_%28Clementine%2C_cropped%29.png'
     },
     {
+        type: 'mission',
         id: 'luna-2',
         name: 'Luna 2 Impact Site',
         lat: 29.1,
@@ -135,6 +150,26 @@ const lunarSites = [
         description: 'The site where the Soviet spacecraft Luna 2 intentionally crashed on September 14, 1959. It was the first human-made object to ever reach the surface of the Moon.',
         descriptionAm: 'መስከረም 14 ቀን 1959 ዓ.ም የሶቪየት ህብረቱ ሉና 2 (Luna 2) የጠፈር መንኮራኩር ሆን ተብሎ ያረፈበት/የተከሰከሰበት ስፍራ ነው። ይህ የሰው ልጅ የሰራው እና የጨረቃን ገጽ ለመጀመሪያ ጊዜ የነካ ታሪካዊ ቁስ ነው።',
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Luna_1_-_2_Spacecraft.png'
+    },
+    {
+        type: 'planned',
+        id: 'artemis3-shackleton',
+        name: 'Artemis III: Shackleton Crater',
+        lat: -89.9,
+        lon: 0.0,
+        description: 'A planned candidate landing region for NASA\'s Artemis III mission, located exactly at the lunar South Pole. The crater interior is permanently shadowed, potentially trapping water ice.',
+        descriptionAm: 'ለናሳው (NASA) አርጤምስ 3 (Artemis III) ተልዕኮ ከታቀዱት ማረፊያ ቦታዎች አንዱ ሲሆን፣ በትክክል በጨረቃ ደቡብ ዋልታ ላይ ይገኛል። የሸለቆው ውስጠኛ ክፍል ቋሚ ጥላ ውስጥ በመሆኑ የውሃ በረዶ (water ice) ሊኖርበት ይችላል ተብሎ ይታሰባል።',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/1/18/Shackleton_crater_LRO_WAC.jpg'
+    },
+    {
+        type: 'planned',
+        id: 'artemis3-malapert',
+        name: 'Artemis III: Malapert Massif',
+        lat: -85.99,
+        lon: -2.94,
+        description: 'Another prime candidate landing region for Artemis III. This prominent mountain near the South Pole receives near-continuous sunlight and offers line-of-sight communication with Earth.',
+        descriptionAm: 'ለአርጤምስ 3 (Artemis III) ተልዕኮ ሌላኛው ዋና የእጩ ማረፊያ ቦታ ነው። በደቡብ ዋልታ አቅራቢያ የሚገኝ ይህ ታዋቂ ተራራ፣ ከሞላ ጎደል ቋሚ የፀሐይ ብርሃን የሚያገኝ ከመሆኑም በላይ ከመሬት ጋር ቀጥተኛ የሬዲዮ ግንኙነት (line-of-sight) ለማድረግ ያስችላል።',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Lunar_south_pole.jpg'
     }
 ];
 
@@ -265,17 +300,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Custom SVG Icons mapped by type
+    const makeIcon = (svg) => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    const icons = {
+        mission: makeIcon(`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFCC00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l4 10h-8z"/><path d="M12 22v-4"/><path d="M8 12l-4 6h16l-4-6"/></svg>`),
+        crater: makeIcon(`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>`),
+        mare: makeIcon(`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#88CCFF" stroke-width="2"><path d="M2 12c3-3 6-3 9 0s6 3 9 0"/></svg>`),
+        mountain: makeIcon(`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF7777" stroke-width="2"><path d="M3 20l9-16 9 16z"/></svg>`),
+        planned: makeIcon(`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00FF00" stroke-width="2" stroke-dasharray="3 3"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/></svg>`)
+    };
+
     // Add POIs to the globe
     lunarSites.forEach(site => {
         viewer.entities.add({
-            // Elevate the points 50km above the surface so they don't clip into bumpy terrain, 
-            // but still occlude on the far side of the moon
+            // Elevate the points 50km above the surface so they don't clip into bumpy terrain
             position: Cesium.Cartesian3.fromDegrees(site.lon, site.lat, 50000, Cesium.Ellipsoid.MOON),
-            point: {
-                pixelSize: 10,
-                color: Cesium.Color.fromCssColorString('#125DFF'),
-                outlineColor: Cesium.Color.WHITE,
-                outlineWidth: 2,
+            billboard: {
+                image: icons[site.type] || icons.crater,
+                width: 24,
+                height: 24,
                 distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0.0, 10000000)
             },
             label: {
@@ -285,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 outlineColor: Cesium.Color.BLACK,
                 outlineWidth: 4,
                 style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-                pixelOffset: new Cesium.Cartesian2(0, -20),
+                pixelOffset: new Cesium.Cartesian2(0, -25),
                 horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
                 verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                 distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0.0, 5000000)
