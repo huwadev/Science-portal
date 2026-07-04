@@ -4318,13 +4318,12 @@ function draw2DEclipseAnim() {
     ctx2d.stroke();
     
     // 4. Draw the interactive draggable Moon
+    const shadowLeftEdge = cx - shadowRadius2d;
     if (!r2IsDragging) {
         // If not dragging via mouse, position moon directly based on slider
-        const shadowLeftEdge = cx - shadowRadius2d;
         r2MoonX = shadowLeftEdge + moonRadius2d + (ratio * moonRadius2d * 2);
     } else {
         // If dragging via mouse, map r2MoonX back to ratio and update slider
-        const shadowLeftEdge = cx - shadowRadius2d;
         let newRatio = (r2MoonX - (shadowLeftEdge + moonRadius2d)) / (moonRadius2d * 2);
         
         // Clamp to min/max
@@ -4332,7 +4331,6 @@ function draw2DEclipseAnim() {
         if (newRatio > 4.5) newRatio = 4.5;
         
         // Enforce snapping if close to slot centers
-        const shadowLeftEdge = cx - shadowRadius2d;
         for (let snapRatio = 0; snapRatio <= Math.ceil(targetRatio); snapRatio++) {
             const slotX = shadowLeftEdge + moonRadius2d + (snapRatio * moonRadius2d * 2);
             if (Math.abs(r2MoonX - slotX) < 15) {
