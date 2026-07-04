@@ -110,27 +110,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Update info panel if open
-        const siteTitle = document.getElementById('site-title');
-        const siteDesc = document.getElementById('site-description');
-        if (siteTitle && !document.getElementById('info-panel').classList.contains('hidden')) {
-            const currentTitle = siteTitle.getAttribute('data-original-name');
+        const wikiTitle = document.getElementById('wiki-title');
+        const wikiExtract = document.getElementById('wiki-extract');
+        if (wikiTitle && document.getElementById('wiki-sidebar').classList.contains('active')) {
+            const currentTitle = wikiTitle.getAttribute('data-original-name');
             if (currentTitle) {
-                siteTitle.innerText = currentLang === 'am' && siteTranslations[currentTitle] 
+                wikiTitle.innerText = currentLang === 'am' && siteTranslations[currentTitle] 
                     ? siteTranslations[currentTitle] 
                     : currentTitle;
                     
                 // Find the site object to get its description
                 const activeSite = lunarSites.find(s => s.name === currentTitle);
-                if (activeSite && siteDesc) {
-                    siteDesc.innerText = currentLang === 'am' && activeSite.descriptionAm 
+                if (activeSite && wikiExtract) {
+                    wikiExtract.innerText = currentLang === 'am' && activeSite.descriptionAm 
                         ? activeSite.descriptionAm 
                         : activeSite.description;
-                }
-                
-                // Update wiki sidebar title if it's the same site
-                const wTitleEl = document.getElementById('wiki-title');
-                if (wTitleEl && document.getElementById('wiki-sidebar').classList.contains('active')) {
-                    wTitleEl.innerText = siteTitle.innerText;
                 }
             }
         }
@@ -240,13 +234,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Setup Close Button
+    document.getElementById('close-wiki-btn').addEventListener('click', () => {
+        document.getElementById('wiki-sidebar').classList.remove('active');
+    });
+
     // Setup Click Handler for POIs
     const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
     handler.setInputAction(function (click) {
         const pickedObject = viewer.scene.pick(click.position);
         if (Cesium.defined(pickedObject) && pickedObject.id && pickedObject.id.properties) {
             const site = pickedObject.id.properties.getValue(viewer.clock.currentTime);
-            showInfoPanel(site);
+            openWikiSidebar(site);
             
             // Fly to the clicked location
             viewer.camera.flyTo({
@@ -256,109 +255,74 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         } else {
             // Clicked empty space
-            document.getElementById('info-panel').classList.add('hidden');
+            document.getElementById('wiki-sidebar').classList.remove('active');
         }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-    // Setup Close Button
-    document.getElementById('close-btn').addEventListener('click', () => {
-        document.getElementById('info-panel').classList.add('hidden');
-        document.getElementById('wiki-sidebar').classList.remove('active');
-    });
+    function openWikiSidebar(site) {
+        const sidebar = document.getElementById('wiki-sidebar');
+        const title = document.getElementById('wiki-title');
+        const coords = document.getElementById('wiki-coords');
+        const extract = document.getElementById('wiki-extract');
+        const image = document.getElementById('wiki-image');
+        const loader = document.getElementById('wiki-image-loader');
+        const link = document.getElementById('wiki-link');
 
-    // Wiki Sidebar Logic
-    const readMoreBtn = document.getElementById('read-more-btn');
-    const wikiSidebar = document.getElementById('wiki-sidebar');
-    const closeWikiBtn = document.getElementById('close-wiki-btn');
-    
-    closeWikiBtn.addEventListener('click', () => {
-        wikiSidebar.classList.remove('active');
-    });
-
-    readMoreBtn.addEventListener('click', () => {
-        const wikiTitle = readMoreBtn.getAttribute('data-wiki-title');
-        if (!wikiTitle) return;
+        // Save original name for translation
+        title.setAttribute('data-original-name', site.name);
         
-        const wTitleEl = document.getElementById('wiki-title');
-        const wExtract = document.getElementById('wiki-extract');
-        const wImg = document.getElementById('wiki-image');
-        const wLink = document.getElementById('wiki-link');
-        
-        // Set loading state
-        wTitleEl.innerText = document.getElementById('site-title').innerText;
-        wExtract.innerHTML = '<i>Fetching data from Wikipedia...</i>';
-        wImg.style.display = 'none';
-        wLink.style.display = 'none';
-        
-        // Show sidebar
-        wikiSidebar.classList.add('active');
-        
-        // Fetch from Wikipedia API
-        fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle)}`)
-            .then(res => {
-                if (!res.ok) throw new Error('Wikipedia page not found');
-                return res.json();
-            })
-            .then(data => {
-                wExtract.innerHTML = data.extract_html || data.extract || 'No summary available.';
-                if (data.thumbnail && data.thumbnail.source) {
-                    wImg.src = data.thumbnail.source;
-                    wImg.style.display = 'block';
-                } else if (data.originalimage && data.originalimage.source) {
-                    wImg.src = data.originalimage.source;
-                    wImg.style.display = 'block';
-                }
-                if (data.content_urls && data.content_urls.desktop) {
-                    wLink.href = data.content_urls.desktop.page;
-                    wLink.style.display = 'inline-block';
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                wExtract.innerHTML = '<span style="color: #ff7777;">Failed to load Wikipedia content.</span>';
-            });
-    });
+        // Apply translation if Amharic is active
+        title.innerText = (typeof currentLang !== 'undefined' && currentLang === 'am' && siteTranslations && siteTranslations[site.name])
+            ? siteTranslations[site.name] 
+            : site.name;
 
-    function showInfoPanel(site) {
-    const panel = document.getElementById('info-panel');
-    const title = document.getElementById('site-title');
-    const coords = document.getElementById('site-coords');
-    const image = document.getElementById('site-image');
-    const desc = document.getElementById('site-description');
+        // Set Coordinates
+        const latStr = Math.abs(site.lat).toFixed(2) + '&deg; ' + (site.lat >= 0 ? 'N' : 'S');
+        const lonStr = Math.abs(site.lon).toFixed(2) + '&deg; ' + (site.lon >= 0 ? 'E' : 'W');
+        coords.innerHTML = `Lat: ${latStr}, Lon: ${lonStr}`;
+        
+        // Set local description
+        extract.innerText = (typeof currentLang !== 'undefined' && currentLang === 'am' && site.descriptionAm) 
+            ? site.descriptionAm 
+            : site.description;
 
-    // Save original name for translation
-    title.setAttribute('data-original-name', site.name);
-    
-    // Apply translation if Amharic is active
-    title.innerText = (typeof currentLang !== 'undefined' && currentLang === 'am' && siteTranslations && siteTranslations[site.name])
-        ? siteTranslations[site.name] 
-        : site.name;
+        // Reset Wiki Elements
+        image.style.display = 'none';
+        link.style.display = 'none';
+        
+        if (site.wikiTitle) {
+            loader.style.display = 'flex';
+            
+            // Fetch from Wikipedia API for Image and Link
+            fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(site.wikiTitle)}`)
+                .then(res => {
+                    if (!res.ok) throw new Error('Wikipedia page not found');
+                    return res.json();
+                })
+                .then(data => {
+                    loader.style.display = 'none';
+                    if (data.thumbnail && data.thumbnail.source) {
+                        image.src = data.thumbnail.source;
+                        image.style.display = 'block';
+                    } else if (data.originalimage && data.originalimage.source) {
+                        image.src = data.originalimage.source;
+                        image.style.display = 'block';
+                    }
+                    if (data.content_urls && data.content_urls.desktop) {
+                        link.href = data.content_urls.desktop.page;
+                        link.style.display = 'block';
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    loader.style.display = 'none';
+                });
+        } else {
+            loader.style.display = 'none';
+        }
 
-    const latStr = Math.abs(site.lat).toFixed(2) + '&deg; ' + (site.lat >= 0 ? 'N' : 'S');
-    const lonStr = Math.abs(site.lon).toFixed(2) + '&deg; ' + (site.lon >= 0 ? 'E' : 'W');
-    coords.innerHTML = `Lat: ${latStr}, Lon: ${lonStr}`;
-    
-    // Handle Read More Button
-    const readMoreBtn = document.getElementById('read-more-btn');
-    if (site.wikiTitle) {
-        readMoreBtn.style.display = 'block';
-        readMoreBtn.setAttribute('data-wiki-title', site.wikiTitle);
-    } else {
-        readMoreBtn.style.display = 'none';
+        sidebar.classList.add('active');
     }
-    
-    // Hide static image (moved to wiki sidebar)
-    if (image) image.style.display = 'none';
-    
-    desc.innerText = (typeof currentLang !== 'undefined' && currentLang === 'am' && site.descriptionAm) 
-        ? site.descriptionAm 
-        : site.description;
-
-    panel.classList.remove('hidden');
-    // Hide wiki sidebar when opening a new POI
-    const wikiSidebar = document.getElementById('wiki-sidebar');
-    if (wikiSidebar) wikiSidebar.classList.remove('active');
-}
 
     // --- Layer Toggling Logic ---
     const layerToggles = document.querySelectorAll('.layer-toggle');

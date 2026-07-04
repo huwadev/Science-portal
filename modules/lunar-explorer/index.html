@@ -67,28 +67,22 @@
             </div>
         </div>
 
-        <!-- Information Panel (Hidden by default) -->
-        <div id="info-panel" class="info-panel hidden">
-            <button id="close-btn" class="close-btn" aria-label="Close Info Panel">&times;</button>
-            <h2 id="site-title">Site Name</h2>
-            <div class="site-meta">
-                <span id="site-coords">Lat: 0.0&deg;, Lon: 0.0&deg;</span>
-            </div>
-            <img id="site-image" src="" alt="Site Image" style="width: 100%; border-radius: 8px; margin: 15px 0; display: none;">
-            <p id="site-description">Description goes here.</p>
-            <button id="read-more-btn" class="glass-btn" style="margin-top: 15px; width: 100%; padding: 10px; border-radius: 8px; display: none; text-align: center; font-weight: bold; background: rgba(0, 122, 255, 0.4); border: 1px solid rgba(0, 122, 255, 0.6); cursor: pointer; color: white; transition: all 0.3s ease;">Read More</button>
-        </div>
-
-        <!-- Wiki Sidebar -->
+        <!-- Sidebar Data Panel -->
         <div id="wiki-sidebar" class="wiki-sidebar glass-panel">
-            <button id="close-wiki-btn" class="close-btn" aria-label="Close Wiki Panel">&times;</button>
+            <button id="close-wiki-btn" class="close-btn" aria-label="Close Panel">&times;</button>
             <div class="wiki-header">
-                <img id="wiki-image" src="" alt="" style="width: 100%; display: none; border-radius: 12px 12px 0 0; object-fit: cover; max-height: 200px;">
+                <img id="wiki-image" src="" alt="Site Image" style="width: 100%; display: none; border-radius: 12px 12px 0 0; object-fit: cover; max-height: 200px;">
+                <div id="wiki-image-loader" style="width: 100%; height: 100px; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border-radius: 12px 12px 0 0;">
+                    <span style="color: rgba(255,255,255,0.6); font-size: 12px;">Loading image...</span>
+                </div>
             </div>
-            <div class="wiki-content-area" style="padding: 20px;">
-                <h2 id="wiki-title" style="margin-top: 0; font-size: 24px;"></h2>
-                <div id="wiki-extract" style="line-height: 1.6; font-size: 14px; margin-bottom: 20px;">Loading...</div>
-                <a id="wiki-link" href="#" target="_blank" rel="noopener" class="glass-btn" style="display: none; padding: 10px 15px; border-radius: 8px; text-decoration: none; color: white; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); text-align: center; transition: all 0.2s ease;">Open in Wikipedia ↗</a>
+            <div class="wiki-content-area" style="padding: 24px;">
+                <h2 id="wiki-title" style="margin-top: 0; margin-bottom: 8px; font-size: 24px;">Site Name</h2>
+                <div class="site-meta" style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(222, 235, 255, 0.1); font-size: 12px; color: #125DFF; font-family: 'Fira Code', monospace;">
+                    <span id="wiki-coords">Lat: 0.0&deg;, Lon: 0.0&deg;</span>
+                </div>
+                <div id="wiki-extract" style="line-height: 1.6; font-size: 14px; margin-bottom: 20px; color: rgba(222, 235, 255, 0.8);">Description goes here.</div>
+                <a id="wiki-link" href="#" target="_blank" rel="noopener" class="glass-btn" style="display: none; width: 100%; padding: 10px; border-radius: 8px; text-decoration: none; color: white; background: rgba(0, 122, 255, 0.4); border: 1px solid rgba(0, 122, 255, 0.6); text-align: center; font-weight: bold; transition: all 0.2s ease;">Open in Wikipedia ↗</a>
             </div>
         </div>
         
