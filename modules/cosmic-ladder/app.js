@@ -4318,7 +4318,6 @@ function draw2DEclipseAnim() {
     ctx2d.stroke();
     
     // 4. Draw the interactive draggable Moon
-    const shadowLeftEdge = cx - shadowRadius2d;
     if (!r2IsDragging) {
         // If not dragging via mouse, position moon directly based on slider
         r2MoonX = shadowLeftEdge + moonRadius2d + (ratio * moonRadius2d * 2);
