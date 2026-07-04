@@ -54,6 +54,42 @@ const lunarSites = [
         description: 'The site where David Scott and James Irwin explored the Moon for three days in 1971, deploying the first Lunar Roving Vehicle. The area features a massive canyon-like valley called Hadley Rille.',
         descriptionAm: 'እ.ኤ.አ. በ1971 ዴቪድ ስኮት እና ጀምስ ኢርዊን ለሶስት ቀናት ጨረቃን ያሰሱበት እና የመጀመሪያውን የጨረቃ መጓጓዣ ተሽከርካሪ (Lunar Roving Vehicle) ያሰማሩበት ቦታ ነው። አካባቢው ሃድሊ ሪሌ (Hadley Rille) የተባለ ግዙፍ ገደል መሰል ሸለቆን ያካተተ ነው።',
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/AS15-88-11866_-_Apollo_15_flag%2C_rover%2C_LM%2C_Irwin_-_restoration1.jpg/960px-AS15-88-11866_-_Apollo_15_flag%2C_rover%2C_LM%2C_Irwin_-_restoration1.jpg'
+    },
+    {
+        id: 'mare-imbrium',
+        name: 'Mare Imbrium (Sea of Showers)',
+        lat: 32.8,
+        lon: -15.6,
+        description: 'One of the largest impact basins in the Solar System, filled with smooth, dark basalt. It is easily visible from Earth and forms the right eye of the "Man in the Moon".',
+        descriptionAm: 'በስርዓተ-ፀሐይ ውስጥ ካሉት ትላልቅ የላቫ ሜዳዎች (impact basins) አንዱ ሲሆን፣ ለስላሳ እና ጥቁር በሆነ የባዝልት አለት የተሞላ ነው። ከመሬት ሆኖ በግልጽ የሚታይ ሲሆን "የጨረቃ ላይ ሰው" (Man in the Moon) እየተባለ ከሚጠራው ምስል የቀኝ ዓይንን ይፈጥራል።',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Mare_Imbrium_%28LRO%29.png/960px-Mare_Imbrium_%28LRO%29.png'
+    },
+    {
+        id: 'oceanus-procellarum',
+        name: 'Oceanus Procellarum (Ocean of Storms)',
+        lat: 10.4,
+        lon: -43.3,
+        description: 'The largest of the lunar maria, located on the western edge of the near side. It covers roughly 4 million square kilometers and is the only feature called an "Ocean" rather than a "Sea".',
+        descriptionAm: 'በጨረቃ ምዕራባዊ ክፍል የሚገኝ ትልቁ ማሪያ (maria) ወይም የላቫ ሜዳ ነው። ወደ 4 ሚሊዮን ካሬ ኪሎ ሜትር የሚሸፍን ሲሆን፣ "ባህር" (Sea) ከሚባሉት ሌሎች ሜዳዎች በተለየ "ውቅያኖስ" (Ocean) የሚል ስያሜ የተሰጠው ብቸኛ ስፍራ ነው።',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Oceanus_Procellarum_%28LRO%29.png/960px-Oceanus_Procellarum_%28LRO%29.png'
+    },
+    {
+        id: 'apollo17',
+        name: 'Apollo 17 (Taurus-Littrow)',
+        lat: 20.1908,
+        lon: 30.7717,
+        description: 'The landing site of the final Apollo mission in 1972. Astronauts Eugene Cernan and Harrison Schmitt explored this valley in the lunar highlands, collecting ancient highland crust and volcanic soil.',
+        descriptionAm: 'እ.ኤ.አ. በ1972 የመጨረሻው የአፖሎ ተልዕኮ ያረፈበት ቦታ ነው። የጠፈር ተመራማሪዎች ዩጂን ሰርናን እና ሃሪሰን ሽሚት ይህንን የጨረቃ ደጋማ ሸለቆ በመመርመር ጥንታዊ የደጋ ቅርፊቶችን እና የእሳተ ገሞራ አፈርን ሰብስበዋል።',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Apollo_17_Cernan_on_rover.jpg/960px-Apollo_17_Cernan_on_rover.jpg'
+    },
+    {
+        id: 'aristarchus',
+        name: 'Aristarchus Crater',
+        lat: 23.7,
+        lon: -47.4,
+        description: 'One of the brightest formations on the lunar surface, visible to the naked eye. The crater has high albedo due to fresh, unweathered material excavated by a relatively recent impact.',
+        descriptionAm: 'በጨረቃ ገጽ ላይ በዓይን ከሚታዩ በጣም ብሩህ ስፍራዎች አንዱ ነው። ይህ ሸለቆ በቅርብ ጊዜ በተፈጠረ ተፅዕኖ ምክንያት አዲስ እና ያልተሸረሸረ ቁስ ስለወጣ ከፍተኛ የብርሃን ነጸብራቅ (albedo) አለው።',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Aristarchus_Crater_-_LROC_-_WAC.jpg/960px-Aristarchus_Crater_-_LROC_-_WAC.jpg'
     }
 ];
 
