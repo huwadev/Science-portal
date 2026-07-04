@@ -165,9 +165,10 @@ function renderModuleDashboard() {
         tabsHTML += `<div class="category-group ${isExpanded}">`;
         
         // Render category header button with chevron
+        const catKey = 'cat_' + category.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_');
         tabsHTML += `
             <button class="category-header">
-                <span class="category-name">${category}</span>
+                <span class="category-name" data-i18n="${catKey}">${category}</span>
                 <svg class="chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
@@ -181,12 +182,15 @@ function renderModuleDashboard() {
                                     mod.complexity.toLowerCase() === 'high' ? 'high' :
                                     mod.complexity.toLowerCase() === 'medium' ? 'medium' : 'low';
             
-            let buttonHTML = `<a href="${mod.href}" class="btn btn-primary btn-launch">
-                                Launch Module
+            let buttonHTML = `<a href="#" class="btn btn-primary btn-launch disabled" onclick="return false;"><span data-i18n="mod_btn_pending">Pending</span></a>`;
+            if (mod.status === 'build') {
+                buttonHTML = `<a href="${mod.href}" class="btn btn-primary btn-launch">
+                                <span data-i18n="mod_btn_launch">Launch Module</span>
                                 <svg class="btn-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                                 </svg>
                               </a>`;
+            }
 
             // Tab Button
             tabsHTML += `
@@ -194,12 +198,13 @@ function renderModuleDashboard() {
                     <div class="tab-icon">${mod.iconSvg}</div>
                     <div class="tab-label">
                         <span class="tab-num">${mod.num}</span>
-                        <span class="tab-title">${mod.title}</span>
+                        <span class="tab-title" data-i18n="${mod.id}_title">${mod.title}</span>
                     </div>
                 </button>
             `;
 
             // Showcase Pane
+            const modCatKey = 'cat_' + mod.category.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_');
             showcaseHTML += `
                 <div class="module-pane ${isActive}" id="pane-${mod.id}">
                     <div class="pane-visual">
@@ -209,14 +214,14 @@ function renderModuleDashboard() {
                     </div>
                     <div class="pane-content">
                         <div class="pane-meta">
-                            <span class="meta-tag complexity-${complexityClass}">${mod.complexity} Complexity</span>
-                            <span class="meta-tag audience">${mod.audience}</span>
+                            <span class="meta-tag complexity-${complexityClass}" data-i18n="comp_${complexityClass}">${mod.complexity} Complexity</span>
+                            <span class="meta-tag audience" data-i18n="aud_${mod.audience.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_')}">${mod.audience}</span>
                         </div>
-                        <span class="category-lbl">${mod.category}</span>
-                        <h3>${mod.title}</h3>
-                        <p>${mod.concept}</p>
+                        <span class="category-lbl" data-i18n="${modCatKey}">${mod.category}</span>
+                        <h3 data-i18n="${mod.id}_title">${mod.title}</h3>
+                        <p data-i18n="${mod.id}_concept">${mod.concept}</p>
                         <div class="pane-tech">
-                            <span>Powered by:</span> ${mod.tech}
+                            <span data-i18n="powered_by">Powered by:</span> ${mod.tech}
                         </div>
                         ${buttonHTML}
                     </div>
@@ -252,7 +257,7 @@ function renderModuleDashboard() {
                                     mod.complexity.toLowerCase() === 'high' ? 'high' :
                                     mod.complexity.toLowerCase() === 'medium' ? 'medium' : 'low';
             
-            let buttonHTML = `<a href="#" class="btn btn-primary btn-launch disabled" onclick="return false;">Pending</a>`;
+            let buttonHTML = `<a href="#" class="btn btn-primary btn-launch disabled" onclick="return false;"><span data-i18n="mod_btn_pending">Pending</span></a>`;
 
             // Tab Button
             tabsHTML += `
@@ -260,12 +265,13 @@ function renderModuleDashboard() {
                     <div class="tab-icon">${mod.iconSvg}</div>
                     <div class="tab-label">
                         <span class="tab-num">${mod.num}</span>
-                        <span class="tab-title">${mod.title}</span>
+                        <span class="tab-title" data-i18n="${mod.id}_title">${mod.title}</span>
                     </div>
                 </button>
             `;
 
             // Showcase Pane
+            const modCatKey = 'cat_' + mod.category.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_');
             showcaseHTML += `
                 <div class="module-pane ${isActive}" id="pane-${mod.id}">
                     <div class="pane-visual">
@@ -275,14 +281,14 @@ function renderModuleDashboard() {
                     </div>
                     <div class="pane-content">
                         <div class="pane-meta">
-                            <span class="meta-tag complexity-${complexityClass}">${mod.complexity} Complexity</span>
-                            <span class="meta-tag audience">${mod.audience}</span>
+                            <span class="meta-tag complexity-${complexityClass}" data-i18n="comp_${complexityClass}">${mod.complexity} Complexity</span>
+                            <span class="meta-tag audience" data-i18n="aud_${mod.audience.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_')}">${mod.audience}</span>
                         </div>
-                        <span class="category-lbl">${mod.category}</span>
-                        <h3>${mod.title}</h3>
-                        <p>${mod.concept}</p>
+                        <span class="category-lbl" data-i18n="${modCatKey}">${mod.category}</span>
+                        <h3 data-i18n="${mod.id}_title">${mod.title}</h3>
+                        <p data-i18n="${mod.id}_concept">${mod.concept}</p>
                         <div class="pane-tech">
-                            <span>Powered by:</span> ${mod.tech}
+                            <span data-i18n="powered_by">Powered by:</span> ${mod.tech}
                         </div>
                         ${buttonHTML}
                     </div>
@@ -328,6 +334,11 @@ function renderModuleDashboard() {
             group.classList.toggle('expanded');
         });
     });
+
+    // Apply translations to the newly generated DOM elements
+    if (window.setLanguage) {
+        window.setLanguage(localStorage.getItem('esss_science_lang') || 'en');
+    }
 }
 
 document.addEventListener('DOMContentLoaded', renderModuleDashboard);

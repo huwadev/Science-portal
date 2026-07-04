@@ -41,6 +41,16 @@ document.addEventListener('DOMContentLoaded', () => {
             feat_2: "Accurate orbital mechanics & scaling",
             feat_3: "Bilingual guidance & rich educational details",
             featured_button: "Launch Interactive Map",
+            lunar_tag: "Flagship Project",
+            lunar_title_main: "3D Interactive Lunar Explorer",
+            status_active_lunar: "Interactive Tool",
+            lunar_title: "Lunar Explorer & Topography",
+            lunar_desc: "Explore the Moon in full 3D. Inspect historic landing sites, craters, and maria using high-resolution NASA topology data mapped to a realistic spherical globe.",
+            lunar_features_title: "Key Features:",
+            lunar_feat_1: "High-resolution 3D terrain",
+            lunar_feat_2: "50+ annotated historic locations",
+            lunar_feat_3: "Offline-ready bilingual encyclopedia",
+            lunar_button: "Launch Lunar Explorer",
             future_tag: "Library",
             future_title: "Scientific Modules",
             future_subtitle: "Explore our collection of interactive scientific tools and educational portals.",
@@ -61,6 +71,53 @@ document.addEventListener('DOMContentLoaded', () => {
             footer_links_title: "Quick Links",
             footer_main_site: "Official Website",
             footer_social_title: "Connect",
+            
+            // Scientific Modules & Categories
+            in_development: "In Development",
+            mod_btn_pending: "Pending",
+            mod_btn_launch: "Launch Module",
+            powered_by: "Powered by:",
+            
+            cat_planetary_science: "Planetary Science",
+            cat_astrophysics: "Astrophysics",
+            cat_cosmology___relativity: "Cosmology & Relativity",
+            cat_astrobiology: "Astrobiology",
+            cat_aerospace_engineering: "Aerospace Engineering",
+            cat_space_weather___physics: "Space Weather & Physics",
+            cat_radio_science: "Radio Science",
+            cat_earth_observation___climate: "Earth Observation & Climate",
+            
+            comp_ultra: "Ultra",
+            comp_high: "High",
+            comp_medium: "Medium",
+            comp_low: "Low",
+            
+            aud_all: "All",
+            aud_students___teachers: "Students & Teachers",
+            aud_students___enthusiasts: "Students & Enthusiasts",
+            aud_enthusiasts___nerds: "Enthusiasts & Nerds",
+            
+            "module-cosmic-ladder_title": "The Cosmic Distance Ladder",
+            "module-cosmic-ladder_concept": "Interactive journey through history to measure the scale of the universe.",
+            "module-1_title": "Exoplanet Transit Light Curve Lab",
+            "module-1_concept": "Simulate a planet crossing a star to plot light dimming curves.",
+            "module-2_title": "Gravitational Slingshot Sandbox",
+            "module-2_concept": "Launch a probe past a moving planet to alter its heliocentric velocity.",
+            "module-3_title": "Amateur Rocket Ballistics Engine",
+            "module-3_concept": "Design a rocket, calculate stability, and simulate flight profiles with 2D wind drift.",
+            "module-4_title": "LEO Satellite Pass & Doppler Calculator",
+            "module-4_concept": "Predict satellite visibility footprints and real-time radio frequency shifts.",
+            "module-5_title": "Radio Aperture Synthesis Visualizer",
+            "module-5_concept": "Arrange antenna arrays to observe how layouts dictate radio image resolution.",
+            "module-6_title": "Multi-Phase Orbital Mechanics Simulator",
+            "module-6_concept": "Gamified physics sandbox for gravity turns, Hohmann transfers, and rendezvous.",
+            "module-7_title": "Live Solar Activity & SOHO Viewer",
+            "module-7_concept": "Real-time dashboard fetching live sun imagery from SOHO and GOES.",
+            "module-8_title": "Virtual Wave Optics Lab",
+            "module-8_concept": "Interactive lab to simulate double-slit diffraction, interference, and polarization.",
+            "module-9_title": "Plasma & EM Field Simulator",
+            "module-9_concept": "Visualize how charged particles interact with Earth's magnetic field.",
+
             footer_copyright: "Ethiopian Space Science Society (ESSS). All rights reserved."
         },
         [LANG_AM]: {
@@ -83,6 +140,16 @@ document.addEventListener('DOMContentLoaded', () => {
             feat_2: "ትክክለኛ የሰውነት ምህዋር እና መጠን ማስተካከያ",
             feat_3: "ሁለት ቋንቋዎችን የሚደግፍና ሰፊ ትምህርታዊ መግለጫ",
             featured_button: "በይነተገናኙን ካርታ ክፈት",
+            lunar_tag: "ዋና ፕሮጀክት",
+            lunar_title_main: "ባለ 3-ዲ በይነተገናኝ የጨረቃ ማሰሻ",
+            status_active_lunar: "መተግበሪያ",
+            lunar_title: "የጨረቃ ማሰሻ እና ገጽታ",
+            lunar_desc: "ጨረቃን በ3-ዲ ያስሱ። ከፍተኛ ጥራት ያለው የናሳ መረጃን በመጠቀም ታሪካዊ የማረፊያ ቦታዎችን፣ ቆሬዎችን እና ሜዳዎችን በተጨባጭ ምናባዊ ሞዴል ይመልከቱ።",
+            lunar_features_title: "ዋና ዋና ባህሪያት፡",
+            lunar_feat_1: "ከፍተኛ ጥራት ያለው የ3-ዲ ገጽታ",
+            lunar_feat_2: "ከ50 በላይ የተብራሩ ታሪካዊ ቦታዎች",
+            lunar_feat_3: "ከመስመር ውጭ የሚሰራ ባለሁለት ቋንቋ መዝገበ-ዕውቀት",
+            lunar_button: "የጨረቃ ማሰሻን ክፈት",
             future_tag: "ክምችት",
             future_title: "ሳይንሳዊ ሞጁሎች",
             future_subtitle: "በይነተገናኝ የሆኑ ሳይንሳዊ መተግበሪያዎች እና ትምህርታዊ ፖርታሎችን ያስሱ።",
@@ -103,6 +170,53 @@ document.addEventListener('DOMContentLoaded', () => {
             footer_links_title: "ፈጣን አገናኞች",
             footer_main_site: "ዋናው ድረ-ገጽ",
             footer_social_title: "ይገናኙን",
+            
+            // Scientific Modules & Categories (Amharic)
+            in_development: "በእቅድ ላይ ያሉ",
+            mod_btn_pending: "በመሰራት ላይ",
+            mod_btn_launch: "ሞጁሉን ክፈት",
+            powered_by: "የተገነባው በ፡",
+            
+            cat_planetary_science: "የፕላኔቶች ሳይንስ",
+            cat_astrophysics: "አስትሮፊዚክስ",
+            cat_cosmology___relativity: "ኮስሞሎጂ እና አንጻራዊነት",
+            cat_astrobiology: "አስትሮባዮሎጂ",
+            cat_aerospace_engineering: "ኤሮስፔስ ኢንጂነሪንግ",
+            cat_space_weather___physics: "የጠፈር አየር ሁኔታ እና ፊዚክስ",
+            cat_radio_science: "የሬዲዮ ሳይንስ",
+            cat_earth_observation___climate: "የመሬት ምልከታ እና የአየር ንብረት",
+            
+            comp_ultra: "እጅግ ከፍተኛ",
+            comp_high: "ከፍተኛ",
+            comp_medium: "መካከለኛ",
+            comp_low: "ቀላል",
+            
+            aud_all: "ለሁሉም",
+            aud_students___teachers: "ተማሪዎች እና መምህራን",
+            aud_students___enthusiasts: "ተማሪዎች እና ወዳጆች",
+            aud_enthusiasts___nerds: "የሳይንስ ወዳጆች",
+            
+            "module-cosmic-ladder_title": "የኮስሚክ ርቀት መሰላል",
+            "module-cosmic-ladder_concept": "የዩኒቨርስን ስፋት ለመለካት የሚረዳ በይነተገናኝ ታሪካዊ ጉዞ።",
+            "module-1_title": "የኤክሶፕላኔት ሽግግር የብርሃን ቅነሳ ቤተ-ሙከራ",
+            "module-1_concept": "አንድ ፕላኔት በኮከብ ፊት ሲያልፍ የሚኖረውን የብርሃን መቀነስ ያስመስሉ።",
+            "module-2_title": "የስበት ኃይል ወንጭፍ መለማመጃ",
+            "module-2_concept": "መንኮራኩርን በሚንቀሳቀስ ፕላኔት አቅራቢያ በማሳለፍ ፍጥነቷን ይቀይሩ።",
+            "module-3_title": "የሮኬት በረራ ስሌት መለማመጃ",
+            "module-3_concept": "ሮኬት ይንደፉ፣ መረጋጋቱን ያሰሉ እና የንፋስ ተፅዕኖን ያካተተ የበረራ ሂደት ያስመስሉ።",
+            "module-4_title": "የዝቅተኛ ምህዋር ሳተላይት እና ዶፕለር ማስያ",
+            "module-4_concept": "የሳተላይት መታያ ቦታዎችን እና የሬዲዮ ድግግሞሽ ለውጦችን በቅጽበት ይተነብዩ።",
+            "module-5_title": "የሬዲዮ ቴሌስኮፕ ውህደት አሳያ",
+            "module-5_concept": "የአንቴናዎችን አቀማመጥ በመቀየር የሬዲዮ ምስል ጥራት እንዴት እንደሚቀየር ይመልከቱ።",
+            "module-6_title": "የምህዋር ሜካኒክስ ማስመሰያ",
+            "module-6_concept": "የስበት መታጠፍ እና የምህዋር ሽግግርን ለመለማመድ የሚረዳ ፊዚክሳዊ ጨዋታ።",
+            "module-7_title": "የፀሐይ እንቅስቃሴ እና የ SOHO ምስሎች መከታተያ",
+            "module-7_concept": "ከ SOHO እና GOES የሚገኙ የቀጥታ የፀሐይ ምስሎችን የሚያሳይ መከታተያ።",
+            "module-8_title": "የሞገድ ኦፕቲክስ ምናባዊ ቤተ-ሙከራ",
+            "module-8_concept": "የብርሃን ስብራት እና መተላለፍን ለማሳየት የሚረዳ በይነተገናኝ ቤተ-ሙከራ።",
+            "module-9_title": "የፕላዝማ እና ኤሌክትሮማግኔቲክ መስክ ማስመሰያ",
+            "module-9_concept": "ቻርጅ ያላቸው ቅንጣቶች ከመሬት መግነጢሳዊ መስክ ጋር እንዴት እንደሚገናኙ ይመልከቱ።",
+
             footer_copyright: "የኢትዮጵያ ስፔስ ሳይንስ ሶሳይቲ (ESSS)። መብቱ በህግ የተጠበቀ ነው።"
         }
     };
@@ -150,6 +264,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Expose globally so modules-data.js can trigger translations after rendering
+    window.setLanguage = setLanguage;
 
     // Toggle click handler
     if (langBtn) {
