@@ -126,6 +126,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         ? activeSite.descriptionAm 
                         : activeSite.description;
                 }
+                
+                // Update wiki sidebar title if it's the same site
+                const wTitleEl = document.getElementById('wiki-title');
+                if (wTitleEl && document.getElementById('wiki-sidebar').classList.contains('active')) {
+                    wTitleEl.innerText = siteTitle.innerText;
+                }
             }
         }
     }
@@ -257,7 +263,62 @@ document.addEventListener('DOMContentLoaded', () => {
     // Setup Close Button
     document.getElementById('close-btn').addEventListener('click', () => {
         document.getElementById('info-panel').classList.add('hidden');
+        document.getElementById('wiki-sidebar').classList.remove('active');
     });
+
+    // Wiki Sidebar Logic
+    const readMoreBtn = document.getElementById('read-more-btn');
+    const wikiSidebar = document.getElementById('wiki-sidebar');
+    const closeWikiBtn = document.getElementById('close-wiki-btn');
+    
+    closeWikiBtn.addEventListener('click', () => {
+        wikiSidebar.classList.remove('active');
+    });
+
+    readMoreBtn.addEventListener('click', () => {
+        const wikiTitle = readMoreBtn.getAttribute('data-wiki-title');
+        if (!wikiTitle) return;
+        
+        const wTitleEl = document.getElementById('wiki-title');
+        const wExtract = document.getElementById('wiki-extract');
+        const wImg = document.getElementById('wiki-image');
+        const wLink = document.getElementById('wiki-link');
+        
+        // Set loading state
+        wTitleEl.innerText = document.getElementById('site-title').innerText;
+        wExtract.innerHTML = '<i>Fetching data from Wikipedia...</i>';
+        wImg.style.display = 'none';
+        wLink.style.display = 'none';
+        
+        // Show sidebar
+        wikiSidebar.classList.add('active');
+        
+        // Fetch from Wikipedia API
+        fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle)}`)
+            .then(res => {
+                if (!res.ok) throw new Error('Wikipedia page not found');
+                return res.json();
+            })
+            .then(data => {
+                wExtract.innerHTML = data.extract_html || data.extract || 'No summary available.';
+                if (data.thumbnail && data.thumbnail.source) {
+                    wImg.src = data.thumbnail.source;
+                    wImg.style.display = 'block';
+                } else if (data.originalimage && data.originalimage.source) {
+                    wImg.src = data.originalimage.source;
+                    wImg.style.display = 'block';
+                }
+                if (data.content_urls && data.content_urls.desktop) {
+                    wLink.href = data.content_urls.desktop.page;
+                    wLink.style.display = 'inline-block';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                wExtract.innerHTML = '<span style="color: #ff7777;">Failed to load Wikipedia content.</span>';
+            });
+    });
+
     function showInfoPanel(site) {
     const panel = document.getElementById('info-panel');
     const title = document.getElementById('site-title');
@@ -277,19 +338,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const lonStr = Math.abs(site.lon).toFixed(2) + '&deg; ' + (site.lon >= 0 ? 'E' : 'W');
     coords.innerHTML = `Lat: ${latStr}, Lon: ${lonStr}`;
     
-    // Set Image
-    if (site.imageUrl) {
-        image.src = site.imageUrl;
-        image.style.display = 'block';
+    // Handle Read More Button
+    const readMoreBtn = document.getElementById('read-more-btn');
+    if (site.wikiTitle) {
+        readMoreBtn.style.display = 'block';
+        readMoreBtn.setAttribute('data-wiki-title', site.wikiTitle);
     } else {
-        image.style.display = 'none';
+        readMoreBtn.style.display = 'none';
     }
+    
+    // Hide static image (moved to wiki sidebar)
+    if (image) image.style.display = 'none';
     
     desc.innerText = (typeof currentLang !== 'undefined' && currentLang === 'am' && site.descriptionAm) 
         ? site.descriptionAm 
         : site.description;
 
     panel.classList.remove('hidden');
+    // Hide wiki sidebar when opening a new POI
+    const wikiSidebar = document.getElementById('wiki-sidebar');
+    if (wikiSidebar) wikiSidebar.classList.remove('active');
 }
 
     // --- Layer Toggling Logic ---
