@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" ?>
+<?xml version="1.0" ?>
 <translations>
   <poi id="apollo11" image="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/A_Man_on_the_Moon%2C_AS11-40-5903_%28cropped%29.jpg/330px-A_Man_on_the_Moon%2C_AS11-40-5903_%28cropped%29.jpg" url="https://en.wikipedia.org/wiki/Apollo_11">
     <en>
@@ -21,7 +21,7 @@
       <extract>Apollo 14 was the eighth crewed mission in the United States Apollo program operated by NASA, the third to land on the Moon, and the first to land in the lunar highlands. It was the last of the "H missions", landings at specific sites of scientific interest on the Moon for two-day stays with two lunar extravehicular activities.</extract>
     </en>
     <am>
-      <extract>Apollo 14 was the eighth crewed mission in the United States Apollo program operated by NASA, the third to land on the Moon, and the first to land in the lunar highlands. It was the last of the "H missions", landings at specific sites of scientific interest on the Moon for two-day stays with two lunar extravehicular activities.</extract>
+      <extract>አፖሎ 14 በናሳ የሚተዳደረው ስምንተኛው ተጓዥ ተልእኮ ነበር፣ ሦስተኛው በጨረቃ ላይ ያረፈ እና በጨረቃ ደጋማ ቦታዎች ላይ ያረፈ። የ"H ተልእኮዎች" የመጨረሻው ነበር፣ በጨረቃ ላይ ሳይንሳዊ ፍላጎት ባላቸው ልዩ ጣቢያዎች ላይ ለሁለት ቀናት ቆይታ በሁለት የጨረቃ ከተሽከርካሪ ውጭ እንቅስቃሴዎች።</extract>
     </am>
   </poi>
   <poi id="apollo15" image="https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/AS15-88-11866_-_Apollo_15_flag%2C_rover%2C_LM%2C_Irwin_-_restoration1.jpg/330px-AS15-88-11866_-_Apollo_15_flag%2C_rover%2C_LM%2C_Irwin_-_restoration1.jpg" url="https://en.wikipedia.org/wiki/Apollo_15">
@@ -29,7 +29,7 @@
       <extract>Apollo 15 was the ninth crewed mission in the Apollo program and the fourth Moon landing. It was the first J mission, with a longer stay on the Moon and a greater focus on science than earlier landings. Apollo 15 saw the first use of the Lunar Roving Vehicle.</extract>
     </en>
     <am>
-      <extract>Apollo 15 was the ninth crewed mission in the Apollo program and the fourth Moon landing. It was the first J mission, with a longer stay on the Moon and a greater focus on science than earlier landings. Apollo 15 saw the first use of the Lunar Roving Vehicle.</extract>
+      <extract>አፖሎ 15 በአፖሎ ፕሮግራም ዘጠነኛው የበረራ ተልእኮ እና አራተኛው የጨረቃ ማረፊያ ነበር። በጨረቃ ላይ ረዘም ያለ ቆይታ ያለው እና በሳይንስ ላይ ከቀደምት ማረፊያዎች የበለጠ ትኩረት ያለው የመጀመሪያው ጄ ተልዕኮ ነበር። አፖሎ 15 የጨረቃ ሮቪንግ ተሽከርካሪን ለመጀመሪያ ጊዜ ሲጠቀም አይቷል።</extract>
     </am>
   </poi>
   <poi id="apollo16" image="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/John_W._Young_on_the_Moon.jpg/330px-John_W._Young_on_the_Moon.jpg" url="https://en.wikipedia.org/wiki/Apollo_16">
@@ -37,7 +37,7 @@
       <extract>Apollo 16 was the tenth crewed mission in the United States Apollo space program, administered by NASA, and the fifth and penultimate to land on the Moon. It was the second of Apollo's "J missions", with an extended stay on the lunar surface, a focus on science, and the use of the Lunar Roving Vehicle (LRV). The landing and exploration were in the Descartes Highlands, a site chosen because some scientists expected it to be an area formed by volcanic action, though this proved not to be the case.</extract>
     </en>
     <am>
-      <extract>Apollo 16 was the tenth crewed mission in the United States Apollo space program, administered by NASA, and the fifth and penultimate to land on the Moon. It was the second of Apollo's "J missions", with an extended stay on the lunar surface, a focus on science, and the use of the Lunar Roving Vehicle (LRV). The landing and exploration were in the Descartes Highlands, a site chosen because some scientists expected it to be an area formed by volcanic action, though this proved not to be the case.</extract>
+      <extract>አፖሎ 16 በናሳ የሚተዳደረው በዩናይትድ ስቴትስ አፖሎ የጠፈር ፕሮግራም ውስጥ አሥረኛው የበረራ ተልእኮ ሲሆን አምስተኛው እና በጨረቃ ላይ የሚያርፍ ነው። በጨረቃ ወለል ላይ ረዘም ያለ ቆይታ ያለው ፣በሳይንስ ላይ ያተኮረ እና የጨረቃ ሮቪንግ ተሽከርካሪ (LRV) አጠቃቀም ያለው የአፖሎ “ጄ ሚሲዮን” ሁለተኛው ነበር። የማረፊያው እና አሰሳው በዴካርት ሃይላንድስ ነበር፣ አንዳንድ ሳይንቲስቶች በእሳተ ገሞራ ድርጊት የተፈጠረ አካባቢ ነው ብለው ጠብቀው የመረጡት ቦታ፣ ይህ ግን እንደዛ ባይሆንም።</extract>
     </am>
   </poi>
   <poi id="apollo17" image="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Eugene_Cernan_at_the_LM%2C_Apollo_17%2C_AS17-134-20378.jpg/330px-Eugene_Cernan_at_the_LM%2C_Apollo_17%2C_AS17-134-20378.jpg" url="https://en.wikipedia.org/wiki/Apollo_17">
@@ -45,7 +45,7 @@
       <extract>Apollo 17 was the eleventh and final crewed mission of NASA's Apollo program, the sixth and most recent time humans have set foot on the Moon. Commander Gene Cernan and Lunar Module Pilot Harrison Schmitt walked on the Moon, while Command Module Pilot Ronald Evans orbited above. Schmitt was the only professional geologist to land on the Moon; he was selected in place of Joe Engle, as NASA had been under pressure to send a scientist to the Moon. The mission's heavy emphasis on science meant the inclusion of a number of new experiments, including a biological experiment containing five mice that was carried in the command and service module.</extract>
     </en>
     <am>
-      <extract>Apollo 17 was the eleventh and final crewed mission of NASA's Apollo program, the sixth and most recent time humans have set foot on the Moon. Commander Gene Cernan and Lunar Module Pilot Harrison Schmitt walked on the Moon, while Command Module Pilot Ronald Evans orbited above. Schmitt was the only professional geologist to land on the Moon; he was selected in place of Joe Engle, as NASA had been under pressure to send a scientist to the Moon. The mission's heavy emphasis on science meant the inclusion of a number of new experiments, including a biological experiment containing five mice that was carried in the command and service module.</extract>
+      <extract>አፖሎ 17 የናሳ አፖሎ ፕሮግራም አስራ አንደኛው እና የመጨረሻው ቡድን ተልእኮ ሲሆን ይህም ስድስተኛው እና የቅርብ ጊዜ ሰዎች ጨረቃን ሲረግጡ ነው። ኮማንደር ጂን ሰርናን እና የጨረቃ ሞዱል ፓይለት ሃሪሰን ሽሚት በጨረቃ ላይ ሲራመዱ የኮማንድ ሞዱል ፓይለት ሮናልድ ኢቫንስ ወደ ላይ ዞሯል። ሽሚት በጨረቃ ላይ ለማረፍ ብቸኛው ባለሙያ ጂኦሎጂስት ነበር; ናሳ አንድ ሳይንቲስት ወደ ጨረቃ እንዲልክ ግፊት ሲደረግበት በጆ ኢንግል ምትክ ተመረጠ። የተልእኮው ከፍተኛ ትኩረት በሳይንስ ላይ ብዙ አዳዲስ ሙከራዎችን ማካተት ማለት ሲሆን ይህም በትዕዛዝ እና በአገልግሎት ሞጁል ውስጥ የተካሄደውን አምስት አይጦችን የያዘ ባዮሎጂያዊ ሙከራን ያካትታል።</extract>
     </am>
   </poi>
   <poi id="luna-2" image="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Luna_1_-_2_Spacecraft.png/330px-Luna_1_-_2_Spacecraft.png" url="https://en.wikipedia.org/wiki/Luna_2">
@@ -53,7 +53,7 @@
       <extract>Luna 2, originally named the Second Soviet Cosmic Rocket and nicknamed Lunik 2 in contemporaneous media, was the sixth of the Soviet Union's Luna programme spacecraft launched to the Moon, E-1 No.7. It was the first spacecraft to touch the surface of the Moon, and the first human-made object to make contact with another celestial body.</extract>
     </en>
     <am>
-      <extract>Luna 2, originally named the Second Soviet Cosmic Rocket and nicknamed Lunik 2 in contemporaneous media, was the sixth of the Soviet Union's Luna programme spacecraft launched to the Moon, E-1 No.7. It was the first spacecraft to touch the surface of the Moon, and the first human-made object to make contact with another celestial body.</extract>
+      <extract>ሉና 2 በመጀመሪያ የሁለተኛው የሶቪየት ኮስሚክ ሮኬት የሚል ስያሜ የተሰጠው እና በዘመኑ ሚዲያ ሉኒክ 2 የሚል ቅጽል ስም ተሰጥቶታል፣ ከሶቪየት ዩኒየን የሉና ፕሮግራም የጠፈር መንኮራኩር ወደ ጨረቃ ከተመታች ስድስተኛዋ ነበረች፣ ኢ-1 ቁጥር 7። የጨረቃን ገጽ የነካ የመጀመሪያው የጠፈር መንኮራኩር ሲሆን ከሌላ የሰማይ አካል ጋር ግንኙነት የፈጠረ የመጀመሪያው ሰው ነው።</extract>
     </am>
   </poi>
   <poi id="luna-9" image="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Luna_9_Musee_du_Bourget_P1010505.JPG/330px-Luna_9_Musee_du_Bourget_P1010505.JPG" url="https://en.wikipedia.org/wiki/Luna_9">
@@ -61,7 +61,7 @@
       <extract>Luna 9 (Луна-9), internal designation Ye-6 No.13, was an uncrewed space mission of the Soviet Union's Luna programme. On 3 February 1966, the Luna 9 spacecraft became the first spacecraft to achieve a soft landing on the Moon and return imagery from its surface.</extract>
     </en>
     <am>
-      <extract>Luna 9 (Луна-9), internal designation Ye-6 No.13, was an uncrewed space mission of the Soviet Union's Luna programme. On 3 February 1966, the Luna 9 spacecraft became the first spacecraft to achieve a soft landing on the Moon and return imagery from its surface.</extract>
+      <extract>ሉና 9 (Луна-9)፣ የውስጥ ስያሜ ዬ-6 ቁጥር 13፣ የሶቪየት ኅብረት የሉና ፕሮግራም ያልተጠናከረ የጠፈር ተልዕኮ ነበር። እ.ኤ.አ. እ.ኤ.አ.</extract>
     </am>
   </poi>
   <poi id="luna-13" image="https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Luna13_lander_vsm.jpg/330px-Luna13_lander_vsm.jpg" url="https://en.wikipedia.org/wiki/Luna_13">
@@ -69,7 +69,7 @@
       <extract>Luna 13 was an uncrewed space mission of the Luna program by Soviet Union.</extract>
     </en>
     <am>
-      <extract>Luna 13 was an uncrewed space mission of the Luna program by Soviet Union.</extract>
+      <extract>ሉና 13 በሶቭየት ኅብረት የሉና ፕሮግራም የማይሰራ የጠፈር ተልዕኮ ነበር።</extract>
     </am>
   </poi>
   <poi id="luna-16" image="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Luna_16.jpg/330px-Luna_16.jpg" url="https://en.wikipedia.org/wiki/Luna_16">
@@ -77,7 +77,7 @@
       <extract>Luna 16 was an uncrewed 1970 space mission, part of the Soviet Luna program. It was the first robotic probe to land on the Moon and return a sample of lunar soil to Earth. The 101 grams sample was returned from Mare Fecunditatis. It represented the first successful lunar sample return mission by the Soviet Union and was the third lunar sample return mission overall.</extract>
     </en>
     <am>
-      <extract>Luna 16 was an uncrewed 1970 space mission, part of the Soviet Luna program. It was the first robotic probe to land on the Moon and return a sample of lunar soil to Earth. The 101 grams sample was returned from Mare Fecunditatis. It represented the first successful lunar sample return mission by the Soviet Union and was the third lunar sample return mission overall.</extract>
+      <extract>ሉና 16 የሶቭየት ሉና ፕሮግራም አካል የሆነው የ1970 የጠፈር ተልዕኮ ያልተሰራ ነበር። በጨረቃ ላይ ለማረፍ እና የጨረቃን አፈር ናሙና ወደ ምድር ለመመለስ የመጀመሪያው የሮቦት ምርመራ ነበር። የ 101 ግራም ናሙና ከ Mare Fecunditatis ተመለሰ. በሶቪየት ኅብረት የመጀመሪያውን የተሳካ የጨረቃ ናሙና የመመለሻ ተልዕኮን የሚወክል ሲሆን በአጠቃላይ ሦስተኛው የጨረቃ ናሙና መመለስ ተልዕኮ ነበር።</extract>
     </am>
   </poi>
   <poi id="luna-17" image="https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Soviet_moonrover.JPG/330px-Soviet_moonrover.JPG" url="https://en.wikipedia.org/wiki/Lunokhod_1">
@@ -85,7 +85,7 @@
       <extract>Lunokhod 1, also known as Device 8EL No. 203 was the first robotic rover on the Moon and the first to freely move across the surface of an astronomical object beyond the Earth. Sent by the Soviet Union, it was part of the Lunokhod program of robotic rovers. The Luna 17 spacecraft carried Lunokhod 1 to the Moon in 1970. Lunokhod 0 (No.201), the previous and first attempt to land a rover, launched in February 1969 but failed to reach Earth orbit.</extract>
     </en>
     <am>
-      <extract>Lunokhod 1, also known as Device 8EL No. 203 was the first robotic rover on the Moon and the first to freely move across the surface of an astronomical object beyond the Earth. Sent by the Soviet Union, it was part of the Lunokhod program of robotic rovers. The Luna 17 spacecraft carried Lunokhod 1 to the Moon in 1970. Lunokhod 0 (No.201), the previous and first attempt to land a rover, launched in February 1969 but failed to reach Earth orbit.</extract>
+      <extract>ሉኖክሆድ 1፣ እንዲሁም Device 8EL ቁጥር 203 በመባል የሚታወቀው በጨረቃ ላይ የመጀመሪያው የሮቦት ሮቨር እና የመጀመሪያው ከመሬት ባሻገር ባለው የስነ ፈለክ ነገር ላይ በነፃነት ለመንቀሳቀስ የመጀመሪያው ነው። በሶቪየት ኅብረት የተላከው የሮቦቲክ ሮቨሮች የሉኖኮድ ፕሮግራም አካል ነበር። ሉና 17 የጠፈር መንኮራኩር በ1970 ሉኖኮድ 1ን ወደ ጨረቃ አጓጉዟል። Lunokhod 0 (No.201) የቀድሞ እና የመጀመሪያ ሮቨር ለማሳረፍ የተደረገው ሙከራ በየካቲት 1969 ተጀመረ ነገር ግን ምድር ምህዋር ላይ መድረስ አልቻለም።</extract>
     </am>
   </poi>
   <poi id="luna-20" image="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Luna_20_descent_stage.png/330px-Luna_20_descent_stage.png" url="https://en.wikipedia.org/wiki/Luna_20">
@@ -93,7 +93,7 @@
       <extract>Luna 20 was the second of three successful Soviet lunar sample return missions. It was flown as part of the Luna program as a robotic competitor to the six successful Apollo lunar sample return missions.</extract>
     </en>
     <am>
-      <extract>Luna 20 was the second of three successful Soviet lunar sample return missions. It was flown as part of the Luna program as a robotic competitor to the six successful Apollo lunar sample return missions.</extract>
+      <extract>ሉና 20 ከሶስቱ ስኬታማ የሶቪየት የጨረቃ ናሙና የመመለሻ ተልዕኮዎች ሁለተኛዋ ነበረች። የሉና ፕሮግራም አካል እንደ ሮቦት ተፎካካሪ ሆኖ ወደ ስድስቱ ስኬታማ የአፖሎ የጨረቃ ናሙና የመመለሻ ተልእኮዎች በረረ።</extract>
     </am>
   </poi>
   <poi id="luna-21" image="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Lunokhod-2_model.jpg/330px-Lunokhod-2_model.jpg" url="https://en.wikipedia.org/wiki/Lunokhod_2">
@@ -101,7 +101,7 @@
       <extract>Lunokhod 2 was the second of two uncrewed lunar rovers that landed on the Moon by the Soviet Union as part of the Lunokhod programme.</extract>
     </en>
     <am>
-      <extract>Lunokhod 2 was the second of two uncrewed lunar rovers that landed on the Moon by the Soviet Union as part of the Lunokhod programme.</extract>
+      <extract>ሉኖክሆድ 2 የሉኖክሆድ ፕሮግራም አካል በመሆን በሶቪየት ኅብረት ጨረቃ ላይ ካረፉ ሁለት ያልተጣመሩ የጨረቃ ሮቨሮች ሁለተኛው ነው።</extract>
     </am>
   </poi>
   <poi id="luna-24" image="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Luna24_rev_fig.png/330px-Luna24_rev_fig.png" url="https://en.wikipedia.org/wiki/Luna_24">
@@ -109,7 +109,7 @@
       <extract>Luna 24 was a robotic probe of the Soviet Union's Luna programme. The 24th mission of the Luna series of spacecraft, the mission of the Luna 24 probe was the third Soviet mission to return lunar soil samples from the Moon. The probe landed in Mare Crisium. The mission returned 170.1 g (6.00 oz) of lunar samples to the Earth on 22 August 1976.</extract>
     </en>
     <am>
-      <extract>Luna 24 was a robotic probe of the Soviet Union's Luna programme. The 24th mission of the Luna series of spacecraft, the mission of the Luna 24 probe was the third Soviet mission to return lunar soil samples from the Moon. The probe landed in Mare Crisium. The mission returned 170.1 g (6.00 oz) of lunar samples to the Earth on 22 August 1976.</extract>
+      <extract>ሉና 24 የሶቭየት ዩኒየን የሉና ፕሮግራም የሮቦቲክ ምርመራ ነበር። የሉና ተከታታይ የጠፈር መንኮራኩር 24ኛው ተልዕኮ፣ የሉና 24 ፍለጋ ተልዕኮ የጨረቃ የአፈር ናሙናዎችን ከጨረቃ ለመመለስ ሶስተኛው የሶቪየት ተልዕኮ ነበር። መርማሪው በማሬ ክሪሲየም አረፈ። ተልእኮው 170.1 ግ (6.00 ኦዝ) የጨረቃ ናሙናዎችን በነሐሴ 22 ቀን 1976 ወደ ምድር መልሷል።</extract>
     </am>
   </poi>
   <poi id="surveyor-1" image="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Surveyor_NASA_lunar_lander.jpg/330px-Surveyor_NASA_lunar_lander.jpg" url="https://en.wikipedia.org/wiki/Surveyor_1">
@@ -117,7 +117,7 @@
       <extract>Surveyor 1 was the first lunar soft-lander in the uncrewed Surveyor program of the National Aeronautics and Space Administration. This lunar soft-lander gathered data about the lunar surface that would be needed for the crewed Apollo Moon landings that began in 1969. The successful soft landing of Surveyor 1 on the Ocean of Storms was the first by an American space probe on any extraterrestrial body, occurring four months after the first soft Moon landing by the Soviet Union's Luna 9 probe.</extract>
     </en>
     <am>
-      <extract>Surveyor 1 was the first lunar soft-lander in the uncrewed Surveyor program of the National Aeronautics and Space Administration. This lunar soft-lander gathered data about the lunar surface that would be needed for the crewed Apollo Moon landings that began in 1969. The successful soft landing of Surveyor 1 on the Ocean of Storms was the first by an American space probe on any extraterrestrial body, occurring four months after the first soft Moon landing by the Soviet Union's Luna 9 probe.</extract>
+      <extract>ቀያሽ 1 በብሔራዊ ኤሮናውቲክስና ህዋ አስተዳደር ባልተሰራው የዳሰሳ ፕሮግራም ውስጥ የመጀመሪያው የጨረቃ ለስላሳ ላንደር ነበር። እ.ኤ.አ. በ 1969 የጀመረው የጨረቃ ለስላሳ ላነር ለሰራተኞቹ አፖሎ ሙን ማረፊያዎች አስፈላጊ የሆነውን የጨረቃ ወለል መረጃ ሰብስቧል ። 1 ሰርቪየር 1 በተሳካ ለስላሳ ማረፊያ በማዕበል ውቅያኖስ ላይ በአሜሪካ የጠፈር ምርምር የመጀመሪያው ነበር ፣ ይህም በሶቪየት ዩኒየን ሉና 9 ፕሮቤ ለመጀመሪያ ጊዜ ለስላሳ ጨረቃ ካረፈች ከአራት ወራት በኋላ ነው።</extract>
     </am>
   </poi>
   <poi id="surveyor-3" image="https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Surveyor_3_on_Moon.jpg/330px-Surveyor_3_on_Moon.jpg" url="https://en.wikipedia.org/wiki/Surveyor_3">
@@ -125,7 +125,7 @@
       <extract>Surveyor 3 is the third lander of the American uncrewed Surveyor program sent to explore the surface of the Moon in 1967 and the second to successfully land. It was the first mission to carry a surface-soil sampling-scoop.</extract>
     </en>
     <am>
-      <extract>Surveyor 3 is the third lander of the American uncrewed Surveyor program sent to explore the surface of the Moon in 1967 and the second to successfully land. It was the first mission to carry a surface-soil sampling-scoop.</extract>
+      <extract>ሰርቬየር 3 በ1967 የጨረቃን ገጽታ ለማሰስ የተላከ የአሜሪካ ያልተሰራ ሰርቬየር ፕሮግራም ሶስተኛው ላንደር ሲሆን ሁለተኛው ደግሞ በተሳካ ሁኔታ ያረፈ ነው። የገጽታ-አፈር ናሙና - ስኩፕ ለመሸከም የመጀመሪያው ተልዕኮ ነበር።</extract>
     </am>
   </poi>
   <poi id="surveyor-5" image="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Surveyor_5-_A_hole-in-one_%28LROC14_-_M106726943LE_S5_blowup4x%29.png/330px-Surveyor_5-_A_hole-in-one_%28LROC14_-_M106726943LE_S5_blowup4x%29.png" url="https://en.wikipedia.org/wiki/Surveyor_5">
@@ -133,7 +133,7 @@
       <extract>Surveyor 5 is the fifth lunar lander of the American uncrewed Surveyor program sent to explore the surface of the Moon. Surveyor 5 landed on Mare Tranquillitatis in 1967. A total of 19,118 images were transmitted to Earth.</extract>
     </en>
     <am>
-      <extract>Surveyor 5 is the fifth lunar lander of the American uncrewed Surveyor program sent to explore the surface of the Moon. Surveyor 5 landed on Mare Tranquillitatis in 1967. A total of 19,118 images were transmitted to Earth.</extract>
+      <extract>ቀያሽ 5 የጨረቃን ገጽታ ለመቃኘት የተላከው የአሜሪካ ያልተሰራ ሰርቬየር ፕሮግራም አምስተኛው የጨረቃ ላንደር ነው። ሰርቬየር 5 በ1967 በማሬ ትራንኩሊታቲስ ላይ አረፈ። በአጠቃላይ 19,118 ምስሎች ወደ ምድር ተላልፈዋል።</extract>
     </am>
   </poi>
   <poi id="surveyor-6" image="https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Surveyor_6_on_the_plains_of_Sinus_Medii_%28LROCM117501284LE_S6_rev%29.png/330px-Surveyor_6_on_the_plains_of_Sinus_Medii_%28LROCM117501284LE_S6_rev%29.png" url="https://en.wikipedia.org/wiki/Surveyor_6">
@@ -141,7 +141,7 @@
       <extract>Surveyor 6 is the sixth lunar lander of the American uncrewed Surveyor program that reached the surface of the Moon. Surveyor 6 landed on the Sinus Medii. A total of 30,027 images were transmitted to Earth.</extract>
     </en>
     <am>
-      <extract>Surveyor 6 is the sixth lunar lander of the American uncrewed Surveyor program that reached the surface of the Moon. Surveyor 6 landed on the Sinus Medii. A total of 30,027 images were transmitted to Earth.</extract>
+      <extract>ቀያሽ 6 ስድስተኛው የጨረቃ ላንደር ነው የአሜሪካ ያልተሰራ ሰርቬየር ፕሮግራም ወደ ጨረቃ ላይ የደረሰ። ቀያሽ 6 በ Sinus Medii ላይ አረፈ። በአጠቃላይ 30,027 ምስሎች ወደ ምድር ተላልፈዋል።</extract>
     </am>
   </poi>
   <poi id="surveyor-7" image="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/M175355093L_thumb_4x.png/330px-M175355093L_thumb_4x.png" url="https://en.wikipedia.org/wiki/Surveyor_7">
@@ -149,7 +149,7 @@
       <extract>Surveyor 7 was sent to the Moon in 1968 on a scientific and photographic mission as the seventh and last lunar lander of the American uncrewed Surveyor program. With two previous unsuccessful missions in the Surveyor series, and with Surveyor 7's landing success, Surveyor 7 became the fifth and final spacecraft in the series to achieve a lunar soft landing. A total of 21,091 pictures were transmitted from Surveyor 7 back to Earth.</extract>
     </en>
     <am>
-      <extract>Surveyor 7 was sent to the Moon in 1968 on a scientific and photographic mission as the seventh and last lunar lander of the American uncrewed Surveyor program. With two previous unsuccessful missions in the Surveyor series, and with Surveyor 7's landing success, Surveyor 7 became the fifth and final spacecraft in the series to achieve a lunar soft landing. A total of 21,091 pictures were transmitted from Surveyor 7 back to Earth.</extract>
+      <extract>ሰርቬየር 7 በ1968 በሳይንሳዊ እና ፎቶግራፊ ተልእኮ ወደ ጨረቃ ተልኳል የአሜሪካ ያልተሰራ ሰርቬየር ፕሮግራም ሰባተኛው እና የመጨረሻው የጨረቃ ላንደር። ቀደም ባሉት ሁለት ያልተሳኩ ተልእኮዎች በአሳሽ ተከታታዮች እና በሰርቬየር 7 የማረፊያ ስኬት፣ ሰርቬየር 7 የጨረቃ ለስላሳ ማረፊያ ለማግኘት በተከታታይ ውስጥ አምስተኛ እና የመጨረሻው የጠፈር መንኮራኩር ሆነ። በአጠቃላይ 21,091 ስዕሎች ከሰርቬየር 7 ወደ ምድር ተላልፈዋል።</extract>
     </am>
   </poi>
   <poi id="change-3">
@@ -189,7 +189,7 @@
       <extract>Chandrayaan-3 is the third mission in the Chandrayaan programme, a series of lunar-exploration missions developed by ISRO. The mission consists of Vikram, a lunar lander, and Pragyan, a lunar rover, as replacements for the equivalents on Chandrayaan-2, which had crashed on landing in 2019.</extract>
     </en>
     <am>
-      <extract>Chandrayaan-3 is the third mission in the Chandrayaan programme, a series of lunar-exploration missions developed by ISRO. The mission consists of Vikram, a lunar lander, and Pragyan, a lunar rover, as replacements for the equivalents on Chandrayaan-2, which had crashed on landing in 2019.</extract>
+      <extract>Chandrayaan-3 በቻንድራያን ፕሮግራም ውስጥ ሦስተኛው ተልእኮ ነው፣ ተከታታይ የጨረቃ ፍለጋ ተልዕኮዎች በISRO። ተልእኮው በ2019 በማረፍ ላይ የተከሰከሰውን በቻንድራያን-2 ላይ ለሚገኘው ተመጣጣኝ ምትክ ቪክራም ፣ የጨረቃ ላንደር እና ፕራግያን ፣ የጨረቃ ሮቨርን ያካትታል።</extract>
     </am>
   </poi>
   <poi id="slim" image="https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/SLIM_half_scale_model_%28close_cropped%29.png/330px-SLIM_half_scale_model_%28close_cropped%29.png" url="https://en.wikipedia.org/wiki/Smart_Lander_for_Investigating_Moon">
@@ -197,7 +197,7 @@
       <extract>The Smart Lander for Investigating Moon (SLIM), nicknamed the "Moon Sniper", was a lunar lander mission operated by the Japan Aerospace Exploration Agency (JAXA). Manufactured by Mitsubishi Electric, it was launched on September 6, 2023, aboard an H-IIA rocket from the Tanegashima Space Center, together with the X-Ray Imaging and Spectroscopy Mission (XRISM) space telescope. SLIM entered lunar orbit on December 25, 2023, and successfully soft-landed on the Moon on January 19, 2024, making Japan the fifth country to accomplish a soft landing on the Moon, after the Soviet Union, the United States, China, and India.</extract>
     </en>
     <am>
-      <extract>The Smart Lander for Investigating Moon (SLIM), nicknamed the "Moon Sniper", was a lunar lander mission operated by the Japan Aerospace Exploration Agency (JAXA). Manufactured by Mitsubishi Electric, it was launched on September 6, 2023, aboard an H-IIA rocket from the Tanegashima Space Center, together with the X-Ray Imaging and Spectroscopy Mission (XRISM) space telescope. SLIM entered lunar orbit on December 25, 2023, and successfully soft-landed on the Moon on January 19, 2024, making Japan the fifth country to accomplish a soft landing on the Moon, after the Soviet Union, the United States, China, and India.</extract>
+      <extract>ጨረቃን ለመፈተሽ ስማርት ላንደር (SLIM)፣ በቅፅል ስሙ "ጨረቃ ተኳሽ" በጃፓን ኤሮስፔስ ኤክስፕሎሬሽን ኤጀንሲ (JAXA) የሚመራ የጨረቃ ላንደር ተልእኮ ነበር። በሚትሱቢሺ ኤሌክትሪክ የተሰራው በሴፕቴምበር 6፣ 2023 ከታኔጋሺማ የጠፈር ማእከል በኤችአይአይኤ ሮኬት ተሳፍሮ ከኤክስ ሬይ ኢሜጂንግ እና ስፔክትሮስኮፒ ተልዕኮ (XRISM) የጠፈር ቴሌስኮፕ ጋር ተሳፍሯል። SLIM እ.ኤ.አ. በታህሳስ 25፣ 2023 የጨረቃ ምህዋር ውስጥ ገብቷል እና እ.ኤ.አ. ጃንዋሪ 19፣ 2024 በጨረቃ ላይ በተሳካ ሁኔታ በማረፍ ጃፓን ከሶቭየት ህብረት፣ አሜሪካ፣ ቻይና እና ህንድ በመቀጠል በጨረቃ ላይ ለስላሳ ማረፊያ በማድረስ አምስተኛዋ ሀገር አድርጓታል።</extract>
     </am>
   </poi>
   <poi id="odysseus" image="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Intuitive_Machines%E2%80%99_Nova-C_lunar_lander_%28IM_00309%29_%28cropped%29.jpg/330px-Intuitive_Machines%E2%80%99_Nova-C_lunar_lander_%28IM_00309%29_%28cropped%29.jpg" url="https://en.wikipedia.org/wiki/IM-1">
@@ -205,7 +205,7 @@
       <extract>IM-1 was a robotic Moon landing mission conducted by Intuitive Machines (IM) in February 2024 using a Nova-C lunar lander. After contact with the lunar surface on February 22 the lander tipped to an unplanned 30 degree angle. All instrument payloads remained functional and the mission was deemed a success, though the data transmission rate was significantly below the planned rate. IM-1 was the first commercial mission to successfully soft-land on the Moon. NASA provided funding support for the mission through the Commercial Lunar Payload Services program. The lander, named Odysseus, carried six NASA-developed payloads and several others from commercial and educational customers. On February 29, Odysseus lost power and shut down with the start of the lunar night, and could not be reactivated at the start of the next lunar day.</extract>
     </en>
     <am>
-      <extract>IM-1 was a robotic Moon landing mission conducted by Intuitive Machines (IM) in February 2024 using a Nova-C lunar lander. After contact with the lunar surface on February 22 the lander tipped to an unplanned 30 degree angle. All instrument payloads remained functional and the mission was deemed a success, though the data transmission rate was significantly below the planned rate. IM-1 was the first commercial mission to successfully soft-land on the Moon. NASA provided funding support for the mission through the Commercial Lunar Payload Services program. The lander, named Odysseus, carried six NASA-developed payloads and several others from commercial and educational customers. On February 29, Odysseus lost power and shut down with the start of the lunar night, and could not be reactivated at the start of the next lunar day.</extract>
+      <extract>IM-1 ኖቫ-ሲ የጨረቃ ላንደርን በመጠቀም በIntuitive Machines (IM) በፌብሩዋሪ 2024 የተካሄደ የሮቦት የጨረቃ ማረፊያ ተልእኮ ነበር። ፌብሩዋሪ 22 ከጨረቃው ገጽ ጋር ከተገናኘ በኋላ ላንደር ወደ ያልታቀደ የ 30 ዲግሪ ማዕዘን ወረደ። ምንም እንኳን የመረጃ ማስተላለፊያ ፍጥነቱ ከታቀደው መጠን በእጅጉ ያነሰ ቢሆንም ሁሉም የመሳሪያ ጭነቶች ተግባራዊ ሆነው ቆይተዋል እና ተልዕኮው የተሳካ ነው ተብሎ ይታሰባል። IM-1 በተሳካ ሁኔታ በጨረቃ ላይ ለማረፍ የመጀመሪያው የንግድ ተልዕኮ ነበር። ናሳ ለተልእኮው የገንዘብ ድጋፍ ያደረገው በንግድ የጨረቃ ክፍያ አገልግሎት ፕሮግራም ነው። ኦዲሴየስ የተባለው ላንደር ስድስት በናሳ ያደገውን የጭነት ጭነት እና ሌሎች በርካታ የንግድ እና የትምህርት ደንበኞችን ተሸክሟል። እ.ኤ.አ. ፌብሩዋሪ 29, ኦዲሴየስ ስልጣኑን አጥቷል እና በጨረቃ ምሽት መጀመሪያ ላይ ተዘግቷል, እና በሚቀጥለው የጨረቃ ቀን መጀመሪያ ላይ እንደገና ሊነቃ አይችልም.</extract>
     </am>
   </poi>
   <poi id="tycho" image="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Tycho_LRO.png/330px-Tycho_LRO.png" url="https://en.wikipedia.org/wiki/Tycho_(lunar_crater)">
@@ -221,7 +221,7 @@
       <extract>Copernicus Crater is a lunar impact crater located in eastern Oceanus Procellarum. Thomas Webb describes it as "one of the grandest craters" with "a central mountain" and "a noble ring composed not only of terraces, but distinct heights separated by ravines". It was named after the astronomer Nicolaus Copernicus. It typifies craters that formed during the Copernican period in that it has a prominent ray system.</extract>
     </en>
     <am>
-      <extract>Copernicus Crater is a lunar impact crater located in eastern Oceanus Procellarum. Thomas Webb describes it as "one of the grandest craters" with "a central mountain" and "a noble ring composed not only of terraces, but distinct heights separated by ravines". It was named after the astronomer Nicolaus Copernicus. It typifies craters that formed during the Copernican period in that it has a prominent ray system.</extract>
+      <extract>ኮፐርኒከስ ክሬተር በምስራቃዊ ኦሽነስ ፕሮሴላረም ውስጥ የሚገኝ የጨረቃ ተጽዕኖ እሳተ ጎመራ ነው። ቶማስ ዌብ "ከታላላቅ ጉድጓዶች አንዱ" "ማእከላዊ ተራራ" እና "ከበረንዳዎች ብቻ ሳይሆን በሸለቆዎች የተለያየ ከፍታ ያለው የተከበረ ቀለበት" በማለት ገልጾታል. ስያሜውን ያገኘው በሥነ ፈለክ ተመራማሪው ኒኮላስ ኮፐርኒከስ ነው። በኮፐርኒካን ዘመን የተፈጠሩትን ጉድጓዶች የሚያመለክተው ታዋቂ የጨረር ስርዓት ስላለው ነው።</extract>
     </am>
   </poi>
   <poi id="aristarchus" image="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Aristarchus_crater_4150_h3.jpg/330px-Aristarchus_crater_4150_h3.jpg" url="https://en.wikipedia.org/wiki/Aristarchus_(crater)">
@@ -229,7 +229,7 @@
       <extract>Aristarchus is a lunar impact crater that lies in the northwest part of the Moon's near side. It is considered the brightest of the large formations on the lunar surface, with an albedo nearly double that of most lunar features. The feature is bright enough to be visible to the naked eye, and displays unusually bright features when viewed through a large telescope. It is also readily identified when most of the lunar surface is illuminated by earthshine. The crater is deeper than the Grand Canyon.</extract>
     </en>
     <am>
-      <extract>Aristarchus is a lunar impact crater that lies in the northwest part of the Moon's near side. It is considered the brightest of the large formations on the lunar surface, with an albedo nearly double that of most lunar features. The feature is bright enough to be visible to the naked eye, and displays unusually bright features when viewed through a large telescope. It is also readily identified when most of the lunar surface is illuminated by earthshine. The crater is deeper than the Grand Canyon.</extract>
+      <extract>አርስጥሮኮስ በጨረቃ አቅራቢያ በሰሜን ምዕራብ ክፍል ላይ የሚገኝ የጨረቃ ተጽዕኖ እሳተ ጎመራ ነው። በጨረቃ ላይ ካሉት ትላልቅ ቅርጾች መካከል በጣም ብሩህ እንደሆነ ተደርጎ ይቆጠራል, አልቤዶ ከአብዛኞቹ የጨረቃ ባህሪያት በእጥፍ የሚጠጋ ነው. ባህሪው በራቁት ዓይን ለመታየት በቂ ብሩህ ነው፣ እና በትልቅ ቴሌስኮፕ ሲታይ ያልተለመደ ብሩህ ባህሪያትን ያሳያል። እንዲሁም አብዛኛው የጨረቃ ገጽ በአፈር ብርሃን ሲበራ በቀላሉ ይታወቃል። ጉድጓዱ ከግራንድ ካንየን የበለጠ ጥልቅ ነው።</extract>
     </am>
   </poi>
   <poi id="clavius" image="https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Clavius_LROC.jpg/330px-Clavius_LROC.jpg" url="https://en.wikipedia.org/wiki/Clavius_(crater)">
@@ -237,7 +237,7 @@
       <extract>Clavius is one of the largest crater formations on the Moon and the second largest crater on the visible near side. T. W. Webb described it as "one of the grandest cavities in the Moon, though ill-placed for observation." It is "tolerably circular" and "encompassed by a wall damaged by successive explosions". It dates to the Nectarian period of the lunar geologic timescale. This crater is located in the rugged southern highlands of the Moon, to the south of the prominent ray crater Tycho. It is named for the Jesuit astronomer Christopher Clavius.</extract>
     </en>
     <am>
-      <extract>Clavius is one of the largest crater formations on the Moon and the second largest crater on the visible near side. T. W. Webb described it as "one of the grandest cavities in the Moon, though ill-placed for observation." It is "tolerably circular" and "encompassed by a wall damaged by successive explosions". It dates to the Nectarian period of the lunar geologic timescale. This crater is located in the rugged southern highlands of the Moon, to the south of the prominent ray crater Tycho. It is named for the Jesuit astronomer Christopher Clavius.</extract>
+      <extract>ክላቪየስ በጨረቃ ላይ ካሉት ትላልቅ የእሳተ ገሞራ ፍጥረታት አንዱ ሲሆን በቅርበት በሚታየው ቋጥኝ ሁለተኛው ትልቁ ነው። ቲ.ደብሊው ዌብ "በጨረቃ ውስጥ ካሉት ትላልቅ ጉድጓዶች አንዱ፣ ምንም እንኳን ለእይታ ባይኖርም" ሲል ገልጾታል። እሱም "በሚታገሥ ክብ" እና "በተከታታይ ፍንዳታ በተበላሸ ግድግዳ የታጠረ" ነው። በጨረቃ ጂኦሎጂካል የጊዜ መለኪያ በኔክታሪያን ዘመን ነው. ይህ ቋጥኝ በጨረቃ ደቡባዊ ደጋማ ቦታዎች ላይ፣ ከታዋቂው የጨረር ቋጥኝ ታይኮ በስተደቡብ ይገኛል። ይህ ስያሜ የተሰጠው ለጄሱሳዊው የሥነ ፈለክ ተመራማሪ ክሪስቶፈር ክላቪየስ ነው።</extract>
     </am>
   </poi>
   <poi id="aristoteles" image="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Aristoteles_crater_4103_h3.jpg/330px-Aristoteles_crater_4103_h3.jpg" url="https://en.wikipedia.org/wiki/Aristoteles_(crater)">
@@ -245,7 +245,7 @@
       <extract>Aristoteles is a lunar impact crater that lies near the southern edge of the Mare Frigoris and to the east of the Montes Alpes mountain range. It was officially named in 1935 after the ancient Greek philosopher and astronomer Aristotle by the International Astronomical Union, using the classical form of his name. This designation was introduced into lunar nomenclature by Italian astronomer Giovanni Ricciolli in 1651.</extract>
     </en>
     <am>
-      <extract>Aristoteles is a lunar impact crater that lies near the southern edge of the Mare Frigoris and to the east of the Montes Alpes mountain range. It was officially named in 1935 after the ancient Greek philosopher and astronomer Aristotle by the International Astronomical Union, using the classical form of his name. This designation was introduced into lunar nomenclature by Italian astronomer Giovanni Ricciolli in 1651.</extract>
+      <extract>አሪስቶቴልስ በማሬ ፍሪጎሪስ ደቡባዊ ጫፍ እና ከሞንቴስ አልፔስ የተራራ ሰንሰለቶች በስተምስራቅ የሚገኝ የጨረቃ ተጽዕኖ እሳተ ጎመራ ነው። በ1935 በጥንታዊው ግሪክ ፈላስፋ እና የስነ ፈለክ ተመራማሪ አርስቶትል በአለም አቀፉ የስነ ፈለክ ዩኒየን የስሙ ክላሲካል ቅርፅ ተሰይሟል። ይህ ስያሜ በ 1651 በጣሊያን የሥነ ፈለክ ተመራማሪ ጆቫኒ ሪቺዮሊ ወደ ጨረቃ ስያሜ ገባ።</extract>
     </am>
   </poi>
   <poi id="eratosthenes" image="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Eratosthenes_%28LRO%29.png/330px-Eratosthenes_%28LRO%29.png" url="https://en.wikipedia.org/wiki/Eratosthenes_(crater)">
@@ -253,7 +253,7 @@
       <extract>Eratosthenes crater is a relatively deep lunar impact crater that lies on the boundary between the Mare Imbrium and Sinus Aestuum mare regions. T. W. Webb describes it as having "a widely-terraced wall of very irregular height; the surrounding ground is also very uneven". It forms the western terminus of the Montes Apenninus mountain range. It is named after ancient Greek astronomer Eratosthenes of Cyrene, who estimated the circumference of the Earth, and the distance from the Earth to the Sun.</extract>
     </en>
     <am>
-      <extract>Eratosthenes crater is a relatively deep lunar impact crater that lies on the boundary between the Mare Imbrium and Sinus Aestuum mare regions. T. W. Webb describes it as having "a widely-terraced wall of very irregular height; the surrounding ground is also very uneven". It forms the western terminus of the Montes Apenninus mountain range. It is named after ancient Greek astronomer Eratosthenes of Cyrene, who estimated the circumference of the Earth, and the distance from the Earth to the Sun.</extract>
+      <extract>ኤራቶስቴንስ ክራተር በማሬ ኢምብሪየም እና በሳይነስ Aestuum ማሬ ክልሎች መካከል ባለው ድንበር ላይ የሚገኝ በአንጻራዊ ጥልቅ የሆነ የጨረቃ ተጽዕኖ እሳተ ጎመራ ነው። ቲ.ደብሊው ዌብ "በጣም መደበኛ ያልሆነ ቁመት ያለው በስፋት የተዘረጋ ግድግዳ፤ በዙሪያው ያለው መሬትም በጣም ያልተስተካከለ ነው" ሲል ገልፆታል። የሞንቴስ አፔኒነስ ተራራ ሰንሰለታማውን ምዕራባዊ ጫፍ ይመሰርታል። ይህ ስያሜ የተሰጠው የጥንታዊ ግሪክ የሥነ ፈለክ ተመራማሪ የኤራቶስቴንስ ኦቭ የቀሬና ነው፣ እሱም የምድርን ክብ እና ከምድር እስከ ፀሐይ ያለውን ርቀት ይገምታል።</extract>
     </am>
   </poi>
   <poi id="archimedes" image="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Archimedes_%28LRO%29.png/330px-Archimedes_%28LRO%29.png" url="https://en.wikipedia.org/wiki/Archimedes_(crater)">
@@ -261,7 +261,7 @@
       <extract>Archimedes is a large lunar impact crater on the eastern edges of the Mare Imbrium. It was named by the IAU in 1935. T. W. Webb described it as "one of the most regular walled plains", "the outer slope of the wall is very complex; a magnificent object against the rising or setting Sun".</extract>
     </en>
     <am>
-      <extract>Archimedes is a large lunar impact crater on the eastern edges of the Mare Imbrium. It was named by the IAU in 1935. T. W. Webb described it as "one of the most regular walled plains", "the outer slope of the wall is very complex; a magnificent object against the rising or setting Sun".</extract>
+      <extract>አርኪሜድስ በማሬ ኢምብሪየም ምሥራቃዊ ዳርቻ ላይ የሚገኝ ትልቅ የጨረቃ ተጽዕኖ ጉድጓድ ነው። በ1935 በ IAU ተሰይሟል። ቲ.ደብሊው ዌብ "በጣም ከመደበኛ ቅጥር ሜዳዎች አንዱ" ሲል ገልጾታል፣ "የግድግዳው ውጫዊ ተዳፋት በጣም የተወሳሰበ ነው፣ ፀሐይ በምትወጣበት ወይም በምትጠልቅበት ላይ ድንቅ ነገር" ሲል ገልጿል።</extract>
     </am>
   </poi>
   <poi id="gassendi" image="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Gassendi_%28LRO%29.png/330px-Gassendi_%28LRO%29.png" url="https://en.wikipedia.org/wiki/Gassendi_(crater)">
@@ -269,7 +269,7 @@
       <extract>Gassendi is a large lunar impact crater feature located at the northern edge of Mare Humorum. The crater was named after French astronomer Pierre Gassendi by the IAU in 1935. T. W. Webb called this "a conspicuous walled plain", but noted "that its proportions vary considerably according to libration."</extract>
     </en>
     <am>
-      <extract>Gassendi is a large lunar impact crater feature located at the northern edge of Mare Humorum. The crater was named after French astronomer Pierre Gassendi by the IAU in 1935. T. W. Webb called this "a conspicuous walled plain", but noted "that its proportions vary considerably according to libration."</extract>
+      <extract>ጋሴንዲ በማሬ ሁሞረም ሰሜናዊ ጫፍ ላይ የሚገኝ ትልቅ የጨረቃ ተጽዕኖ እሳተ ገሞራ ባህሪ ነው። ጉድጓዱ የተሰየመው በፈረንሳዊው የስነ ፈለክ ተመራማሪ ፒየር ጋሴንዲ በ 1935 ነው። ቲ.ደብሊው ዌብ ይህንን "በግምብ የታጠረ ሜዳ" ሲል ጠርቶታል፣ ነገር ግን "መጠኑ እንደ ሊብሬሽን በጣም ይለያያል" ብሏል።</extract>
     </am>
   </poi>
   <poi id="schickard" image="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Schickard_crater_4160_h2.jpg/330px-Schickard_crater_4160_h2.jpg" url="https://en.wikipedia.org/wiki/Schickard_(crater)">
@@ -277,7 +277,7 @@
       <extract>Schickard is a lunar impact crater of the form called a walled plain. It lies in the southwest sector of the Moon, near the lunar limb. As a result, the crater appears oblong due to foreshortening. T. W. Webb called this crater "an enormous plain" that "is encircled by a complex wall"; "the interior is nearly level, but its colour strongly varied". Attached to the northern rim is the lesser crater Lehmann, and to the northeast is the even smaller Drebbel. Southwest of Schickard is Wargentin, a lava-flooded plateau.</extract>
     </en>
     <am>
-      <extract>Schickard is a lunar impact crater of the form called a walled plain. It lies in the southwest sector of the Moon, near the lunar limb. As a result, the crater appears oblong due to foreshortening. T. W. Webb called this crater "an enormous plain" that "is encircled by a complex wall"; "the interior is nearly level, but its colour strongly varied". Attached to the northern rim is the lesser crater Lehmann, and to the northeast is the even smaller Drebbel. Southwest of Schickard is Wargentin, a lava-flooded plateau.</extract>
+      <extract>Schickard ግድግዳ ሜዳ ተብሎ የሚጠራው የጨረቃ ተጽዕኖ ጉድጓድ ነው። በደቡብ ምዕራብ የጨረቃ ክፍል ውስጥ, በጨረቃ እግር አጠገብ ይገኛል. በውጤቱም, ጉድጓዱ በቅድመ-ማሳጠር ምክንያት ሞላላ ይመስላል. ቲ.ደብሊው ዌብ ይህንን ቋጥኝ "በውስብስብ ግድግዳ የተከበበ" ግዙፍ ሜዳ ብሎ ጠራው። "ውስጣዊው ክፍል ደረጃ ላይ ነው, ነገር ግን ቀለሙ በጣም የተለያየ ነው." በሰሜናዊው ጠርዝ ላይ ትንሹ ሌህማን አለ ፣ እና በሰሜን ምስራቅ በኩል ደግሞ ትንሹ ድሬብል አለ። ከሺክካርድ ደቡብ ምዕራብ ዋርጀንቲን ነው፣ በጎርፍ የተሞላ አምባ።</extract>
     </am>
   </poi>
   <poi id="grimaldi" image="https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Grimaldi_%2B_Riccioli_-_LROC_-_WAC.JPG/330px-Grimaldi_%2B_Riccioli_-_LROC_-_WAC.JPG" url="https://en.wikipedia.org/wiki/Grimaldi_(crater)">
@@ -285,7 +285,7 @@
       <extract>Grimaldi is a large basin located near the western limb of the Moon. This class of formation is known as a peak ring basin, which has a single interior topographic ring or a discontinuous ring of peaks with no central peak. It lies to the southwest of the Oceanus Procellarum, and southeast of the crater Riccioli. Between Oceanus Procellarum is Damoiseau, and to the north is Lohrmann. It is named after Francesco Maria Grimaldi.</extract>
     </en>
     <am>
-      <extract>Grimaldi is a large basin located near the western limb of the Moon. This class of formation is known as a peak ring basin, which has a single interior topographic ring or a discontinuous ring of peaks with no central peak. It lies to the southwest of the Oceanus Procellarum, and southeast of the crater Riccioli. Between Oceanus Procellarum is Damoiseau, and to the north is Lohrmann. It is named after Francesco Maria Grimaldi.</extract>
+      <extract>ግሪማልዲ በጨረቃ ምዕራባዊ ክፍል አጠገብ የሚገኝ ትልቅ ተፋሰስ ነው። ይህ የምስረታ ክፍል የፔክ ቀለበት ተፋሰስ በመባል ይታወቃል፣ አንድ የውስጥ መልከአ ምድር ቀለበት ወይም ያለ ማዕከላዊ ጫፍ ያለማቋረጥ የተቋረጠ የቁንጮዎች ቀለበት አለው። ከውቅያኖስ ፕሮሴላሩም በስተደቡብ ምዕራብ፣ እና ከክራተር ሪቺዮሊ በስተደቡብ ምስራቅ ይገኛል። በውቅያኖስ ፕሮሴላረም መካከል Damoiseau ነው፣ በሰሜን በኩል ደግሞ ሎህርማን ነው። በፍራንቸስኮ ማሪያ ግሪማልዲ ስም ተሰይሟል።</extract>
     </am>
   </poi>
   <poi id="langrenus" image="https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Langrenus_crater_4184_h1.jpg/330px-Langrenus_crater_4184_h1.jpg" url="https://en.wikipedia.org/wiki/Langrenus_(crater)">
@@ -293,7 +293,7 @@
       <extract>Langrenus is an impact crater located near the eastern lunar limb. British astronomer T. W. Webb calls it "a superb object under oblique sunshine, with its terraced ring." The feature is circular in shape, but appears oblong due to foreshortening. It lies on the eastern shore of the Mare Fecunditatis. To the south is the overlapping crater pair Vendelinus and the smaller Lamé.</extract>
     </en>
     <am>
-      <extract>Langrenus is an impact crater located near the eastern lunar limb. British astronomer T. W. Webb calls it "a superb object under oblique sunshine, with its terraced ring." The feature is circular in shape, but appears oblong due to foreshortening. It lies on the eastern shore of the Mare Fecunditatis. To the south is the overlapping crater pair Vendelinus and the smaller Lamé.</extract>
+      <extract>ላንግሬነስ ከምስራቃዊው የጨረቃ አካል አጠገብ የሚገኝ የተፅዕኖ ጉድጓድ ነው። እንግሊዛዊው የስነ ፈለክ ተመራማሪ ቲ.ደብሊው ዌብ “በገደል ጸሃይ ስር ያለ፣ ቀለበቱ ያለው እጅግ በጣም ጥሩ ነገር” በማለት ጠርቶታል። ባህሪው ክብ ቅርጽ አለው፣ ነገር ግን በቅድመ-ማሳጠር ምክንያት ሞላላ ይመስላል። በማሬ ፌኩንዲታቲስ ምስራቃዊ የባህር ዳርቻ ላይ ይገኛል. በስተደቡብ በኩል የተደራረቡ እሳተ ገሞራ ጥንድ ቬንዴሊኑስ እና ትንሹ ላሜ ናቸው።</extract>
     </am>
   </poi>
   <poi id="theophilus" image="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Crater_Theophilus.jpg/330px-Crater_Theophilus.jpg" url="https://en.wikipedia.org/wiki/Theophilus_(crater)">
@@ -301,7 +301,7 @@
       <extract>Theophilus is a prominent lunar impact crater that lies between Sinus Asperitatis in the north and Mare Nectaris to the southeast. It partially intrudes into the comparably sized crater Cyrillus to the southwest. To the east is the smaller crater Mädler and further to the south-southeast is Beaumont. It was named after the 4th-century Coptic Pope Theophilus I of Alexandria.</extract>
     </en>
     <am>
-      <extract>Theophilus is a prominent lunar impact crater that lies between Sinus Asperitatis in the north and Mare Nectaris to the southeast. It partially intrudes into the comparably sized crater Cyrillus to the southwest. To the east is the smaller crater Mädler and further to the south-southeast is Beaumont. It was named after the 4th-century Coptic Pope Theophilus I of Alexandria.</extract>
+      <extract>ቴዎፍሎስ በሰሜን በ Sinus Asperitatis እና በደቡብ ምስራቅ በማሬ ኔክታሪስ መካከል የሚገኝ ታዋቂ የጨረቃ ተጽዕኖ እሳተ ጎመራ ነው። ከፊል ወደ ደቡብ ምዕራብ ካለው ተመጣጣኝ መጠን ያለው ሲሪለስ ውስጥ ዘልቆ ይገባል። በምስራቅ ትንሿ ክሬተር ማድለር አለ እና ወደ ደቡብ-ደቡብ ምስራቅ ዞሮ ዞሮ Beaumont ነው። ስያሜውም በ4ኛው ክፍለ ዘመን በኮፕቲክ ሊቀ ጳጳስ ቴዎፍሎስ ቀዳማዊ የአሌክሳንደሪያው ስም ነው።</extract>
     </am>
   </poi>
   <poi id="plato" image="https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Plato_%28LRO%29.png/330px-Plato_%28LRO%29.png" url="https://en.wikipedia.org/wiki/Plato_(crater)">
@@ -309,7 +309,7 @@
       <extract>Plato is a lava-filled lunar impact crater on the Moon. Its diameter is 101 km (63 mi). It was named after ancient Greek philosopher Plato. It is located on the northeastern shore of the Mare Imbrium, at the western extremity of the Montes Alpes mountain range. In the mare to the south are several rises collectively named the Montes Teneriffe. To the north lies the wide stretch of the Mare Frigoris. East of the crater, among the Montes Alpes, are several rilles collectively named the Rimae Plato.</extract>
     </en>
     <am>
-      <extract>Plato is a lava-filled lunar impact crater on the Moon. Its diameter is 101 km (63 mi). It was named after ancient Greek philosopher Plato. It is located on the northeastern shore of the Mare Imbrium, at the western extremity of the Montes Alpes mountain range. In the mare to the south are several rises collectively named the Montes Teneriffe. To the north lies the wide stretch of the Mare Frigoris. East of the crater, among the Montes Alpes, are several rilles collectively named the Rimae Plato.</extract>
+      <extract>ፕላቶ በጨረቃ ላይ ላቫ የተሞላ የጨረቃ ተጽዕኖ ጉድጓድ ነው። ዲያሜትሩ 101 ኪሜ (63 ማይ) ነው። በጥንታዊ ግሪክ ፈላስፋ በፕላቶ ስም ተሰይሟል። በሜሬ ኢምብሪየም ሰሜናዊ ምስራቅ የባህር ዳርቻ በሞንቴስ አልፔስ ተራራ ሰንሰለታማ ምዕራባዊ ጫፍ ላይ ይገኛል። በደቡባዊው የባህር ዳርቻ ላይ ሞንቴስ ቴነሪፍ የተባሉ በርካታ ፎቆች አሉ። በሰሜን በኩል የማሬ ፍሪጎሪስ ሰፊ ቦታ አለ። ከጉድጓድ በስተ ምሥራቅ፣ በሞንቴስ አልፔስ መካከል፣ ሪማ ፕላቶ የሚል ስያሜ ያላቸው በርካታ ሪልሎች አሉ።</extract>
     </am>
   </poi>
   <poi id="kepler">
@@ -349,7 +349,7 @@
       <extract>Mare Serenitatis is a lunar mare located to the east of Mare Imbrium on the Moon. Its diameter is 674 km (419 mi).</extract>
     </en>
     <am>
-      <extract>Mare Serenitatis is a lunar mare located to the east of Mare Imbrium on the Moon. Its diameter is 674 km (419 mi).</extract>
+      <extract>ማሬ ሴሬኒታቲስ በጨረቃ ላይ ከማሬ ኢምብሪየም በስተምስራቅ የሚገኝ የጨረቃ ማሬ ነው። ዲያሜትሩ 674 ኪሜ (419 ማይ) ነው።</extract>
     </am>
   </poi>
   <poi id="mare-crisium" image="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Mare_Crisium_%28LRO%29.png/330px-Mare_Crisium_%28LRO%29.png" url="https://en.wikipedia.org/wiki/Mare_Crisium">
@@ -357,7 +357,7 @@
       <extract>Mare Crisium is a lunar mare located in the Moon's Crisium basin, just northeast of Mare Tranquillitatis. Mare Crisium is a basin of Nectarian age. It was formed by the flooding of basaltic lava that filled an ancient asteroid impact.</extract>
     </en>
     <am>
-      <extract>Mare Crisium is a lunar mare located in the Moon's Crisium basin, just northeast of Mare Tranquillitatis. Mare Crisium is a basin of Nectarian age. It was formed by the flooding of basaltic lava that filled an ancient asteroid impact.</extract>
+      <extract>ማሬ ክሪሲየም ከማሬ ትራንኩሊታቲስ በስተሰሜን ምስራቅ በጨረቃ ክሪሲየም ተፋሰስ ውስጥ የሚገኝ የጨረቃ ማሬ ነው። ማሬ ክሪሲየም የኔክታሪያን ዘመን ተፋሰስ ነው። የተፈጠረው በጥንታዊ የአስትሮይድ ተጽእኖ በተሞላው የባሳልቲክ ላቫ ጎርፍ ነው።</extract>
     </am>
   </poi>
   <poi id="mare-tranquillitatis" image="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Mare_Tranquillitatis.jpg/330px-Mare_Tranquillitatis.jpg" url="https://en.wikipedia.org/wiki/Mare_Tranquillitatis">
@@ -365,7 +365,7 @@
       <extract>Mare Tranquillitatis is a lunar mare that sits within the Tranquillitatis basin on the Moon. It contains Tranquility Base, the first location on another celestial body to be visited by humans.</extract>
     </en>
     <am>
-      <extract>Mare Tranquillitatis is a lunar mare that sits within the Tranquillitatis basin on the Moon. It contains Tranquility Base, the first location on another celestial body to be visited by humans.</extract>
+      <extract>ማሬ ትራንኩሊታቲስ በጨረቃ ላይ ባለው Tranquillitatis ተፋሰስ ውስጥ የሚቀመጥ የጨረቃ ማሬ ነው። በሌላ የሰማይ አካል ላይ በሰዎች የሚጎበኝ የመጀመሪያው ቦታ የሆነውን የመረጋጋት መሰረት ይዟል።</extract>
     </am>
   </poi>
   <poi id="mare-nectaris" image="https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Mare_Nectaris.jpg/330px-Mare_Nectaris.jpg" url="https://en.wikipedia.org/wiki/Mare_Nectaris">
@@ -373,7 +373,7 @@
       <extract>Mare Nectaris is a small lunar mare or sea located south of Mare Tranquillitatis southwest of Mare Fecunditatis, on the near side of the Moon. Montes Pyrenaeus borders the mare to the east and Sinus Asperitatis fuses to its northwestern edge. It is 84,000 square kilometers in size.</extract>
     </en>
     <am>
-      <extract>Mare Nectaris is a small lunar mare or sea located south of Mare Tranquillitatis southwest of Mare Fecunditatis, on the near side of the Moon. Montes Pyrenaeus borders the mare to the east and Sinus Asperitatis fuses to its northwestern edge. It is 84,000 square kilometers in size.</extract>
+      <extract>ማሬ ኔክታሪስ ከጨረቃ አቅራቢያ ከማሬ ትራንኩሊታቲስ በስተደቡብ ምዕራብ ከማሬ ፌኩንዲታቲስ በስተደቡብ የምትገኝ ትንሽ የጨረቃ ማሬ ወይም ባህር ነው። ሞንቴስ ፒሬኔየስ ጥንቸል በምስራቅ ይዋሰናል እና ሳይነስ አስፐሪታቲስ ከሰሜን ምዕራብ ጠርዝ ጋር ይዋሃዳል። ስፋቱ 84,000 ካሬ ኪሎ ሜትር ነው።</extract>
     </am>
   </poi>
   <poi id="mare-fecunditatis" image="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Mare_Fecunditatis.jpg/330px-Mare_Fecunditatis.jpg" url="https://en.wikipedia.org/wiki/Mare_Fecunditatis">
@@ -381,7 +381,7 @@
       <extract>Mare Fecunditatis is a lunar mare in the eastern half of the visible Moon. The mare has a maximum diameter of 840 km.</extract>
     </en>
     <am>
-      <extract>Mare Fecunditatis is a lunar mare in the eastern half of the visible Moon. The mare has a maximum diameter of 840 km.</extract>
+      <extract>ማሬ ፌኩንዲታቲስ በሚታየው ጨረቃ ምስራቃዊ ግማሽ ላይ የጨረቃ ማሬ ነው። ማሬው ከፍተኛው ዲያሜትር 840 ኪሜ ነው።</extract>
     </am>
   </poi>
   <poi id="mare-frigoris" image="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Mare_Frigoris.jpg/330px-Mare_Frigoris.jpg" url="https://en.wikipedia.org/wiki/Mare_Frigoris">
@@ -389,7 +389,7 @@
       <extract>Mare Frigoris is a lunar mare in the far north of the Moon. It is located in the outer rings of the Procellarum basin, just north of Mare Imbrium, and stretches east to north of Mare Serenitatis. It is just north of the dark crater Plato.</extract>
     </en>
     <am>
-      <extract>Mare Frigoris is a lunar mare in the far north of the Moon. It is located in the outer rings of the Procellarum basin, just north of Mare Imbrium, and stretches east to north of Mare Serenitatis. It is just north of the dark crater Plato.</extract>
+      <extract>ማሬ ፍሪጎሪስ ከጨረቃ በስተሰሜን የሚገኝ የጨረቃ ማሬ ነው። ከማሬ ኢምብሪየም በስተሰሜን ባለው የፕሮሴላሩም ተፋሰስ ውጫዊ ቀለበቶች ውስጥ ይገኛል እና ከማሬ ሴሬኒታቲስ በስተ ምሥራቅ ወደ ሰሜን ይዘልቃል። ከጨለማው ገደል ፕላቶ በስተሰሜን ይገኛል።</extract>
     </am>
   </poi>
   <poi id="mons-huygens" image="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Mons_Ampere_Mons_Huygens_4109_h3.jpg/330px-Mons_Ampere_Mons_Huygens_4109_h3.jpg" url="https://en.wikipedia.org/wiki/Mons_Huygens">
@@ -397,7 +397,7 @@
       <extract>Mons Huygens is the highest mountain in the Moon's Montes Apenninus range. Adjacent to the west is Mons Ampère. The Montes Apenninus were formed by the impact that created Mare Imbrium. Mons Huygens rises 5,300 m from its Mare Imbrium base, per altimetry data from the Lunar Reconnaissance Orbiter. The mountain was named after the Dutch astronomer, mathematician and physician Christiaan Huygens. He is known for discovering Saturn's largest moon, Titan.</extract>
     </en>
     <am>
-      <extract>Mons Huygens is the highest mountain in the Moon's Montes Apenninus range. Adjacent to the west is Mons Ampère. The Montes Apenninus were formed by the impact that created Mare Imbrium. Mons Huygens rises 5,300 m from its Mare Imbrium base, per altimetry data from the Lunar Reconnaissance Orbiter. The mountain was named after the Dutch astronomer, mathematician and physician Christiaan Huygens. He is known for discovering Saturn's largest moon, Titan.</extract>
+      <extract>Mons Huygens በጨረቃ ሞንቴስ አፔኒነስ ክልል ውስጥ ያለው ከፍተኛው ተራራ ነው። ከምእራብ አጠገብ ሞንስ አምፔር ነው። ሞንቴስ አፔኒነስ የተፈጠሩት ማሬ ኢምብሪየም በፈጠረው ተጽእኖ ነው። Mons Huygens ከ Mare Imbrium መሰረቱ 5,300 ሜትር ከፍ ይላል፣ በእያንዳንዱ የአልቲሜትሪ መረጃ ከጨረቃ ሪኮኔንስንስ ኦርቢተር። ተራራው የተሰየመው በሆላንድ የሥነ ፈለክ ተመራማሪ፣ የሂሳብ ሊቅ እና ሐኪም ክርስቲያን ሁይገንስ ነው። የሳተርን ትልቁን ጨረቃ ታይታን በማግኘቱ ይታወቃል።</extract>
     </am>
   </poi>
   <poi id="montes-alpes" image="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Montes_Alpes_%28with_Plato_and_Cassini_Craters%29.png/330px-Montes_Alpes_%28with_Plato_and_Cassini_Craters%29.png" url="https://en.wikipedia.org/wiki/Montes_Alpes">
@@ -405,7 +405,7 @@
       <extract>Montes Alpes is a mountain range in the northern part of the Moon's near side. It was named after the Alps in Europe; the name was confirmed by the International Astronomical Union in 1935. It lies between the selenographic coordinates latitudes 52.81°N and 42.04°N, and longitudes 5.6°W and 3.22°E. The range thus crosses the lunar prime meridian, and is partially illuminated and partially in shadow during first and last quarters. The center of the range is at 48.36°N, 0.58°W, and has a diameter of 334 km.</extract>
     </en>
     <am>
-      <extract>Montes Alpes is a mountain range in the northern part of the Moon's near side. It was named after the Alps in Europe; the name was confirmed by the International Astronomical Union in 1935. It lies between the selenographic coordinates latitudes 52.81°N and 42.04°N, and longitudes 5.6°W and 3.22°E. The range thus crosses the lunar prime meridian, and is partially illuminated and partially in shadow during first and last quarters. The center of the range is at 48.36°N, 0.58°W, and has a diameter of 334 km.</extract>
+      <extract>ሞንቴስ አልፔስ በጨረቃ አቅራቢያ በሰሜናዊ ክፍል የሚገኝ የተራራ ሰንሰለት ነው። በአውሮፓ ውስጥ በአልፕስ ተራሮች ስም ተሰይሟል; ስሙ በአለም አቀፉ የስነ ፈለክ ዩኒየን በ1935 ተረጋግጧል። እሱ በሴሌኖግራፊክ መጋጠሚያዎች 52.81°N እና 42.04°N እና ኬንትሮስ 5.6°W እና 3.22°E መካከል ነው። ክልሉ ስለዚህ የጨረቃ ፕራይም ሜሪድያንን አቋርጦ የሚያልፍ ሲሆን በከፊል በብርሃን እና በከፊል በመጀመሪያ እና በመጨረሻው ሩብ ጊዜ ውስጥ በጥላ ውስጥ ይገኛል። የክልሉ መሃል 48.36°N፣ 0.58°W፣ እና ዲያሜትሩ 334 ኪሜ ነው።</extract>
     </am>
   </poi>
   <poi id="montes-caucasus" image="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Montes_Caucasus_AS15-M-1536.jpg/330px-Montes_Caucasus_AS15-M-1536.jpg" url="https://en.wikipedia.org/wiki/Montes_Caucasus">
@@ -413,7 +413,7 @@
       <extract>Montes Caucasus is a rugged range of mountains in the northeastern part of the Moon. It begins at a gap of level surface that joins the Mare Imbrium to the west with the Mare Serenitatis to the east, and extends in an irregular band to the north-northeast to the western side of the prominent crater Eudoxus. The range forms the northwestern boundary of the Mare Serenitatis. It forms a continuation of the Montes Apenninus range to the southwest.</extract>
     </en>
     <am>
-      <extract>Montes Caucasus is a rugged range of mountains in the northeastern part of the Moon. It begins at a gap of level surface that joins the Mare Imbrium to the west with the Mare Serenitatis to the east, and extends in an irregular band to the north-northeast to the western side of the prominent crater Eudoxus. The range forms the northwestern boundary of the Mare Serenitatis. It forms a continuation of the Montes Apenninus range to the southwest.</extract>
+      <extract>ሞንቴስ ካውካሰስ በሰሜናዊ ምስራቅ የጨረቃ ክፍል ውስጥ ያለ ወጣ ገባ የተራራ ክልል ነው። ይህ የሚጀምረው ከደረጃው ወለል ባለው ክፍተት ነው ማሬ ኢምብሪየምን በስተ ምዕራብ ከማሬ ሴሬኒታቲስ ጋር በምስራቅ በማገናኘት እና መደበኛ ባልሆነ ባንድ ወደ ሰሜን-ሰሜን ምስራቅ እስከ ታዋቂው ገደል አውዶክስስ ምዕራባዊ ጎን ድረስ ይዘልቃል። ክልሉ የማሬ ሴሬኒታቲስ ሰሜናዊ ምዕራብ ድንበር ይመሰርታል። ወደ ደቡብ ምዕራብ ያለው የሞንቴስ አፔኒነስ ክልል ቀጣይነት ይመሰርታል።</extract>
     </am>
   </poi>
   <poi id="montes-jura" image="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Imbrium_map.png/330px-Imbrium_map.png" url="https://en.wikipedia.org/wiki/Montes_Jura">
@@ -421,7 +421,7 @@
       <extract>Montes Jura is a mountain range in the northwest part of the near side of the Moon. The selenographic coordinates of this range are 47.1° N 34.0° W. It has a diameter of 422 km, with mountains rising to approximately 3800m above the level of Sinus Iridum. They were named after the Jura Mountains in eastern France / western Switzerland.</extract>
     </en>
     <am>
-      <extract>Montes Jura is a mountain range in the northwest part of the near side of the Moon. The selenographic coordinates of this range are 47.1° N 34.0° W. It has a diameter of 422 km, with mountains rising to approximately 3800m above the level of Sinus Iridum. They were named after the Jura Mountains in eastern France / western Switzerland.</extract>
+      <extract>ሞንቴስ ጁራ በጨረቃ አቅራቢያ በሰሜን ምዕራብ ክፍል የሚገኝ የተራራ ሰንሰለት ነው። የዚህ ክልል ሴሊኖግራፊክ መጋጠሚያዎች 47.1° N 34.0° ዋ ነው። 422 ኪሜ ዲያሜትሩ፣ ተራራዎች ከ Sinus Iridum ደረጃ ወደ 3800 ሜትር ገደማ ከፍ ያደርጋሉ። በምስራቅ ፈረንሳይ / ምዕራብ ስዊዘርላንድ ውስጥ በጁራ ተራሮች ተሰይመዋል።</extract>
     </am>
   </poi>
   <poi id="mons-pico" image="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Mons_Pico_4122_h2.jpg/330px-Mons_Pico_4122_h2.jpg" url="https://en.wikipedia.org/wiki/Mons_Pico">
@@ -429,7 +429,7 @@
       <extract>Mons Pico is a solitary lunar mountain that lies in the northern part of the Mare Imbrium basin, to the south of the dark-floored crater Plato and on the southern rim of a ghost crater. This peak forms part of the surviving inner ring of the Imbrium basin, continuing to the northwest and with the Montes Teneriffe and Montes Recti ranges, and probably to the southeast with the Montes Spitzbergen. This mountain feature is thought to have been named by Johann Hieronymus Schröter for Pico del Teide on Tenerife.</extract>
     </en>
     <am>
-      <extract>Mons Pico is a solitary lunar mountain that lies in the northern part of the Mare Imbrium basin, to the south of the dark-floored crater Plato and on the southern rim of a ghost crater. This peak forms part of the surviving inner ring of the Imbrium basin, continuing to the northwest and with the Montes Teneriffe and Montes Recti ranges, and probably to the southeast with the Montes Spitzbergen. This mountain feature is thought to have been named by Johann Hieronymus Schröter for Pico del Teide on Tenerife.</extract>
+      <extract>ሞንስ ፒኮ ብቸኛ የጨረቃ ተራራ ሲሆን በማሬ ኢምብሪየም ተፋሰስ ሰሜናዊ ክፍል፣ ከጨለማው ወለል ቋጥኝ ፕላቶ በስተደቡብ እና በድብቅ ጉድጓድ ደቡባዊ ጠርዝ ላይ ይገኛል። ይህ ጫፍ ወደ ሰሜን ምዕራብ እና ከሞንቴስ ቴነሪፍ እና ሞንቴስ ሬክቲ ክልሎች ጋር የሚቀጥል የኢምብሪየም ተፋሰስ የውስጥ ቀለበት አካል ሲሆን ምናልባትም በደቡብ ምስራቅ ከሞንቴስ ስፒትስበርገን ጋር። ይህ የተራራ ገጽታ በጆሃን ሄሮኒመስ ሽሮተር ለፒኮ ዴል ቴይድ በቴኔሪፍ እንደተሰየመ ይታሰባል።</extract>
     </am>
   </poi>
   <poi id="mons-hadley" image="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Apollo_15_Rover%2C_Irwin.jpg/330px-Apollo_15_Rover%2C_Irwin.jpg" url="https://en.wikipedia.org/wiki/Mons_Hadley">
@@ -437,7 +437,7 @@
       <extract>Mons Hadley is a massif in the northern portion of the Montes Apenninus, a range in the northern hemisphere of the Moon. It has a height of 4.5 km (2.8 mi) 14,764 ft (4,500 m) above the adjacent plain and a maximum diameter of 25 km at the base.</extract>
     </en>
     <am>
-      <extract>Mons Hadley is a massif in the northern portion of the Montes Apenninus, a range in the northern hemisphere of the Moon. It has a height of 4.5 km (2.8 mi) 14,764 ft (4,500 m) above the adjacent plain and a maximum diameter of 25 km at the base.</extract>
+      <extract>ሞንስ ሃድሊ በሞንቴስ አፔኒኑስ ሰሜናዊ ክፍል ውስጥ የሚገኝ ሰፊ ቦታ ነው፣ ​​በጨረቃ ሰሜናዊ ንፍቀ ክበብ ውስጥ። ቁመቱ 4.5 ኪሜ (2.8 ማይ) 14,764 ft (4,500 ሜ) ከአጎራባች ሜዳ በላይ እና ከመሠረቱ ከፍተኛው ዲያሜትር 25 ኪሜ ነው።</extract>
     </am>
   </poi>
   <poi id="montes-apenninus">

@@ -64,6 +64,25 @@
                     <img id="icon-planned" alt="" style="width: 16px; height: 16px; margin-right: 8px; display: block;">
                     <span id="label-planned">Planned</span>
                 </label>
+                
+                <!-- Manual Alignment Offset Panel -->
+                <div id="alignment-panel" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px;">
+                    <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; color: rgba(255,255,255,0.6); font-weight: 700;">Manual Alignment</div>
+                    <div style="margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: rgba(255,255,255,0.8);">
+                            <span>Lat Offset:</span>
+                            <span id="lat-val" style="font-family: monospace; font-weight: 600; color: #FF7777;">0.00&deg;</span>
+                        </div>
+                        <input type="range" id="lat-offset" min="-90" max="90" step="0.1" value="0" style="width: 100%; accent-color: #FF7777; height: 4px; border-radius: 2px; outline: none; cursor: pointer;">
+                    </div>
+                    <div style="margin-bottom: 5px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: rgba(255,255,255,0.8);">
+                            <span>Lon Offset:</span>
+                            <span id="lon-val" style="font-family: monospace; font-weight: 600; color: #88CCFF;">0.00&deg;</span>
+                        </div>
+                        <input type="range" id="lon-offset" min="-180" max="180" step="0.1" value="0" style="width: 100%; accent-color: #88CCFF; height: 4px; border-radius: 2px; outline: none; cursor: pointer;">
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -88,7 +107,7 @@
         
         <!-- Credits -->
         <div id="credits" class="credits-panel">
-            Map Data: <a href="https://www.openplanetary.org/" target="_blank" rel="noopener">OpenPlanetary</a> &amp; NASA LROC
+            Map Data: <a href="https://www.openplanetary.org/" target="_blank" rel="noopener">OpenPlanetary</a>, NASA LROC, &amp; QuickMap
         </div>
         
         <!-- Scale Ruler -->

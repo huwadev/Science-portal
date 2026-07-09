@@ -1,4 +1,4 @@
-﻿// modules/lunar-explorer/app.js
+// modules/lunar-explorer/app.js
 
 // Application state
 let currentLang = 'en'; // Default language
@@ -10,19 +10,133 @@ let translationsXml = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // Since QuickMap obfuscates their raw NAC tile server behind an SPA React frontend, we must use OpenPlanetary's stable WAC + DEM composite.
-    // It provides Zoom Level 12 (15m/pixel) which is the highest resolution open-source map available without a premium API token.
-    const moonImagery = new Cesium.UrlTemplateImageryProvider({
+    // ===== TRIPLE-LAYER IMAGERY SYSTEM =====
+    // Layer 0 (Base): OpenPlanetary WAC+DEM composite — real data z0–z12, fast CDN
+    // Layer 1 (Medium): NASA Moon Trek LRO WAC 303ppd v02 — real data z0–z8, ~30m/px
+    // Layer 2 (Ultra-Res): LROC WAC+NAC+NAC_ROI_MOSAIC composite — real sub-meter data z0–z17+ via QuickMap
+    
+    const resolutions = [
+        32000.0, 16000.0, 8000.0, 4000.0, 2000.0, 1000.0, 500.0, 250.0, 
+        125.0, 64.0, 32.0, 16.0, 8.0, 4.0, 2.0, 1.0, 0.5, 0.25, 
+        0.175, 0.0875, 0.04375, 0.021875, 0.0109375
+    ];
+
+    class QuickMapTilingScheme {
+        constructor() {
+            this.ellipsoid = Cesium.Ellipsoid.MOON;
+            this.projection = new Cesium.GeographicProjection(this.ellipsoid);
+            this.rectangle = Cesium.Rectangle.MAX_VALUE;
+        }
+        
+        getNumberOfXTilesAtLevel(level) {
+            const res = resolutions[level] || resolutions[resolutions.length - 1];
+            const tileSizeMeters = 256.0 * res;
+            const circumference = 2.0 * Math.PI * 1737400.0;
+            return Math.ceil(circumference / tileSizeMeters);
+        }
+        
+        getNumberOfYTilesAtLevel(level) {
+            const res = resolutions[level] || resolutions[resolutions.length - 1];
+            const tileSizeMeters = 256.0 * res;
+            const heightMeters = Math.PI * 1737400.0;
+            return Math.ceil(heightMeters / tileSizeMeters);
+        }
+        
+        tileXYToRectangle(x, y, level, result) {
+            const res = resolutions[level] || resolutions[resolutions.length - 1];
+            const tileSizeMeters = 256.0 * res;
+            const R = 1737400.0;
+            
+            const originX = -R * Math.PI;
+            const originY = R * Math.PI / 2.0;
+            
+            const west = (originX + x * tileSizeMeters) / R;
+            const east = (originX + (x + 1) * tileSizeMeters) / R;
+            const south = (originY - (y + 1) * tileSizeMeters) / R;
+            const north = (originY - y * tileSizeMeters) / R;
+            
+            if (!Cesium.defined(result)) {
+                result = new Cesium.Rectangle(west, south, east, north);
+            } else {
+                result.west = west;
+                result.south = south;
+                result.east = east;
+                result.north = north;
+            }
+            return result;
+        }
+        
+        positionToTileXY(position, level, result) {
+            const res = resolutions[level] || resolutions[resolutions.length - 1];
+            const tileSizeMeters = 256.0 * res;
+            const R = 1737400.0;
+            
+            const originX = -R * Math.PI;
+            const originY = R * Math.PI / 2.0;
+            
+            const xMeters = R * position.longitude;
+            const yMeters = R * position.latitude;
+            
+            const tileX = Math.floor((xMeters - originX) / tileSizeMeters);
+            const tileY = Math.floor((originY - yMeters) / tileSizeMeters);
+            
+            if (!Cesium.defined(result)) {
+                result = new Cesium.Cartesian2(tileX, tileY);
+            } else {
+                result.x = tileX;
+                result.y = tileY;
+            }
+            return result;
+        }
+    }
+
+    // --- Layer 0: OpenPlanetary Basemap ---
+    const opmBasemap = new Cesium.UrlTemplateImageryProvider({
         url: 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/all/{z}/{x}/{y}.png',
-        maximumLevel: 12,
+        tilingScheme: new Cesium.WebMercatorTilingScheme({ ellipsoid: Cesium.Ellipsoid.MOON }),
+        maximumLevel: 6, // Prevents OPM from switching to vector contour lines at z7+
         credit: 'NASA LROC / OpenPlanetary'
+    });
+
+    // --- Layer 1: NASA Moon Trek LRO WAC 303ppd v02 (higher resolution) ---
+    // WMTS REST format: /tiles/Moon/EQ/{Layer}/1.0.0/default/default028mm/{z}/{y}/{x}.png
+    // Note: WMTS uses {TileRow}/{TileCol} = {y}/{x}, which matches Cesium's {reverseY}/{x}
+    const moonTrekHiRes = new Cesium.UrlTemplateImageryProvider({
+        url: 'https://trek.nasa.gov/tiles/Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02/1.0.0/default/default028mm/{z}/{shiftedReverseY}/{shiftedX}.png',
+        tilingScheme: new Cesium.GeographicTilingScheme({ ellipsoid: Cesium.Ellipsoid.MOON }),
+        minimumLevel: 0,
+        maximumLevel: 8,
+        tileWidth: 256,
+        tileHeight: 256,
+        credit: 'NASA/GSFC/ASU — LRO WAC 303ppd via Moon Trek',
+        customTags: {
+            shiftedX: function(imageryProvider, x, y, level) {
+                const cols = Math.pow(2, level + 1);
+                const tileWidthDegrees = 360.0 / cols;
+                const dx = lonOffset / tileWidthDegrees;
+                let shifted = Math.round(x - dx);
+                const res = (shifted % cols + cols) % cols;
+                console.log(`[Tile Request] L${level} X:${x} Y:${y} -> shiftedX:${res} (lonOffset:${lonOffset})`);
+                return res;
+            },
+            shiftedReverseY: function(imageryProvider, x, y, level) {
+                const rows = Math.pow(2, level);
+                const tileHeightDegrees = 180.0 / rows;
+                const dy = latOffset / tileHeightDegrees;
+                let shifted = Math.round(y - dy);
+                const res = Math.max(0, Math.min(rows - 1, shifted));
+                console.log(`[Tile Request] L${level} X:${x} Y:${y} -> shiftedY:${res} (latOffset:${latOffset})`);
+                return res;
+            }
+        }
     });
 
     // Initialize Cesium Viewer configured for the Moon
     viewer = new Cesium.Viewer('canvas-container', {
-        globe: new Cesium.Globe(Cesium.Ellipsoid.MOON),
+        globe: new Cesium.Globe(Cesium.Ellipsoid.MOON), // Custom globe shape remains Moon
+        mapProjection: new Cesium.GeographicProjection(Cesium.Ellipsoid.MOON),
         baseLayerPicker: false,
-        baseLayer: new Cesium.ImageryLayer(moonImagery), // Bypasses Cesium Ion default earth imagery (fixes 401 error)
+        baseLayer: new Cesium.ImageryLayer(opmBasemap),
         timeline: false,
         animation: false,
         geocoder: false,
@@ -39,6 +153,193 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    // --- Layer 2: QuickMap WAC+NAC+NAC_ROI_MOSAIC (ultra high resolution) ---
+    const quickMapUltraRes = new Cesium.UrlTemplateImageryProvider({
+        url: 'https://lroc-tiles.quickmap.io/tiles/wac_nac_nacroi/lunar-fulleqc/{z}/{shiftedX}/{shiftedY}.jpg',
+        tilingScheme: new QuickMapTilingScheme(),
+        minimumLevel: 0,
+        maximumLevel: 17,
+        tileWidth: 256,
+        tileHeight: 256,
+        credit: 'NASA/LROC / ACT / QuickMap',
+        customTags: {
+            shiftedX: function(imageryProvider, x, y, level) {
+                const res = resolutions[level] || resolutions[resolutions.length - 1];
+                const tileSizeMeters = 256.0 * res;
+                const R = 1737400.0;
+                const dx = (lonOffset * Math.PI / 180.0) * R / tileSizeMeters;
+                let shifted = Math.round(x - dx);
+                const totalX = imageryProvider.tilingScheme.getNumberOfXTilesAtLevel(level);
+                return (shifted % totalX + totalX) % totalX;
+            },
+            shiftedY: function(imageryProvider, x, y, level) {
+                const res = resolutions[level] || resolutions[resolutions.length - 1];
+                const tileSizeMeters = 256.0 * res;
+                const R = 1737400.0;
+                const dy = (latOffset * Math.PI / 180.0) * R / tileSizeMeters;
+                let shifted = Math.round(y + dy);
+                const totalY = imageryProvider.tilingScheme.getNumberOfYTilesAtLevel(level);
+                return Math.max(0, Math.min(totalY - 1, shifted));
+            }
+        }
+    });
+
+    // Add layers on top of base map (initially transparent/hidden)
+    let hiResLayer = viewer.imageryLayers.addImageryProvider(moonTrekHiRes, 1);
+    hiResLayer.alpha = 0.0;
+    hiResLayer.show = false;
+
+    let ultraResLayer = viewer.imageryLayers.addImageryProvider(quickMapUltraRes, 2);
+    ultraResLayer.alpha = 0.0;
+    ultraResLayer.show = false;
+
+    // --- Dynamic Triple-Layer Switcher & Crossfader ---
+    let lastHiResAlpha = -1;
+    let lastUltraResAlpha = -1;
+
+    viewer.scene.preRender.addEventListener(() => {
+        const width = viewer.canvas.clientWidth;
+        const height = viewer.canvas.clientHeight;
+        
+        // Calculate physical distance represented by 100 pixels at the screen center
+        const left = viewer.camera.getPickRay(new Cesium.Cartesian2((width / 2) - 50, height / 2));
+        const right = viewer.camera.getPickRay(new Cesium.Cartesian2((width / 2) + 50, height / 2));
+        
+        const globe = viewer.scene.globe;
+        const leftPosition = globe.pick(left, viewer.scene);
+        const rightPosition = globe.pick(right, viewer.scene);
+        
+        let hiResAlpha = 0.0;
+        let ultraResAlpha = 0.0;
+        
+        if (Cesium.defined(leftPosition) && Cesium.defined(rightPosition)) {
+            const distance = Cesium.Cartesian3.distance(leftPosition, rightPosition);
+            
+            if (distance > 70000) {
+                hiResAlpha = 0.0;
+                ultraResAlpha = 0.0;
+            } else if (distance > 15000) {
+                // Fade in Moon Trek (Layer 1) from 70km to 50km
+                hiResAlpha = Math.min(1.0, Math.max(0.0, (70000 - distance) / 20000));
+                ultraResAlpha = 0.0;
+            } else {
+                // Fade in QuickMap (Layer 2) and fade out Moon Trek (Layer 1) from 15km to 3km
+                ultraResAlpha = Math.min(1.0, Math.max(0.0, (15000 - distance) / 12000));
+                hiResAlpha = 1.0 - ultraResAlpha;
+            }
+        }
+        
+        if (Math.abs(hiResAlpha - lastHiResAlpha) > 0.005) {
+            lastHiResAlpha = hiResAlpha;
+            hiResLayer.show = (hiResAlpha > 0.01);
+            hiResLayer.alpha = hiResAlpha;
+        }
+        
+        if (Math.abs(ultraResAlpha - lastUltraResAlpha) > 0.005) {
+            lastUltraResAlpha = ultraResAlpha;
+            ultraResLayer.show = (ultraResAlpha > 0.01);
+            ultraResLayer.alpha = ultraResAlpha;
+        }
+    });
+
+    // --- Manual Alignment Controls ---
+    let latOffset = 0.0;
+    let lonOffset = 0.0;
+
+    const latSlider = document.getElementById('lat-offset');
+    const lonSlider = document.getElementById('lon-offset');
+    const latVal = document.getElementById('lat-val');
+    const lonVal = document.getElementById('lon-val');
+
+    function rebuildLayers() {
+        if (hiResLayer) {
+            viewer.imageryLayers.remove(hiResLayer);
+        }
+        if (ultraResLayer) {
+            viewer.imageryLayers.remove(ultraResLayer);
+        }
+
+        const newMoonTrekHiRes = new Cesium.UrlTemplateImageryProvider({
+            url: 'https://trek.nasa.gov/tiles/Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02/1.0.0/default/default028mm/{z}/{shiftedReverseY}/{shiftedX}.png',
+            tilingScheme: new Cesium.GeographicTilingScheme({ ellipsoid: Cesium.Ellipsoid.MOON }),
+            minimumLevel: 0,
+            maximumLevel: 8,
+            tileWidth: 256,
+            tileHeight: 256,
+            credit: 'NASA/GSFC/ASU — LRO WAC 303ppd via Moon Trek',
+            customTags: {
+                shiftedX: function(imageryProvider, x, y, level) {
+                    const cols = Math.pow(2, level + 1);
+                    const tileWidthDegrees = 360.0 / cols;
+                    const dx = lonOffset / tileWidthDegrees;
+                    let shifted = Math.round(x - dx);
+                    const res = (shifted % cols + cols) % cols;
+                    return res;
+                },
+                shiftedReverseY: function(imageryProvider, x, y, level) {
+                    const rows = Math.pow(2, level);
+                    const tileHeightDegrees = 180.0 / rows;
+                    const dy = latOffset / tileHeightDegrees;
+                    let shifted = Math.round(y - dy);
+                    const res = Math.max(0, Math.min(rows - 1, shifted));
+                    return res;
+                }
+            }
+        });
+
+        const newQuickMapUltraRes = new Cesium.UrlTemplateImageryProvider({
+            url: 'https://lroc-tiles.quickmap.io/tiles/wac_nac_nacroi/lunar-fulleqc/{z}/{shiftedX}/{shiftedY}.jpg',
+            tilingScheme: new QuickMapTilingScheme(),
+            minimumLevel: 0,
+            maximumLevel: 17,
+            tileWidth: 256,
+            tileHeight: 256,
+            credit: 'NASA/LROC / ACT / QuickMap',
+            customTags: {
+                shiftedX: function(imageryProvider, x, y, level) {
+                    const res = resolutions[level] || resolutions[resolutions.length - 1];
+                    const tileSizeMeters = 256.0 * res;
+                    const R = 1737400.0;
+                    const dx = (lonOffset * Math.PI / 180.0) * R / tileSizeMeters;
+                    let shifted = Math.round(x - dx);
+                    const totalX = imageryProvider.tilingScheme.getNumberOfXTilesAtLevel(level);
+                    return (shifted % totalX + totalX) % totalX;
+                },
+                shiftedY: function(imageryProvider, x, y, level) {
+                    const res = resolutions[level] || resolutions[resolutions.length - 1];
+                    const tileSizeMeters = 256.0 * res;
+                    const R = 1737400.0;
+                    const dy = (latOffset * Math.PI / 180.0) * R / tileSizeMeters;
+                    let shifted = Math.round(y + dy);
+                    const totalY = imageryProvider.tilingScheme.getNumberOfYTilesAtLevel(level);
+                    return Math.max(0, Math.min(totalY - 1, shifted));
+                }
+            }
+        });
+
+        hiResLayer = viewer.imageryLayers.addImageryProvider(newMoonTrekHiRes, 1);
+        hiResLayer.alpha = lastHiResAlpha >= 0 ? lastHiResAlpha : 0.0;
+        hiResLayer.show = (lastHiResAlpha > 0.01);
+
+        ultraResLayer = viewer.imageryLayers.addImageryProvider(newQuickMapUltraRes, 2);
+        ultraResLayer.alpha = lastUltraResAlpha >= 0 ? lastUltraResAlpha : 0.0;
+        ultraResLayer.show = (lastUltraResAlpha > 0.01);
+    }
+
+    if (latSlider && lonSlider) {
+        latSlider.addEventListener('input', (e) => {
+            latOffset = parseFloat(e.target.value);
+            latVal.textContent = (latOffset >= 0 ? '+' : '') + latOffset.toFixed(2) + '°';
+            rebuildLayers();
+        });
+
+        lonSlider.addEventListener('input', (e) => {
+            lonOffset = parseFloat(e.target.value);
+            lonVal.textContent = (lonOffset >= 0 ? '+' : '') + lonOffset.toFixed(2) + '°';
+            rebuildLayers();
+        });
+    }
 
     // Make the background space dark
     viewer.scene.backgroundColor = Cesium.Color.BLACK;
@@ -62,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
             appTitle: "Lunar Explorer",
             appSubtitle: "Deep Zoom LROC Tile Streaming",
             backToPortal: "&larr; Back to Portal",
-            credits: 'Map Data: <a href="https://www.openplanetary.org/" target="_blank" rel="noopener">OpenPlanetary</a> &amp; NASA LROC',
+            credits: 'Map Data: <a href="https://www.openplanetary.org/" target="_blank" rel="noopener">OpenPlanetary</a>, NASA LROC, &amp; QuickMap',
             layersTitle: "Layers",
             layerMission: "Missions",
             layerCrater: "Craters",
@@ -74,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
             appTitle: "የጨረቃ ማሰሻ",
             appSubtitle: "ጥልቅ ማጉላት የLROC ካርታ ስርጭት",
             backToPortal: "&larr; ወደ ፖርታል ተመለስ",
-            credits: 'የካርታ መረጃ: <a href="https://www.openplanetary.org/" target="_blank" rel="noopener">OpenPlanetary</a> እና NASA LROC',
+            credits: 'የካርታ መረጃ: <a href="https://www.openplanetary.org/" target="_blank" rel="noopener">OpenPlanetary</a>, NASA LROC, እና QuickMap',
             layersTitle: "ማጣሪያዎች",
             layerMission: "ተልዕኮዎች",
             layerCrater: "ቆሬዎች",
