@@ -66,6 +66,9 @@ const lunarSites = [
     {type: 'crater', id: 'planck', name: 'Planck Crater', lat: -57.9, lon: 135.1, wikiTitle: 'Planck_(crater)', description: 'A huge lunar impact crater on the far side of the Moon, named after physicist Max Planck.', descriptionAm: 'በፊዚክስ ሊቅ ማክስ ፕላንክ ስም የተሰየመ በጨረቃ ሩቅ ጎን የሚገኝ ትልቅ ቆሬ።'},
     {type: 'crater', id: 'keeler', name: 'Keeler Crater', lat: -10.2, lon: 162.2, wikiTitle: 'Keeler_(lunar_crater)', description: 'A large lunar impact crater on the far side of the Moon, adjacent to the Heaviside crater.', descriptionAm: 'በጨረቃ ሩቅ ጎን የሚገኝ ትልቅ ቆሬ።'},
     {type: 'crater', id: 'schrodinger', name: 'Schrödinger Crater', lat: -75.0, lon: 132.4, wikiTitle: 'Schrödinger_(crater)', description: 'A large impact crater located near the South Pole on the far side, named after physicist Erwin Schrödinger.', descriptionAm: 'በኤርዊን ሽሮዲንገር ስም የተሰየመ በጨረቃ ደቡብ ዋልታ አቅራቢያ የሚገኝ ትልቅ ቆሬ።'},
+    {type: 'crater', id: 'harkhebi', name: "Harkhebi Crater", lat: 39.6, lon: 95.7, wikiTitle: 'Harkhebi_(crater)', description: 'Harkhebi Crater.', descriptionAm: 'ሃርኬቢ ቆሬ.'},
+    {type: 'crater', id: 'mendeleev', name: "Mendeleev Crater", lat: 5.7, lon: 140.9, wikiTitle: 'Mendeleev_(crater)', description: 'Mendeleev Crater.', descriptionAm: 'ሜንዴሌቭ ቆሬ.'},
+    {type: 'crater', id: 'milne', name: "Milne Crater", lat: -31.0, lon: 112.2, wikiTitle: 'Milne_(crater)', description: 'Milne Crater.', descriptionAm: 'ሚልን ቆሬ.'},
     
     // MARIA
     {type: 'mare', id: 'mare-imbrium', name: 'Mare Imbrium (Sea of Showers)', lat: 32.8, lon: -15.6, wikiTitle: 'Mare_Imbrium', description: 'A vast lunar mare created when lava flooded the giant crater formed by a massive asteroid impact.', descriptionAm: 'በአስትሮይድ ተጽዕኖ የተፈጠረ ግዙፍ ቆሬ በላቫ ሲጥለቀለቅ የተፈጠረ ሰፊ የጨረቃ ባህር።'},
@@ -82,6 +85,9 @@ const lunarSites = [
     {type: 'mare', id: 'mare-ingenii', name: 'Mare Ingenii (Sea of Cleverness)', lat: -33.7, lon: 163.5, wikiTitle: 'Mare_Ingenii', description: 'The Sea of Cleverness. A rare far-side mare located in the southern hemisphere within the Ingenii basin.', descriptionAm: 'የብልህነት ባህር። በሩቅ ጎን የሚገኝ ብርቅዬ የባህር ክፍል።'},
     {type: 'mare', id: 'mare-orientale', name: 'Mare Orientale (Eastern Sea)', lat: -19.4, lon: -92.8, wikiTitle: 'Mare_Orientale', description: 'A striking impact basin on the western limb of the Moon, characterized by its ring-like concentric circular mountain ranges resembling a bullseye.', descriptionAm: 'በጨረቃ ምዕራባዊ ጫፍ ላይ የሚገኝ እና እንደ ኢላማ የተደረደሩ የተራራ ሰንሰለቶች ያሉት አስደናቂ ተፋሰስ።'},
     {type: 'mare', id: 'lacus-veris', name: 'Lacus Veris (Lake of Spring)', lat: -19.1, lon: -86.1, wikiTitle: 'Lacus_Veris', description: 'A small, ring-shaped lunar mare (lake of spring) located between the Rook and Cordillera mountain rings in the Orientale basin.', descriptionAm: 'በኦሬንታሌ ተፋሰስ ውስጥ በተራራ ሰንሰለቶች መካከል የሚገኝ ትንሽ የጨረቃ ባህር/ሐይቅ።'},
+    {type: 'mare', id: 'mare-marginis', name: "Mare Marginis (Border Sea)", lat: 13.3, lon: 86.1, wikiTitle: 'Mare_Marginis', description: 'Mare Marginis (Border Sea).', descriptionAm: 'ማሬ ማርጂኒስ.'},
+    {type: 'mare', id: 'mare-smythii', name: "Mare Smythii (Smyth's Sea)", lat: -1.3, lon: 87.5, wikiTitle: 'Mare_Smythii', description: 'Mare Smythii (Smyth\'s Sea).', descriptionAm: 'ማሬ ስሚቲ.'},
+    {type: 'mare', id: 'mare-australe', name: "Mare Australe (Southern Sea)", lat: -38.9, lon: 93.0, wikiTitle: 'Mare_Australe', description: 'Mare Australe (Southern Sea).', descriptionAm: 'ማሬ አውስትራሌ.'},
     
     // MOUNTAINS
     {type: 'mountain', id: 'mons-huygens', name: 'Mons Huygens', lat: 19.92, lon: -2.86, wikiTitle: 'Mons_Huygens', description: 'The Moon\'s tallest mountain, rising over 5.5 kilometers (18,000 ft) high.', descriptionAm: 'ከ5.5 ኪሎ ሜትር በላይ የሚረዝም የጨረቃ ረጅሙ ተራራ።'},
@@ -175,5 +181,11 @@ const siteTranslations = {
     'Mare Orientale (Eastern Sea)': 'ማሬ ኦሬንታሌ',
     'Lacus Veris (Lake of Spring)': 'ላከስ ቬሪስ',
     'Montes Rook': 'ሩክ ተራሮች',
-    'Montes Cordillera': 'ኮርዲሌራ ተራሮች'
+    'Montes Cordillera': 'ኮርዲሌራ ተራሮች',
+    'Harkhebi Crater': 'ሃርኬቢ ቆሬ',
+    'Mare Marginis (Border Sea)': 'ማሬ ማርጂኒስ',
+    'Mare Smythii (Smyth\'s Sea)': 'ማሬ ስሚቲ',
+    'Mendeleev Crater': 'ሜንዴሌቭ ቆሬ',
+    'Milne Crater': 'ሚልን ቆሬ',
+    'Mare Australe (Southern Sea)': 'ማሬ አውስትራሌ'
 };
