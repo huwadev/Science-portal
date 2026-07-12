@@ -10,163 +10,19 @@ let translationsXml = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // ===== TRIPLE-LAYER IMAGERY SYSTEM =====
-    // Layer 0 (Base): OpenPlanetary WAC+DEM composite — real data z0–z12, fast CDN
-    // Layer 1 (Medium): NASA Moon Trek LRO WAC 303ppd v02 — real data z0–z8, ~30m/px
-    // Layer 2 (Ultra-Res): LROC WAC+NAC+NAC_ROI_MOSAIC composite — real sub-meter data z0–z17+ via QuickMap
-    
-    const resolutions = [
-        32000.0, 16000.0, 8000.0, 4000.0, 2000.0, 1000.0, 500.0, 250.0, 
-        125.0, 64.0, 32.0, 16.0, 8.0, 4.0, 2.0, 1.0, 0.5, 0.25, 
-        0.175, 0.0875, 0.04375, 0.021875, 0.0109375
-    ];
-
-    class QuickMapTilingScheme {
-        constructor(lonOffset = 0.0, latOffset = 0.0) {
-            this.ellipsoid = Cesium.Ellipsoid.MOON;
-            this.projection = new Cesium.GeographicProjection(this.ellipsoid);
-            this.rectangle = Cesium.Rectangle.MAX_VALUE;
-            
-            // Base constant offset between QuickMap and Moon Trek
-            const baseLonOffsetDeg = 0.0075;
-            const baseLatOffsetDeg = -0.0066;
-            
-            this.lonOffsetDeg = baseLonOffsetDeg + lonOffset;
-            this.latOffsetDeg = baseLatOffsetDeg + latOffset;
-            
-            this.lonOffsetRad = this.lonOffsetDeg * Math.PI / 180.0;
-            this.latOffsetRad = this.latOffsetDeg * Math.PI / 180.0;
-        }
-        
-        getNumberOfXTilesAtLevel(level) {
-            return 2 * Math.pow(2, level);
-        }
-        
-        getNumberOfYTilesAtLevel(level) {
-            const standardY = Math.pow(2, level);
-            const latHeightDeg = 180.0 / standardY;
-            // Add extra rows at the bottom to cover the South Pole when shifted Northward
-            const extraRows = Math.ceil(Math.abs(this.latOffsetDeg) / latHeightDeg);
-            return standardY + extraRows;
-        }
-        
-        tileXYToRectangle(x, y, level, result) {
-            const totalX = this.getNumberOfXTilesAtLevel(level);
-            const totalY = this.getNumberOfYTilesAtLevel(level);
-            
-            const lonWidth = (2.0 * Math.PI) / totalX;
-            const standardY = Math.pow(2, level);
-            const latHeight = Math.PI / standardY;
-            
-            // Standard Plate Carrée boundaries
-            const west = -Math.PI + x * lonWidth;
-            const south = Math.PI / 2.0 - (y + 1) * latHeight;
-            const north = Math.PI / 2.0 - y * latHeight;
-            
-            // Shift smoothly in radians
-            let shiftedWest = west + this.lonOffsetRad;
-            let shiftedSouth = south + this.latOffsetRad;
-            let shiftedNorth = north + this.latOffsetRad;
-            
-            // Wrap longitude to [-Math.PI, Math.PI]
-            let w = (shiftedWest + Math.PI) % (2.0 * Math.PI);
-            if (w < 0) w += 2.0 * Math.PI;
-            shiftedWest = w - Math.PI;
-            
-            let shiftedEast = shiftedWest + lonWidth;
-            if (shiftedEast > Math.PI) {
-                shiftedEast -= 2.0 * Math.PI;
-            }
-            
-            // Clamp latitude strictly to prevent rendering seam gaps or polar errors
-            shiftedSouth = Math.max(-Math.PI / 2.0, Math.min(Math.PI / 2.0, shiftedSouth));
-            shiftedNorth = Math.max(-Math.PI / 2.0, Math.min(Math.PI / 2.0, shiftedNorth));
-            
-            if (!Cesium.defined(result)) {
-                result = new Cesium.Rectangle(shiftedWest, shiftedSouth, shiftedEast, shiftedNorth);
-            } else {
-                result.west = shiftedWest;
-                result.south = shiftedSouth;
-                result.east = shiftedEast;
-                result.north = shiftedNorth;
-            }
-            return result;
-        }
-        
-        tileXYToNativeRectangle(x, y, level, result) {
-            return this.tileXYToRectangle(x, y, level, result);
-        }
-        
-        positionToTileXY(position, level, result) {
-            const totalX = this.getNumberOfXTilesAtLevel(level);
-            const totalY = this.getNumberOfYTilesAtLevel(level);
-            
-            // Apply inverse shift to incoming positions to locate tile coordinates
-            let lon = position.longitude - this.lonOffsetRad;
-            let lat = position.latitude - this.latOffsetRad;
-            
-            // Wrap longitude smoothly
-            lon = (lon + Math.PI) % (2.0 * Math.PI);
-            if (lon < 0) lon += 2.0 * Math.PI;
-            lon -= Math.PI;
-            
-            // Clamp latitude
-            lat = Math.max(-Math.PI / 2.0, Math.min(Math.PI / 2.0, lat));
-            
-            const standardY = Math.pow(2, level);
-            let tileX = Math.floor((lon + Math.PI) / ((2.0 * Math.PI) / totalX));
-            let tileY = Math.floor((Math.PI / 2.0 - lat) / (Math.PI / standardY));
-            
-            tileX = Math.max(0, Math.min(totalX - 1, tileX));
-            tileY = Math.max(0, Math.min(totalY - 1, tileY));
-            
-            if (!Cesium.defined(result)) {
-                result = new Cesium.Cartesian2(tileX, tileY);
-            } else {
-                result.x = tileX;
-                result.y = tileY;
-            }
-            return result;
-        }
-    }
-
-    // --- Layer 0: OpenPlanetary Basemap ---
-    const opmBasemap = new Cesium.UrlTemplateImageryProvider({
+    // Since QuickMap obfuscates their raw NAC tile server behind an SPA React frontend, we must use OpenPlanetary's stable WAC + DEM composite.
+    // It provides Zoom Level 12 (15m/pixel) which is the highest resolution open-source map available without a premium API token.
+    const moonImagery = new Cesium.UrlTemplateImageryProvider({
         url: 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-moon-basemap-v0-1/all/{z}/{x}/{y}.png',
-        tilingScheme: new Cesium.WebMercatorTilingScheme({ ellipsoid: Cesium.Ellipsoid.MOON }),
-        maximumLevel: 6, // Prevents OPM from switching to vector contour lines at z7+
+        maximumLevel: 12,
         credit: 'NASA LROC / OpenPlanetary'
-    });
-
-    // --- Layer 1: NASA Moon Trek LRO WAC 303ppd v02 (higher resolution) ---
-    // WMTS REST format: /tiles/Moon/EQ/{Layer}/1.0.0/default/default028mm/{z}/{y}/{x}.png
-    // Note: WMTS uses {TileRow}/{TileCol} = {y}/{x}, which matches Cesium's {reverseY}/{x}
-    const moonTrekHiRes = new Cesium.UrlTemplateImageryProvider({
-        url: 'https://trek.nasa.gov/tiles/Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02/1.0.0/default/default028mm/{z}/{shiftedReverseY}/{shiftedX}.png',
-        tilingScheme: new Cesium.GeographicTilingScheme({ ellipsoid: Cesium.Ellipsoid.MOON }),
-        minimumLevel: 0,
-        maximumLevel: 8,
-        tileWidth: 256,
-        tileHeight: 256,
-        credit: 'NASA/GSFC/ASU — LRO WAC 303ppd via Moon Trek',
-        customTags: {
-            shiftedX: function(imageryProvider, x, y, level) {
-                const cols = Math.pow(2, level + 1);
-                return (x % cols + cols) % cols;
-            },
-            shiftedReverseY: function(imageryProvider, x, y, level) {
-                const rows = Math.pow(2, level);
-                return Math.max(0, Math.min(rows - 1, y));
-            }
-        }
     });
 
     // Initialize Cesium Viewer configured for the Moon
     viewer = new Cesium.Viewer('canvas-container', {
-        globe: new Cesium.Globe(Cesium.Ellipsoid.MOON), // Custom globe shape remains Moon
-        mapProjection: new Cesium.GeographicProjection(Cesium.Ellipsoid.MOON),
+        globe: new Cesium.Globe(Cesium.Ellipsoid.MOON),
         baseLayerPicker: false,
-        baseLayer: new Cesium.ImageryLayer(opmBasemap),
+        baseLayer: new Cesium.ImageryLayer(moonImagery), // Bypasses Cesium Ion default earth imagery (fixes 401 error)
         timeline: false,
         animation: false,
         geocoder: false,
@@ -184,137 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Layer 2: QuickMap Higher Res (Layer 3, z0-z12) ---
-    // Loaded from 15km to 4km altitude. Uses independent Layer 3 offsets.
-    const latOffset3 = 0.0;
-    const lonOffset3 = 0.0;
-
-    const quickMapHigherRes = new Cesium.UrlTemplateImageryProvider({
-        url: 'https://lroc-tiles.quickmap.io/tiles/wac_nac_nacroi/lunar-fulleqc/{shiftedZ}/{x}/{y}.jpg',
-        tilingScheme: new QuickMapTilingScheme(lonOffset3, latOffset3),
-        minimumLevel: 0,
-        maximumLevel: 18,
-        tileWidth: 512,
-        tileHeight: 512,
-        credit: 'NASA/LROC / ACT / QuickMap',
-        customTags: {
-            shiftedZ: function(imageryProvider, x, y, level) {
-                return level + 1;
-            }
-        }
-    });
-
-    const latOffset4 = 0.0;
-    const lonOffset4 = 0.0;
-
-    const quickMapUltraRes = new Cesium.UrlTemplateImageryProvider({
-        url: 'https://lroc-tiles.quickmap.io/tiles/wac_nac_nacroi/lunar-fulleqc/{shiftedZ}/{x}/{y}.jpg',
-        tilingScheme: new QuickMapTilingScheme(lonOffset4, latOffset4),
-        minimumLevel: 0,
-        maximumLevel: 18,
-        tileWidth: 512,
-        tileHeight: 512,
-        credit: 'NASA/LROC / ACT / QuickMap',
-        customTags: {
-            shiftedZ: function(imageryProvider, x, y, level) {
-                return level + 1;
-            }
-        }
-    });
-
-    // Add layers on top of base map (initially transparent/hidden)
-    let hiResLayer = viewer.imageryLayers.addImageryProvider(moonTrekHiRes, 1);
-    hiResLayer.alpha = 0.0;
-    hiResLayer.show = false;
-
-    let higherResLayer = viewer.imageryLayers.addImageryProvider(quickMapHigherRes, 2);
-    higherResLayer.alpha = 0.0;
-    higherResLayer.show = false;
-
-    let ultraResLayer = viewer.imageryLayers.addImageryProvider(quickMapUltraRes, 3);
-    ultraResLayer.alpha = 0.0;
-    ultraResLayer.show = false;
-
-    // --- Dynamic Quad-Layer Switcher & Crossfader ---
-    let lastHiResAlpha = -1;
-    let lastHigherResAlpha = -1;
-    let lastUltraResAlpha = -1;
-
-    viewer.scene.preRender.addEventListener(() => {
-        let hiResAlpha = 0.0;
-        let higherResAlpha = 0.0;
-        let ultraResAlpha = 0.0;
-
-        const width = viewer.canvas.clientWidth;
-        const height = viewer.canvas.clientHeight;
-        
-        // Calculate physical distance represented by 100 pixels at the screen center
-        const left = viewer.camera.getPickRay(new Cesium.Cartesian2((width / 2) - 50, height / 2));
-        const right = viewer.camera.getPickRay(new Cesium.Cartesian2((width / 2) + 50, height / 2));
-        
-        const globe = viewer.scene.globe;
-        const leftPosition = globe.pick(left, viewer.scene);
-        const rightPosition = globe.pick(right, viewer.scene);
-        
-        if (Cesium.defined(leftPosition) && Cesium.defined(rightPosition)) {
-            const distance = Cesium.Cartesian3.distance(leftPosition, rightPosition);
-            
-            if (distance > 70000) {
-                hiResAlpha = 0.0;
-                higherResAlpha = 0.0;
-                ultraResAlpha = 0.0;
-            } else if (distance > 15000) {
-                // Fade in Moon Trek (Layer 2) from 70km to 50km
-                hiResAlpha = Math.min(1.0, Math.max(0.0, (70000 - distance) / 20000));
-                higherResAlpha = 0.0;
-                ultraResAlpha = 0.0;
-            } else {
-                // Fade in QuickMap L3 (Layer 3) and fade out Moon Trek L2 (Layer 2) from 15km to 10km
-                if (distance > 10000) {
-                    higherResAlpha = Math.min(1.0, Math.max(0.0, (15000 - distance) / 5000));
-                    hiResAlpha = 1.0 - higherResAlpha;
-                    ultraResAlpha = 0.0;
-                } else if (distance > 6000) {
-                    // Layer 3 fully visible from 10km to 6km
-                    hiResAlpha = 0.0;
-                    higherResAlpha = 1.0;
-                    ultraResAlpha = 0.0;
-                } else if (distance > 4000) {
-                    // Crossfade Layer 3 to Layer 4 from 6km to 4km
-                    ultraResAlpha = Math.min(1.0, Math.max(0.0, (6000 - distance) / 2000));
-                    higherResAlpha = 1.0 - ultraResAlpha;
-                    hiResAlpha = 0.0;
-                } else {
-                    // Layer 4 fully visible below 4km
-                    hiResAlpha = 0.0;
-                    higherResAlpha = 0.0;
-                    ultraResAlpha = 1.0;
-                }
-            }
-        }
-        
-        if (Math.abs(hiResAlpha - lastHiResAlpha) > 0.005) {
-            lastHiResAlpha = hiResAlpha;
-            hiResLayer.show = (hiResAlpha > 0.01);
-            hiResLayer.alpha = hiResAlpha;
-        }
-        
-        if (Math.abs(higherResAlpha - lastHigherResAlpha) > 0.005) {
-            lastHigherResAlpha = higherResAlpha;
-            higherResLayer.show = (higherResAlpha > 0.01);
-            higherResLayer.alpha = higherResAlpha;
-        }
-        
-        if (Math.abs(ultraResAlpha - lastUltraResAlpha) > 0.005) {
-            lastUltraResAlpha = ultraResAlpha;
-            ultraResLayer.show = (ultraResAlpha > 0.01);
-            ultraResLayer.alpha = ultraResAlpha;
-        }
-    });
-
     // Make the background space dark
     viewer.scene.backgroundColor = Cesium.Color.BLACK;
-    viewer.scene.globe.depthTestAgainstTerrain = false;
+    viewer.scene.globe.depthTestAgainstTerrain = true;
     
     // Load Translations XML
     fetch('translations.xml')
@@ -334,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
             appTitle: "Lunar Explorer",
             appSubtitle: "Deep Zoom LROC Tile Streaming",
             backToPortal: "&larr; Back to Portal",
-            credits: 'Map Data: <a href="https://www.openplanetary.org/" target="_blank" rel="noopener">OpenPlanetary</a> (Base) &bull; <a href="https://trek.nasa.gov/moon/" target="_blank" rel="noopener">NASA Moon Trek</a> (Medium) &bull; <a href="https://quickmap.lroc.asu.edu/" target="_blank" rel="noopener">LROC / QuickMap</a> (Ultra) &bull; <a href="https://www.wikipedia.org/" target="_blank" rel="noopener">Wikipedia</a> (Extracts)',
+            credits: 'Map Data: <a href="https://www.openplanetary.org/" target="_blank" rel="noopener">OpenPlanetary</a> &amp; NASA LROC',
             layersTitle: "Layers",
             layerMission: "Missions",
             layerCrater: "Craters",
@@ -346,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             appTitle: "የጨረቃ ማሰሻ",
             appSubtitle: "ጥልቅ ማጉላት የLROC ካርታ ስርጭት",
             backToPortal: "&larr; ወደ ፖርታል ተመለስ",
-            credits: 'የካርታ መረጃ: <a href="https://www.openplanetary.org/" target="_blank" rel="noopener">OpenPlanetary</a> (መሰረታዊ) &bull; <a href="https://trek.nasa.gov/moon/" target="_blank" rel="noopener">NASA Moon Trek</a> (መካከለኛ) &bull; <a href="https://quickmap.lroc.asu.edu/" target="_blank" rel="noopener">LROC / QuickMap</a> (ከፍተኛ) &bull; <a href="https://www.wikipedia.org/" target="_blank" rel="noopener">Wikipedia</a> (መግለጫዎች)',
+            credits: 'የካርታ መረጃ: <a href="https://www.openplanetary.org/" target="_blank" rel="noopener">OpenPlanetary</a> እና NASA LROC',
             layersTitle: "ማጣሪያዎች",
             layerMission: "ተልዕኮዎች",
             layerCrater: "ቆሬዎች",
@@ -445,8 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add POIs to the globe
     lunarSites.forEach(site => {
         viewer.entities.add({
-            // Place points directly on the surface of the moon
-            position: Cesium.Cartesian3.fromDegrees(site.lon, site.lat, 0.0, Cesium.Ellipsoid.MOON),
+            // Elevate the points 50km above the surface so they don't clip into bumpy terrain
+            position: Cesium.Cartesian3.fromDegrees(site.lon, site.lat, 50000, Cesium.Ellipsoid.MOON),
             billboard: {
                 image: icons[site.type] || icons.crater,
                 width: 24,

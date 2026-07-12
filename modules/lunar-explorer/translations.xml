@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+<?xml version='1.0' encoding='utf-8'?>
 <translations>
   <poi id="apollo11" image="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/A_Man_on_the_Moon%2C_AS11-40-5903_%28cropped%29.jpg/330px-A_Man_on_the_Moon%2C_AS11-40-5903_%28cropped%29.jpg" url="https://en.wikipedia.org/wiki/Apollo_11">
     <en>
@@ -152,36 +152,36 @@
       <extract>ሰርቬየር 7 በ1968 በሳይንሳዊ እና ፎቶግራፊ ተልእኮ ወደ ጨረቃ ተልኳል የአሜሪካ ያልተሰራ ሰርቬየር ፕሮግራም ሰባተኛው እና የመጨረሻው የጨረቃ ላንደር። ቀደም ባሉት ሁለት ያልተሳኩ ተልእኮዎች በአሳሽ ተከታታዮች እና በሰርቬየር 7 የማረፊያ ስኬት፣ ሰርቬየር 7 የጨረቃ ለስላሳ ማረፊያ ለማግኘት በተከታታይ ውስጥ አምስተኛ እና የመጨረሻው የጠፈር መንኮራኩር ሆነ። በአጠቃላይ 21,091 ስዕሎች ከሰርቬየር 7 ወደ ምድር ተላልፈዋል።</extract>
     </am>
   </poi>
-  <poi id="change-3">
+  <poi id="change-3" image="https://upload.wikimedia.org/wikipedia/en/thumb/e/e9/Chang%27E-3_lunar_lander.jpg/330px-Chang%27E-3_lunar_lander.jpg" url="https://en.wikipedia.org/wiki/Chang'e_3">
     <en>
-      <extract/>
+      <extract>Chang'e 3 is a robotic lunar exploration mission operated by the China National Space Administration (CNSA), incorporating a robotic lander and China's first lunar rover. It was launched in December 2013 as part of the second phase of the Chinese Lunar Exploration Program. The mission's chief commander was Ma Xingrui.</extract>
     </en>
     <am>
-      <extract/>
+      <extract>ቻንግ 3 የቻይና የጨረቃ ማሰስ ተልዕኮ ሲሆን ዩቱ የተባለውን ሮቨር ጨረቃ ላይ አሳርፏል።</extract>
     </am>
   </poi>
-  <poi id="change-4">
+  <poi id="change-4" image="https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/ChangE-4_-_PCAM.png/330px-ChangE-4_-_PCAM.png" url="https://en.wikipedia.org/wiki/Chang'e_4">
     <en>
-      <extract/>
+      <extract>Chang'e 4 is a robotic spacecraft mission in the Chinese Lunar Exploration Program of the CNSA. It made a soft landing on the far side of the Moon, the first spacecraft to do so, on 3 January 2019.</extract>
     </en>
     <am>
-      <extract/>
+      <extract>ቻንግ 4 በጨረቃ ሩቅ ጎን ላይ ለመጀመሪያ ጊዜ ለስላሳ ማረፊያ ያደረገ የቻይና የጠፈር መንኮራኩር ነው።</extract>
     </am>
   </poi>
-  <poi id="change-5">
+  <poi id="change-5" image="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Chang-e-5-assembly-CG-1-Cropped.jpg/330px-Chang-e-5-assembly-CG-1-Cropped.jpg" url="https://en.wikipedia.org/wiki/Chang'e_5">
     <en>
-      <extract/>
+      <extract>Chang'e 5 was the fifth lunar exploration mission in the Chinese Lunar Exploration Program of CNSA, and China's first lunar sample-return mission. The spacecraft pair launched on 23 November 2020, atop a Long March 5 rocket from Wenchang Space Launch Site on Hainan Island, landed on the Moon on 1 December, collected ~1731 g (61.1 oz) of lunar samples, and returned to the Earth on 16 December. Like its predecessors, the spacecraft is named after the Chinese moon goddess, Chang'e.</extract>
     </en>
     <am>
-      <extract/>
+      <extract>ቻንግ 5 ከጨረቃ ላይ ናሙናዎችን ይዞ የተመለሰ የቻይና የሮቦቲክ ናሙና መመለሻ ተልዕኮ ነው።</extract>
     </am>
   </poi>
-  <poi id="change-6">
+  <poi id="change-6" image="https://upload.wikimedia.org/wikipedia/en/thumb/4/46/Chang%27e_6_lander_and_ascender.jpg/330px-Chang%27e_6_lander_and_ascender.jpg" url="https://en.wikipedia.org/wiki/Chang'e_6">
     <en>
-      <extract/>
+      <extract>Chang'e 6 was the sixth robotic lunar exploration mission by the China National Space Administration (CNSA) and the second CNSA lunar sample-return mission. Like its predecessors in the Chinese Lunar Exploration Program, the spacecraft is named after the Chinese moon goddess Chang'e. It was the first lunar mission to retrieve samples from the far side of the Moon; all previous samples were collected from the near side.</extract>
     </en>
     <am>
-      <extract/>
+      <extract>ቻንግ 6 ከጨረቃ ሩቅ ጎን ናሙናዎችን ለመጀመሪያ ጊዜ የወሰደ እና የመለሰ የቻይና የሮቦቲክ ተልዕኮ ነው።</extract>
     </am>
   </poi>
   <poi id="chandrayaan-3" image="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Chandrayaan-3_%E2%80%93_Image_of_Vikram_lander_on_lunar_surface_taken_by_Pragyan_rover_navcam_at_1104_IST%2C_30_August_2023_from_15_meters_away_%28with_text%29.webp/330px-Chandrayaan-3_%E2%80%93_Image_of_Vikram_lander_on_lunar_surface_taken_by_Pragyan_rover_navcam_at_1104_IST%2C_30_August_2023_from_15_meters_away_%28with_text%29.webp.png" url="https://en.wikipedia.org/wiki/Chandrayaan-3">
@@ -312,20 +312,20 @@
       <extract>ፕላቶ በጨረቃ ላይ ላቫ የተሞላ የጨረቃ ተጽዕኖ ጉድጓድ ነው። ዲያሜትሩ 101 ኪሜ (63 ማይ) ነው። በጥንታዊ ግሪክ ፈላስፋ በፕላቶ ስም ተሰይሟል። በሜሬ ኢምብሪየም ሰሜናዊ ምስራቅ የባህር ዳርቻ በሞንቴስ አልፔስ ተራራ ሰንሰለታማ ምዕራባዊ ጫፍ ላይ ይገኛል። በደቡባዊው የባህር ዳርቻ ላይ ሞንቴስ ቴነሪፍ የተባሉ በርካታ ፎቆች አሉ። በሰሜን በኩል የማሬ ፍሪጎሪስ ሰፊ ቦታ አለ። ከጉድጓድ በስተ ምሥራቅ፣ በሞንቴስ አልፔስ መካከል፣ ሪማ ፕላቶ የሚል ስያሜ ያላቸው በርካታ ሪልሎች አሉ።</extract>
     </am>
   </poi>
-  <poi id="kepler">
+  <poi id="kepler" image="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Kepler_crater_4138_h1_4138_h2.jpg/330px-Kepler_crater_4138_h1_4138_h2.jpg" url="https://en.wikipedia.org/wiki/Kepler_(lunar_crater)">
     <en>
-      <extract/>
+      <extract>Kepler is a lunar impact crater that lies between the Oceanus Procellarum to the west and Mare Insularum in the east. To the southeast is the crater Encke. Kepler is named for the 17th century German astronomer and mathematician Johannes Kepler. T. W. Webb describes it as having "a very low bright wall", forming the "centre of a great ray-system".</extract>
     </en>
     <am>
-      <extract/>
+      <extract>ኬፕለር ቆሬ በምስራቅ ማሬ ኢንሱላረም ውስጥ የሚገኝ ደማቅ የጨረር መስመሮች ያሉት ቆሬ ነው።</extract>
     </am>
   </poi>
-  <poi id="ptolemaeus">
+  <poi id="ptolemaeus" image="https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/AS16-M-0990.jpg/330px-AS16-M-0990.jpg" url="https://en.wikipedia.org/wiki/Ptolemaeus_(lunar_crater)">
     <en>
-      <extract/>
+      <extract>Ptolemaeus is an ancient lunar impact crater close to the center of the near side, named for Claudius Ptolemy, the Greco-Roman writer, mathematician, astronomer, geographer and astrologer. It measures approximately 154 kilometers in diameter. T. W. Webb called it "a magnificent lake, whose surface at sunrise or sunset is occasionally seen all roughened with ridges like waves".</extract>
     </en>
     <am>
-      <extract/>
+      <extract>ቶለሚ ቆሬ በጨረቃ ቅርብ ጎን መሃል አቅራቢያ የሚገኝ ጥንታዊ ትልቅ ቆሬ ነው።</extract>
     </am>
   </poi>
   <poi id="mare-imbrium" image="https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Mare_Imbrium_%28LRO%29.png/330px-Mare_Imbrium_%28LRO%29.png" url="https://en.wikipedia.org/wiki/Mare_Imbrium">
@@ -440,28 +440,173 @@
       <extract>ሞንስ ሃድሊ በሞንቴስ አፔኒኑስ ሰሜናዊ ክፍል ውስጥ የሚገኝ ሰፊ ቦታ ነው፣ ​​በጨረቃ ሰሜናዊ ንፍቀ ክበብ ውስጥ። ቁመቱ 4.5 ኪሜ (2.8 ማይ) 14,764 ft (4,500 ሜ) ከአጎራባች ሜዳ በላይ እና ከመሠረቱ ከፍተኛው ዲያሜትር 25 ኪሜ ነው።</extract>
     </am>
   </poi>
-  <poi id="montes-apenninus">
+  <poi id="montes-apenninus" image="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Montes_Apenninus_%28LRO%29.png/330px-Montes_Apenninus_%28LRO%29.png" url="https://en.wikipedia.org/wiki/Montes_Apenninus">
     <en>
-      <extract/>
+      <extract>Montes Apenninus are a rugged mountain range on the northern part of the Moon's near side. They are named after the Apennine Mountains in Italy. With their formation dating back about 3.9 billion years, Montes Apenninus are fairly old.</extract>
     </en>
     <am>
-      <extract/>
+      <extract>አፔኒነስ ተራሮች በአፖሎ 15 ማረፊያ አቅራቢያ የሚገኝ ትልቅ የተራራ ሰንሰለት ነው።</extract>
     </am>
   </poi>
-  <poi id="artemis3-shackleton">
+  <poi id="artemis3-shackleton" image="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Lunar_south_pole_summer_annotated.jpg/330px-Lunar_south_pole_summer_annotated.jpg" url="https://en.wikipedia.org/wiki/Shackleton_(crater)">
     <en>
-      <extract/>
+      <extract>Shackleton crater is an impact crater at the south pole of the Moon. The crater interior is in perpetual darkness, while the peaks along its rim are exposed to near-constant sunlight. This makes it a prime candidate landing site for NASA's Artemis III crewed mission to access water ice.</extract>
     </en>
     <am>
-      <extract/>
+      <extract>የአርጤምስ 3 ተልዕኮ በጨረቃ ደቡብ ዋልታ ሻክልተን ቆሬ አቅራቢያ ለማረፍ የታቀደ የናሳ ተልዕኮ ነው።</extract>
     </am>
   </poi>
-  <poi id="artemis3-malapert">
+  <poi id="artemis3-malapert" image="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Malapert_crater_4179_h1.jpg/330px-Malapert_crater_4179_h1.jpg" url="https://en.wikipedia.org/wiki/Malapert_(crater)">
     <en>
-      <extract/>
+      <extract>Malapert is a lunar impact crater near the south pole of the Moon. The nearby Malapert Mountain (Malapert Massif) is one of the candidate landing regions for NASA's Artemis III crewed mission due to its high visibility to Earth and solar illumination.</extract>
     </en>
     <am>
-      <extract/>
+      <extract>የአርጤምስ 3 ሌላው እጩ ማረፊያ ቦታ በደቡብ ዋልታ በሚገኘው ማላፐርት ተራራ አቅራቢያ ነው።</extract>
+    </am>
+  </poi>
+  <poi id="aitken" image="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Aitken_crater_AS17-M-0341.jpg/330px-Aitken_crater_AS17-M-0341.jpg" url="https://en.wikipedia.org/wiki/Aitken_(crater)">
+    <en>
+      <extract>Aitken is a large lunar impact crater that lies on the far side of the Moon. It lies along the northern rim of the immense South Pole–Aitken basin (SPA), which was named after this crater and the southern lunar pole, two extreme points of the formation. Aitken is located to the southeast of the crater Heaviside, and north of the unusual formation Van de Graaff. Attached to the southwest rim is Vertregt. To the southeast is the smaller Bergstrand.</extract>
+    </en>
+    <am>
+      <extract>ኤትከን ቆሬ በጨረቃ ሩቅ ጎን የሚገኝ ትልቅ ቆሬ ሲሆን የደቡብ ዋልታ-ኤትከን ተፋሰስ ሰሜናዊ ጠርዝ ላይ ይገኛል።</extract>
+    </am>
+  </poi>
+  <poi id="tsiolkovskiy" image="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Tsiolkovskiy_crater_aerial.jpg/330px-Tsiolkovskiy_crater_aerial.jpg" url="https://en.wikipedia.org/wiki/Tsiolkovskiy_(crater)">
+    <en>
+      <extract>Tsiolkovskiy is a large lunar impact crater that is located on the far side of the Moon. Named for Russian scientist Konstantin Tsiolkovsky, it lies in the southern hemisphere, to the west of the large crater Gagarin, and northwest of Milne. Just to the south is Waterman, with Neujmin to the south-southwest. The crater protrudes into the neighbouring Fermi, an older crater of comparable size that does not have a lava-flooded floor.</extract>
+    </en>
+    <am>
+      <extract>ሲዮልኮቭስኪ ቆሬ በጨረቃ ሩቅ ጎን የሚገኝ የተለየ ጥቁር ላቫ የተሞላ ወለል እና ደማቅ ማዕከላዊ ጫፍ ያለው ታዋቂ ቆሬ ነው።</extract>
+    </am>
+  </poi>
+  <poi id="gagarin" image="https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Gagarin_crater_1115_med.jpg/330px-Gagarin_crater_1115_med.jpg" url="https://en.wikipedia.org/wiki/Gagarin_(crater)">
+    <en>
+      <extract>Gagarin is a large lunar impact crater that is located in the southern hemisphere on the far side of the Moon. To the southwest is the crater Pavlov and to the northeast lies Keeler. Closer to the rim are the craters Levi-Civita to the southwest, and Beijerinck to the north-northeast. Isaev lies entirely within the northwest rim of Gagarin. In contrast with the floor of Gagarin, Isaev has a floor with a somewhat low albedo.</extract>
+    </en>
+    <am>
+      <extract>ጋጋሪን ቆሬ በጨረቃ ሩቅ ጎን የሚገኝ ትልቅ ተፋሰስ ሲሆን የመጀመሪያው የሰው ልጅ በህዋ የነበረው ዩሪ ጋጋሪን ስም የተሰየመ ነው።</extract>
+    </am>
+  </poi>
+  <poi id="korolev" image="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Korolev_crater_1038_med.jpg/330px-Korolev_crater_1038_med.jpg" url="https://en.wikipedia.org/wiki/Korolev_(lunar_crater)">
+    <en>
+      <extract>Korolev is a large lunar impact crater of the walled plain or basin type. This class of formation is known as a peak ring basin, which has a single interior topographic ring or a discontinuous ring of peaks with no central peak. It formed during the Nectarian period of the lunar geologic timescale.</extract>
+    </en>
+    <am>
+      <extract>ኮሮሌቭ ቆሬ በሰርጌይ ኮሮሌቭ ስም የተሰየመ በጨረቃ ሩቅ ጎን የሚገኝ ግዙፍ እና ጥንታዊ ተፋሰስ ነው።</extract>
+    </am>
+  </poi>
+  <poi id="jackson" image="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Jackson_LRO_WAC.jpg/330px-Jackson_LRO_WAC.jpg" url="https://en.wikipedia.org/wiki/Jackson_(crater)">
+    <en>
+      <extract>Jackson is a prominent lunar impact crater that is located in the northern hemisphere on the far side of the Moon. It is named after Scottish astronomer John Jackson. Prior to formal naming in 1970 by the IAU, this crater was known as Crater 144.</extract>
+    </en>
+    <am>
+      <extract>ጃክሰን ቆሬ በደማቅ የጨረር መስመሮች የሚታወቅ በጨረቃ ሩቅ ጎን የሚገኝ ታዋቂ ቆሬ ነው።</extract>
+    </am>
+  </poi>
+  <poi id="von-karman" image="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Von_Karman_LROC.jpg/330px-Von_Karman_LROC.jpg" url="https://en.wikipedia.org/wiki/Von_K%C3%A1rm%C3%A1n_(lunar_crater)">
+    <en>
+      <extract>Von Kármán is a large lunar impact crater that is located in the southern hemisphere on the far side of the Moon. The crater is about 186 km (116 mi) in diameter and lies within an immense impact feature known as the South Pole–Aitken basin of roughly 2,500 km (1,600 mi) in diameter and 13 km (8.1 mi) deep. Von Kármán is the site of the first soft-landing on the lunar far side by the Chinese Chang'e 4 spacecraft on 3 January 2019.</extract>
+    </en>
+    <am>
+      <extract>ቮን ካርማን ቆሬ በደቡባዊ ንፍቀ ክበብ በሩቅ ጎን የሚገኝ ትልቅ ቆሬ ሲሆን የቻይናው ቻንግ 4 ያረፈበት ቦታ ነው።</extract>
+    </am>
+  </poi>
+  <poi id="daedalus" image="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Lunar_crater_Daedalus.jpg/330px-Lunar_crater_Daedalus.jpg" url="https://en.wikipedia.org/wiki/Daedalus_(crater)">
+    <en>
+      <extract>Daedalus is a prominent crater located near the center of the far side of the Moon. This formation dates to the Early Imbrian epoch of the lunar geologic timescale. The inner wall is terraced, and there is a cluster of central peaks on the relatively flat floor. The infrared spectrum of pure crystalline plagioclase has been identified on the central peaks. The smaller crater Daedalus B is attached to the north northeastern rim.</extract>
+    </en>
+    <am>
+      <extract>ዴዳለስ ቆሬ ከምድር የሬዲዮ ሞገዶች የተጠበቀ በጨረቃ ሩቅ ጎን መሃል የሚገኝ ቆሬ ነው።</extract>
+    </am>
+  </poi>
+  <poi id="mare-moscoviense" image="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Mare_Moscoviense_-_Clementine.jpg/330px-Mare_Moscoviense_-_Clementine.jpg" url="https://en.wikipedia.org/wiki/Mare_Moscoviense">
+    <en>
+      <extract>Mare Moscoviense is a lunar mare that sits in the Moscoviense basin. It is one of the very few maria on the far side of the Moon.</extract>
+    </en>
+    <am>
+      <extract>ማሬ ሞስኮቪየንሴ (የሞስኮ ባህር) በጨረቃ ሩቅ ጎን ከሚገኙ ጥቂት የባህር ክፍሎች አንዱ ነው።</extract>
+    </am>
+  </poi>
+  <poi id="mare-ingenii" image="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Mare_Ingenii_2075_med.jpg/330px-Mare_Ingenii_2075_med.jpg" url="https://en.wikipedia.org/wiki/Mare_Ingenii">
+    <en>
+      <extract>Mare Ingenii is one of the few lunar mare features on the far side of the Moon. The mare sits in the Ingenii basin, which is of the Pre-Nectarian epoch, which lies in turn in the outer part of the older and much larger South Pole–Aitken basin. The mare material located in Ingenii and the surrounding craters is of the Upper Imbrian epoch. The dark circular feature which dominates this mare is the crater Thomson, with the overflow from Ingenii/Thomson directly to the east. Mare Ingenii is incompletely and thinly covered over much of its expanse with mare lava sheets. The light grey crater to the south of Mare Ingenii is Obruchev.</extract>
+    </en>
+    <am>
+      <extract>ማሬ ኢንጌኒ (የብልህነት ባህር) በደቡባዊ ንፍቀ ክበብ በሩቅ ጎን የሚገኝ ብርቅዬ የባህር ክፍል ነው።</extract>
+    </am>
+  </poi>
+  <poi id="hertzsprung" image="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Hertzsprung_%28LRO%29.png/330px-Hertzsprung_%28LRO%29.png" url="https://en.wikipedia.org/wiki/Hertzsprung_(crater)">
+    <en>
+      <extract>Hertzsprung is an enormous lunar impact crater, or impact basin, that is located on the far side of the Moon, beyond the western limb. In dimension, this formation is larger than several of the lunar mare areas on the near side. It lies in the northwestern fringe of the blast radius of the Mare Orientale impact basin. Nearby craters of note include Michelson across the northeast rim, Vavilov across the western rim, and Lucretius to the southeast.</extract>
+    </en>
+    <am>
+      <extract>ኸርትስፕሩንግ ቆሬ በጨረቃ ሩቅ ጎን የሚገኝ ግዙፍ ባለብዙ ቀለበት ተፋሰስ ነው።</extract>
+    </am>
+  </poi>
+  <poi id="apollo-crater" image="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Apollo_crater_5030_med.jpg/330px-Apollo_crater_5030_med.jpg" url="https://en.wikipedia.org/wiki/Apollo_(crater)">
+    <en>
+      <extract>Apollo, also called the Apollo basin, is a large impact crater located on the far side of the Moon, in the southern hemisphere. This class of formation is known as a peak ring basin, which has a single interior topographic ring or a discontinuous ring of peaks with no central peak. It was previously known as Basin XVI; in 1970 it was officially named after the Apollo missions by the International Astronomical Union.</extract>
+    </en>
+    <am>
+      <extract>አፖሎ ቆሬ ለአፖሎ ተልዕኮዎች መታሰቢያ የተሰየመ በጨረቃ ሩቅ ጎን የሚገኝ ትልቅ የቆሬ ተፋሰስ ነው።</extract>
+    </am>
+  </poi>
+  <poi id="planck" image="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Planck_crater_Clementine_mosaic.jpg/330px-Planck_crater_Clementine_mosaic.jpg" url="https://en.wikipedia.org/wiki/Planck_(crater)">
+    <en>
+      <extract>Planck is a large lunar impact crater, approximately 319 kilometers in diameter, that is located in the southern hemisphere of the Moon, on the far side as seen from the Earth. It lies to the west of the walled plain Poincaré, another enormous formation only slightly larger than Planck. Lying across the southeast rim of Planck is the crater Prandtl, to the northeast is Hildegard, and to the west is Fechner. Planck is located within the South Pole–Aitken basin.</extract>
+    </en>
+    <am>
+      <extract>ፕላንክ ቆሬ በጨረቃ ሩቅ ጎን የሚገኝ ትልቅ ቆሬ ሲሆን በሳይንቲስቱ ማክስ ፕላንክ ስም የተሰየመ ነው።</extract>
+    </am>
+  </poi>
+  <poi id="keeler" image="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Keeler_crater_2075_med.jpg/330px-Keeler_crater_2075_med.jpg" url="https://en.wikipedia.org/wiki/Keeler_(lunar_crater)">
+    <en>
+      <extract>Keeler is a large lunar impact crater that lies on the Moon's far side. It is connected along the eastern edge to Heaviside, a walled plain of similar dimensions. Keeler, however, is the younger of the two formations, with more clearly delineated features. To the northeast of Keeler is the smaller crater Stratton, and to the northwest lies Ventris.</extract>
+    </en>
+    <am>
+      <extract>ኪለር ቆሬ በጨረቃ ሩቅ ጎን የሚገኝ ትልቅ ቆሬ ነው።</extract>
+    </am>
+  </poi>
+  <poi id="schrodinger" image="https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Schr%C3%B6dinger_%28LRO%29_500_km.png/330px-Schr%C3%B6dinger_%28LRO%29_500_km.png" url="https://en.wikipedia.org/wiki/Schr%C3%B6dinger_(crater)">
+    <en>
+      <extract>Schrödinger is a large lunar impact crater of the form traditionally called a walled plain and is named after Erwin Schrödinger. This class of formation is known as a peak ring basin, which has a single interior topographic ring or a discontinuous ring of peaks with no central peak. It dates to the Early Imbrian period of the lunar geologic timescale. This crater is located near the south lunar pole on the far side of the Moon, and can only be viewed from orbit.</extract>
+    </en>
+    <am>
+      <extract>ሽሮዲንገር ቆሬ በኤርዊን ሽሮዲንገር ስም የተሰየመ በጨረቃ ደቡብ ዋልታ አቅራቢያ የሚገኝ ትልቅ ቆሬ ነው።</extract>
+    </am>
+  </poi>
+  <poi id="mare-orientale" image="https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Mare_Orientale_%28Artemis_2%29.jpg/330px-Mare_Orientale_%28Artemis_2%29.jpg" url="https://en.wikipedia.org/wiki/Mare_Orientale">
+    <en>
+      <extract>Mare Orientale is a lunar mare. It is located on the western border of the near side and far side of the Moon, and is difficult to see from an Earthbound perspective. Images from spacecraft have revealed it to be one of the most striking large-scale lunar features, resembling a target ring bullseye.</extract>
+    </en>
+    <am>
+      <extract>ማሬ ኦሬንታሌ (ምስራቃዊ ባህር) እንደ ኢላማ የተደረደሩ የተራራ ሰንሰለቶች ያሉት በምዕራባዊ ጫፍ ላይ የሚገኝ አስደናቂ ተፋሰስ ነው።</extract>
+    </am>
+  </poi>
+  <poi id="lacus-veris" image="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Lacus-veris-clem1.jpg/330px-Lacus-veris-clem1.jpg" url="https://en.wikipedia.org/wiki/Lacus_Veris">
+    <en>
+      <extract>Lacus Veris is a small lunar mare on the Moon. In selenographic coordinates, the mare centered at 16.5° S, 86.1° W and is approximately 396 km long. The mare extends along an irregular 90° arc from east to north that is centered on the Mare Orientale, covering an area of about 12,000 km2.
+Author Eric Burgess proposed this mare as the location of a future crewed lunar base, citing a 1989 study performed at the NASA Johnson Space Center.</extract>
+    </en>
+    <am>
+      <extract>ላከስ ቬሪስ (የፀደይ ሐይቅ) በኦሬንታሌ ተፋሰስ ውስጥ በተራራ ሰንሰለቶች መካከል የሚገኝ ትንሽ የጨረቃ ባህር ነው።</extract>
+    </am>
+  </poi>
+  <poi id="montes-rook" image="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Mare_Orientale_%28Lunar_Orbiter_4%29.png/330px-Mare_Orientale_%28Lunar_Orbiter_4%29.png" url="https://en.wikipedia.org/wiki/Montes_Rook">
+    <en>
+      <extract>Montes Rook is a ring-shaped mountain range that lies along the western limb of the Moon, crossing over to the far side. It completely encircles the Mare Orientale, and forms part of a massive impact basin feature. This range in turn is encircled by the larger Montes Cordillera, which is separated from the Montes Rook by a rugged, ring-shaped plain.</extract>
+    </en>
+    <am>
+      <extract>ሞንቴስ ሩክ የማሬ ኦሬንታሌ ተፋሰስን ከበው የሚገኙ የተራራ ሰንሰለቶች ናቸው።</extract>
+    </am>
+  </poi>
+  <poi id="montes-cordillera" image="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Mare_Orientale_%28Lunar_Orbiter_4%29.png/330px-Mare_Orientale_%28Lunar_Orbiter_4%29.png" url="https://en.wikipedia.org/wiki/Montes_Cordillera">
+    <en>
+      <extract>Montes Cordillera is a mountain range on the Moon. This feature forms the outer ring of peaks surrounding the Mare Orientale impact basin, with the inner ring formed by the Montes Rook. The center of the range is located at selenographic coordinates 17.5° S, 81.6° W, and the diameter spans 574 km (357 mi).</extract>
+    </en>
+    <am>
+      <extract>ሞንቴስ ኮርዲሌራ የማሬ ኦሬንታሌ ተፋሰስ የውጭውን ቀለበት የሚፈጥሩ ተራሮች ናቸው።</extract>
     </am>
   </poi>
 </translations>

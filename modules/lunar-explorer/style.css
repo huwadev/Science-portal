@@ -115,25 +115,29 @@ h1, h2, h3, h4, h5, h6 {
     position: absolute;
     bottom: 16px;
     left: 16px;
-    font-size: 11px;
-    color: rgba(222, 235, 255, 0.5);
-    background: rgba(0, 0, 0, 0.8);
-    padding: 6px 12px;
+    font-size: 10px;
+    color: rgba(222, 235, 255, 0.6);
+    background: rgba(10, 10, 15, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 6px 14px;
     border-radius: 20px;
-    border: 1px solid rgba(222, 235, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     pointer-events: auto;
     z-index: 20;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    letter-spacing: 0.3px;
 }
 
 .credits-panel a {
-    color: #125DFF;
+    color: #60a5fa;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s;
 }
 
 .credits-panel a:hover {
-    color: #99bfff;
+    color: #93c5fd;
     text-decoration: underline;
 }
 
@@ -213,4 +217,13 @@ h1, h2, h3, h4, h5, h6 {
     .wiki-sidebar {
         width: calc(100% - 40px);
     }
+}
+
+#layer-controls::-webkit-scrollbar {
+    width: 4px;
+}
+
+#layer-controls::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
 }

@@ -1,4 +1,4 @@
-﻿// Extracted Lunar Mission Data and Translations
+// Extracted Lunar Mission Data and Translations
 const lunarSites = [
     // APOLLO
     {type: 'mission', id: 'apollo11', name: 'Apollo 11', lat: 0.6740, lon: 23.4720, wikiTitle: 'Apollo_11', description: 'First human landing (1969). Neil Armstrong and Buzz Aldrin.', descriptionAm: 'የመጀመሪያው የሰው ልጅ ማረፊያ (1969)። ኒል አርምስትሮንግ እና በዝ አልድሪን።'},
@@ -53,6 +53,20 @@ const lunarSites = [
     {type: 'crater', id: 'kepler', name: 'Kepler Crater', lat: 8.0, lon: -38.0, wikiTitle: 'Kepler_(lunar_crater)', description: 'A lunar impact crater that lies between the Oceanus Procellarum to the west and Mare Insularum in the east.', descriptionAm: 'በምዕራብ ኦሽኑስ ፕሮሴላረም እና በምስራቅ ማሬ ኢንሱላረም መካከል የሚገኝ ቆሬ።'},
     {type: 'crater', id: 'ptolemaeus', name: 'Ptolemaeus Crater', lat: -9.2, lon: -1.8, wikiTitle: 'Ptolemaeus_(lunar_crater)', description: 'An ancient lunar impact crater close to the center of the near side.', descriptionAm: 'በቅርብ ጎኑ መሃል አቅራቢያ የሚገኝ ጥንታዊ ቆሬ።'},
     
+    // FAR-SIDE CRATERS
+    {type: 'crater', id: 'aitken', name: 'Aitken Crater', lat: -16.8, lon: 173.0, wikiTitle: 'Aitken_(crater)', description: 'A large lunar impact crater on the far side of the Moon, forming the northern rim of the immense South Pole–Aitken basin.', descriptionAm: 'በጨረቃ ሩቅ ጎን የሚገኝ ትልቅ ቆሬ።'},
+    {type: 'crater', id: 'tsiolkovskiy', name: 'Tsiolkovskiy Crater', lat: -20.38, lon: 128.97, wikiTitle: 'Tsiolkovskiy_(crater)', description: 'A prominent far-side impact crater with a distinctive dark lava-flooded floor and a bright central peak.', descriptionAm: 'በጨረቃ ሩቅ ጎን የሚገኝ የተለየ ጥቁር ላቫ የተሞላ ወለል ያለው ቆሬ።'},
+    {type: 'crater', id: 'gagarin', name: 'Gagarin Crater', lat: -19.7, lon: 149.3, wikiTitle: 'Gagarin_(crater)', description: 'A large, heavily cratered basin on the far side, named after Soviet cosmonaut Yuri Gagarin, the first human in space.', descriptionAm: 'በዩሪ ጋጋሪን ስም የተሰየመ በሩቅ ጎን የሚገኝ ትልቅ ተፋሰስ።'},
+    {type: 'crater', id: 'korolev', name: 'Korolev Crater', lat: -4.19, lon: -157.41, wikiTitle: 'Korolev_(lunar_crater)', description: 'A huge, ancient impact basin on the lunar far side, named after Sergei Korolev, the chief Soviet rocket engineer.', descriptionAm: 'በሰርጌይ ኮሮሌቭ ስም የተሰየመ ግዙፍ ጥንታዊ ተፋሰስ።'},
+    {type: 'crater', id: 'jackson', name: 'Jackson Crater', lat: 22.4, lon: -163.1, wikiTitle: 'Jackson_(crater)', description: 'A prominent impact crater on the far side, notable for its bright, extensive system of ray structures.', descriptionAm: 'ደማቅ የጨረር መስመሮች ያሉት በጨረቃ ሩቅ ጎን የሚገኝ ቆሬ።'},
+    {type: 'crater', id: 'von-karman', name: 'Von Kármán Crater', lat: -44.45, lon: 176.25, wikiTitle: 'Von_Kármán_(crater)', description: 'A large impact crater in the southern hemisphere on the far side, landing site of the Chinese Chang\'e 4 mission.', descriptionAm: 'የቻይናው ቻንግ 4 ያረፈበት በጨረቃ ሩቅ ጎን የሚገኝ ቆሬ።'},
+    {type: 'crater', id: 'daedalus', name: 'Daedalus Crater', lat: -5.9, lon: 179.3, wikiTitle: 'Daedalus_(crater)', description: 'A prominent impact crater near the center of the far side of the Moon, shielded from radio emissions from Earth.', descriptionAm: 'ከምድር የራዲዮ ሞገዶች የተጠበቀ በጨረቃ ሩቅ ጎን መሃል የሚገኝ ቆሬ።'},
+    {type: 'crater', id: 'hertzsprung', name: 'Hertzsprung Crater', lat: -1.4, lon: -128.4, wikiTitle: 'Hertzsprung_(crater)', description: 'A giant multi-ring impact basin on the far side of the Moon.', descriptionAm: 'በጨረቃ ሩቅ ጎን የሚገኝ ግዙፍ የቆሬ ተፋሰስ።'},
+    {type: 'crater', id: 'apollo-crater', name: 'Apollo Crater', lat: -35.7, lon: -151.8, wikiTitle: 'Apollo_(crater)', description: 'A large double-ring impact basin in the southern hemisphere on the far side of the Moon, named after the Apollo missions.', descriptionAm: 'ለአፖሎ ተልዕኮዎች መታሰቢያ የተሰየመ በጨረቃ ሩቅ ጎን የሚገኝ ትልቅ ቆሬ።'},
+    {type: 'crater', id: 'planck', name: 'Planck Crater', lat: -57.9, lon: 135.1, wikiTitle: 'Planck_(crater)', description: 'A huge lunar impact crater on the far side of the Moon, named after physicist Max Planck.', descriptionAm: 'በፊዚክስ ሊቅ ማክስ ፕላንክ ስም የተሰየመ በጨረቃ ሩቅ ጎን የሚገኝ ትልቅ ቆሬ።'},
+    {type: 'crater', id: 'keeler', name: 'Keeler Crater', lat: -10.2, lon: 162.2, wikiTitle: 'Keeler_(lunar_crater)', description: 'A large lunar impact crater on the far side of the Moon, adjacent to the Heaviside crater.', descriptionAm: 'በጨረቃ ሩቅ ጎን የሚገኝ ትልቅ ቆሬ።'},
+    {type: 'crater', id: 'schrodinger', name: 'Schrödinger Crater', lat: -75.0, lon: 132.4, wikiTitle: 'Schrödinger_(crater)', description: 'A large impact crater located near the South Pole on the far side, named after physicist Erwin Schrödinger.', descriptionAm: 'በኤርዊን ሽሮዲንገር ስም የተሰየመ በጨረቃ ደቡብ ዋልታ አቅራቢያ የሚገኝ ትልቅ ቆሬ።'},
+    
     // MARIA
     {type: 'mare', id: 'mare-imbrium', name: 'Mare Imbrium (Sea of Showers)', lat: 32.8, lon: -15.6, wikiTitle: 'Mare_Imbrium', description: 'A vast lunar mare created when lava flooded the giant crater formed by a massive asteroid impact.', descriptionAm: 'በአስትሮይድ ተጽዕኖ የተፈጠረ ግዙፍ ቆሬ በላቫ ሲጥለቀለቅ የተፈጠረ ሰፊ የጨረቃ ባህር።'},
     {type: 'mare', id: 'oceanus-procellarum', name: 'Oceanus Procellarum (Ocean of Storms)', lat: 10.4, lon: -53.4, wikiTitle: 'Oceanus_Procellarum', description: 'The largest of the lunar maria, stretching 2,500 kilometers across its north-south axis.', descriptionAm: '2,500 ኪሎ ሜትር የሚረዝም ትልቁ የጨረቃ ማሪያ።'},
@@ -63,6 +77,12 @@ const lunarSites = [
     {type: 'mare', id: 'mare-fecunditatis', name: 'Mare Fecunditatis (Sea of Fecundity)', lat: -7.8, lon: 51.3, wikiTitle: 'Mare_Fecunditatis', description: 'A lunar mare in the eastern half of the visible Moon.', descriptionAm: 'በሚታየው የጨረቃ ምስራቃዊ አጋማሽ ላይ የሚገኝ የጨረቃ ባህር።'},
     {type: 'mare', id: 'mare-frigoris', name: 'Mare Frigoris (Sea of Cold)', lat: 56.0, lon: 1.4, wikiTitle: 'Mare_Frigoris', description: 'A lunar mare located in the far north of the Moon.', descriptionAm: 'በጨረቃ ሩቅ ሰሜን የሚገኝ የጨረቃ ባህር።'},
     
+    // FAR-SIDE MARIA
+    {type: 'mare', id: 'mare-moscoviense', name: 'Mare Moscoviense (Sea of Moscow)', lat: 27.3, lon: 147.9, wikiTitle: 'Mare_Moscoviense', description: 'The Sea of Moscow. One of the very few maria on the far side of the Moon, situated in the Moscoviense impact basin.', descriptionAm: 'የሞስኮ ባህር። በጨረቃ ሩቅ ጎን ከሚገኙ ጥቂት የባህር ክፍሎች አንዱ።'},
+    {type: 'mare', id: 'mare-ingenii', name: 'Mare Ingenii (Sea of Cleverness)', lat: -33.7, lon: 163.5, wikiTitle: 'Mare_Ingenii', description: 'The Sea of Cleverness. A rare far-side mare located in the southern hemisphere within the Ingenii basin.', descriptionAm: 'የብልህነት ባህር። በሩቅ ጎን የሚገኝ ብርቅዬ የባህር ክፍል።'},
+    {type: 'mare', id: 'mare-orientale', name: 'Mare Orientale (Eastern Sea)', lat: -19.4, lon: -92.8, wikiTitle: 'Mare_Orientale', description: 'A striking impact basin on the western limb of the Moon, characterized by its ring-like concentric circular mountain ranges resembling a bullseye.', descriptionAm: 'በጨረቃ ምዕራባዊ ጫፍ ላይ የሚገኝ እና እንደ ኢላማ የተደረደሩ የተራራ ሰንሰለቶች ያሉት አስደናቂ ተፋሰስ።'},
+    {type: 'mare', id: 'lacus-veris', name: 'Lacus Veris (Lake of Spring)', lat: -19.1, lon: -86.1, wikiTitle: 'Lacus_Veris', description: 'A small, ring-shaped lunar mare (lake of spring) located between the Rook and Cordillera mountain rings in the Orientale basin.', descriptionAm: 'በኦሬንታሌ ተፋሰስ ውስጥ በተራራ ሰንሰለቶች መካከል የሚገኝ ትንሽ የጨረቃ ባህር/ሐይቅ።'},
+    
     // MOUNTAINS
     {type: 'mountain', id: 'mons-huygens', name: 'Mons Huygens', lat: 19.92, lon: -2.86, wikiTitle: 'Mons_Huygens', description: 'The Moon\'s tallest mountain, rising over 5.5 kilometers (18,000 ft) high.', descriptionAm: 'ከ5.5 ኪሎ ሜትር በላይ የሚረዝም የጨረቃ ረጅሙ ተራራ።'},
     {type: 'mountain', id: 'montes-alpes', name: 'Montes Alpes', lat: 46.4, lon: -0.8, wikiTitle: 'Montes_Alpes', description: 'A mountain range in the northern part of the Moon\'s near side, separated by the Vallis Alpes.', descriptionAm: 'በጨረቃ ሰሜናዊ ክፍል የሚገኝ የተራራ ሰንሰለት።'},
@@ -71,6 +91,8 @@ const lunarSites = [
     {type: 'mountain', id: 'mons-pico', name: 'Mons Pico', lat: 45.7, lon: -8.9, wikiTitle: 'Mons_Pico', description: 'An isolated lunar mountain in the northern part of the Mare Imbrium basin.', descriptionAm: 'በማሬ ኢምብሪየም ተፋሰስ ሰሜናዊ ክፍል የሚገኝ ብቸኛ ተራራ።'},
     {type: 'mountain', id: 'mons-hadley', name: 'Mons Hadley', lat: 26.5, lon: 4.7, wikiTitle: 'Mons_Hadley', description: 'A massif in the northern portion of the Montes Apenninus range, near the Apollo 15 landing site.', descriptionAm: 'በአፖሎ 15 ማረፊያ ቦታ አቅራቢያ በሞንቴስ አፔኒነስ ሰንሰለት ሰሜናዊ ክፍል የሚገኝ ተራራ።'},
     {type: 'mountain', id: 'montes-apenninus', name: 'Montes Apenninus', lat: 19.0, lon: -4.0, wikiTitle: 'Montes_Apenninus', description: 'A rugged mountain range on the northern part of the Moon\'s near side, home to the Apollo 15 landing site.', descriptionAm: 'ለአፖሎ 15 ማረፊያ ቦታ መነሻ የሆነውና በሰሜናዊው ክፍል የሚገኝ የተራራ ሰንሰለት።'},
+    {type: 'mountain', id: 'montes-rook', name: 'Montes Rook', lat: -20.6, lon: -92.5, wikiTitle: 'Montes_Rook', description: 'A ring-shaped mountain range surrounding the Mare Orientale impact basin.', descriptionAm: 'የማሬ ኦሬንታሌ ተፋሰስን ከበው የሚገኙ የተራራ ሰንሰለቶች።'},
+    {type: 'mountain', id: 'montes-cordillera', name: 'Montes Cordillera', lat: -17.5, lon: -81.6, wikiTitle: 'Montes_Cordillera', description: 'The outer ring of mountains surrounding the Mare Orientale impact basin.', descriptionAm: 'የማሬ ኦሬንታሌ ተፋሰስ የውጭውን ቀለበት የሚፈጥሩ ተራሮች።'},
     
     // PLANNED
     {type: 'planned', id: 'artemis3-shackleton', name: 'Artemis III: Shackleton Crater', lat: -89.9, lon: 0.0, wikiTitle: 'Shackleton_(crater)', description: 'A planned candidate landing region for NASA\'s Artemis III mission, located exactly at the lunar South Pole. The crater interior is permanently shadowed, potentially trapping water ice.', descriptionAm: 'በጨረቃ ደቡብ ዋልታ ላይ የሚገኝ ለናሳ አርጤምስ 3 ተልዕኮ የታቀደ ማረፊያ ክልል።'},
@@ -135,5 +157,23 @@ const siteTranslations = {
     'Montes Caucasus': 'ካውካሰስ ተራሮች',
     'Montes Jura': 'ጁራ ተራሮች',
     'Mons Pico': 'ፒኮ ተራራ',
-    'Mons Hadley': 'ሃድሊ ተራራ'
+    'Mons Hadley': 'ሃድሊ ተራራ',
+    'Aitken Crater': 'ኤትከን ቆሬ',
+    'Tsiolkovskiy Crater': 'ሲዮልኮቭስኪ ቆሬ',
+    'Gagarin Crater': 'ጋጋሪን ቆሬ',
+    'Korolev Crater': 'ኮሮሌቭ ቆሬ',
+    'Jackson Crater': 'ጃክሰን ቆሬ',
+    'Von Kármán Crater': 'ቮን ካርማን ቆሬ',
+    'Daedalus Crater': 'ዴዳለስ ቆሬ',
+    'Mare Moscoviense (Sea of Moscow)': 'ማሬ ሞስኮቪየንሴ (የሞስኮ ባህር)',
+    'Mare Ingenii (Sea of Cleverness)': 'ማሬ ኢንጌኒ (የብልህነት ባህር)',
+    'Hertzsprung Crater': 'ኸርትስፕሩንግ ቆሬ',
+    'Apollo Crater': 'አፖሎ ቆሬ',
+    'Planck Crater': 'ፕላንክ ቆሬ',
+    'Keeler Crater': 'ኪለር ቆሬ',
+    'Schrödinger Crater': 'ሽሮዲንገር ቆሬ',
+    'Mare Orientale (Eastern Sea)': 'ማሬ ኦሬንታሌ',
+    'Lacus Veris (Lake of Spring)': 'ላከስ ቬሪስ',
+    'Montes Rook': 'ሩክ ተራሮች',
+    'Montes Cordillera': 'ኮርዲሌራ ተራሮች'
 };
