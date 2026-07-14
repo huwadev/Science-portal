@@ -238,8 +238,97 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (max-width: 768px) {
+    .module-header {
+        padding: 16px;
+    }
+    
+    .module-header h1 {
+        font-size: 24px;
+    }
+    
+    .module-header .subtitle {
+        font-size: 11px;
+    }
+    
     .wiki-sidebar {
-        width: calc(100% - 40px);
+        top: 60px;
+        left: 10px;
+        right: 10px;
+        width: auto;
+        max-height: calc(100vh - 120px);
+    }
+    
+    #layer-controls {
+        top: 60px;
+        right: 10px;
+        min-width: 150px;
+    }
+    
+    #map-toolbar {
+        right: 10px;
+        padding: 4px;
+        border-radius: 8px;
+    }
+    
+    #search-overlay {
+        right: 55px;
+        width: calc(100% - 75px);
+        max-width: 250px;
+    }
+    
+    .credits-panel {
+        left: 10px;
+        bottom: 10px;
+        font-size: 9px;
+        max-width: calc(100% - 20px);
+        box-sizing: border-box;
+        padding: 4px 10px;
+        white-space: normal;
+        text-align: center;
+        line-height: 1.4;
+    }
+    
+    #scale-ruler {
+        bottom: 48px; /* Lift above credits panel */
+        right: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .module-header {
+        padding: 12px;
+    }
+    
+    .module-header h1 {
+        font-size: 20px;
+    }
+    
+    .module-header .subtitle {
+        display: none; /* Hide subtitle to save vertical space on narrow phones */
+    }
+    
+    .wiki-sidebar {
+        top: 50px;
+        left: 5px;
+        right: 5px;
+        max-height: calc(100vh - 100px);
+    }
+    
+    #layer-controls {
+        top: 50px;
+        right: 5px;
+        min-width: 140px;
+    }
+    
+    #search-overlay {
+        right: 50px;
+        width: calc(100% - 60px);
+        max-width: 240px;
+    }
+    
+    #scale-ruler {
+        bottom: 64px;
+        right: 5px;
     }
 }
 

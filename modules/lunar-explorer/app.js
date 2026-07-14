@@ -710,6 +710,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const layerContent = document.getElementById('layers-content');
     const layerChevron = document.getElementById('layers-chevron');
     if (layerHeader && layerContent && layerChevron) {
+        // Auto-collapse on mobile startup to maximize screen space
+        if (window.innerWidth <= 768) {
+            layerContent.style.display = 'none';
+            layerChevron.style.transform = 'rotate(-90deg)';
+            layerHeader.style.borderBottom = 'none';
+            layerHeader.style.marginBottom = '0';
+            layerHeader.style.paddingBottom = '0';
+        }
+
         layerHeader.addEventListener('click', () => {
             if (layerContent.style.display === 'none') {
                 layerContent.style.display = 'block';
