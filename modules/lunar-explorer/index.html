@@ -29,7 +29,7 @@
                 <button id="lang-toggle" class="glass-btn" style="padding: 5px 15px; border-radius: 20px; cursor: pointer; font-family: 'Outfit'; font-weight: 600; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; transition: all 0.3s ease;">EN / አማርኛ</button>
             </div>
             <h1 id="ui-app-title">Lunar Explorer</h1>
-            <p class="subtitle" id="ui-app-subtitle">Deep Zoom LROC Tile Streaming</p>
+            <p class="subtitle" id="ui-app-subtitle">Interactive 3D Moon · NASA LROC Deep Zoom</p>
         </header>
 
         <!-- Layer Controls -->
@@ -82,11 +82,53 @@
                 <div class="site-meta" style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(222, 235, 255, 0.1); font-size: 12px; color: #125DFF; font-family: 'Fira Code', monospace;">
                     <span id="wiki-coords">Lat: 0.0&deg;, Lon: 0.0&deg;</span>
                 </div>
-                <div id="wiki-extract" style="line-height: 1.6; font-size: 14px; margin-bottom: 20px; color: rgba(222, 235, 255, 0.8);">Description goes here.</div>
-                <a id="wiki-link" href="#" target="_blank" rel="noopener" class="glass-btn" style="display: none; width: 100%; padding: 10px; border-radius: 8px; text-decoration: none; color: white; background: rgba(0, 122, 255, 0.4); border: 1px solid rgba(0, 122, 255, 0.6); text-align: center; font-weight: bold; transition: all 0.2s ease;">Open in Wikipedia ↗</a>
+                <div id="wiki-extract" style="line-height: 1.7; font-size: 14px; margin-bottom: 20px; color: rgba(222, 235, 255, 0.8);">Description goes here.</div>
+                <a id="wiki-link" href="#" target="_blank" rel="noopener" class="glass-btn" style="display: none; width: 100%; padding: 10px; border-radius: 8px; text-decoration: none; color: white; background: rgba(0, 122, 255, 0.3); border: 1px solid rgba(0, 122, 255, 0.4); text-align: center; font-weight: 600; font-size: 13px; transition: all 0.2s ease; letter-spacing: 0.3px;"><span id="wiki-link-text">Read more on Wikipedia</span> ↗</a>
             </div>
         </div>
         
+        <!-- Map Tools Toolbar -->
+        <div id="map-toolbar" class="glass-panel" style="position: absolute; top: 50%; right: 20px; transform: translateY(-50%); display: flex; flex-direction: column; gap: 4px; padding: 6px; border-radius: 12px; z-index: 100; pointer-events: auto;">
+            <button id="tool-search" class="toolbar-btn" title="Search Landmarks" aria-label="Search Landmarks">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+            <button id="tool-measure" class="toolbar-btn" title="Measure Distance" aria-label="Measure Distance">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h5"/><path d="M17 12h5"/><path d="M7 12a5 5 0 0 1 10 0"/><circle cx="7" cy="12" r="1.5" fill="currentColor"/><circle cx="17" cy="12" r="1.5" fill="currentColor"/></svg>
+            </button>
+            <button id="tool-coords" class="toolbar-btn" title="Cursor Coordinates" aria-label="Cursor Coordinates">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
+            </button>
+            <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 2px 4px;"></div>
+            <button id="tool-home" class="toolbar-btn" title="Reset View" aria-label="Reset View">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </button>
+            <button id="tool-fullscreen" class="toolbar-btn" title="Fullscreen" aria-label="Fullscreen">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+            </button>
+        </div>
+
+        <!-- Search Overlay -->
+        <div id="search-overlay" style="display: none; position: absolute; top: 50%; right: 80px; transform: translateY(-50%); z-index: 101; pointer-events: auto;">
+            <div class="glass-panel" style="padding: 12px; border-radius: 12px; width: 260px;">
+                <input id="search-input" type="text" placeholder="Search landmarks..." style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.4); color: #DEEBFF; font-family: 'Inter', sans-serif; font-size: 13px; outline: none;">
+                <div id="search-results" style="max-height: 220px; overflow-y: auto; margin-top: 8px; scrollbar-width: thin;"></div>
+            </div>
+        </div>
+
+        <!-- Cursor Coordinate Readout -->
+        <div id="coord-readout" style="display: none; position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); z-index: 20; pointer-events: none;">
+            <div class="glass-panel" style="padding: 5px 14px; border-radius: 20px; font-family: 'Fira Code', monospace; font-size: 11px; color: rgba(222,235,255,0.9); white-space: nowrap; letter-spacing: 0.3px;">
+                <span id="coord-readout-text">--</span>
+            </div>
+        </div>
+
+        <!-- Measure Distance Tooltip -->
+        <div id="measure-tooltip" style="display: none; position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); z-index: 20; pointer-events: none;">
+            <div class="glass-panel" style="padding: 6px 16px; border-radius: 20px; font-family: 'Fira Code', monospace; font-size: 12px; color: #ffcc00; white-space: nowrap; letter-spacing: 0.3px; border-color: rgba(255,204,0,0.2);">
+                <span id="measure-tooltip-text">Click two points to measure</span>
+            </div>
+        </div>
+
         <!-- Credits -->
         <div id="credits" class="credits-panel">
             Map Data: <a href="https://www.openplanetary.org/" target="_blank" rel="noopener">OpenPlanetary</a> (Base) &bull; <a href="https://trek.nasa.gov/moon/" target="_blank" rel="noopener">NASA Moon Trek</a> (Medium) &bull; <a href="https://quickmap.lroc.asu.edu/" target="_blank" rel="noopener">LROC / QuickMap</a> (Ultra) &bull; <a href="https://www.wikipedia.org/" target="_blank" rel="noopener">Wikipedia</a> (Extracts)
@@ -103,7 +145,7 @@
     <div id="canvas-container"></div>
     
     <!-- Application Logic -->
-    <script src="data.js?v=1"></script>
-    <script src="app.js?v=9"></script>
+    <script src="data.js?v=3"></script>
+    <script src="app.js?v=11"></script>
 </body>
 </html>

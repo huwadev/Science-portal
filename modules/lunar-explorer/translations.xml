@@ -448,20 +448,20 @@
       <extract>ሞንቴስ አፔኒኑስ በሰሜናዊው የጨረቃ ክፍል ላይ ያለ ወጣ ገባ የተራራ ሰንሰለት ነው። በጣሊያን ውስጥ በአፔኒን ተራሮች ስም ተጠርተዋል. ወደ 3.9 ቢሊዮን ዓመታት ገደማ የጀመረው ምስረታቸው፣ ሞንቴስ አፔኒነስ በጣም አርጅቷል።</extract>
     </am>
   </poi>
-  <poi id="artemis3-shackleton" image="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Lunar_south_pole_summer_annotated.jpg/330px-Lunar_south_pole_summer_annotated.jpg" url="https://en.wikipedia.org/wiki/Shackleton_(crater)">
+  <poi id="artemis4-shackleton" image="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Lunar_south_pole_summer_annotated.jpg/330px-Lunar_south_pole_summer_annotated.jpg" url="https://en.wikipedia.org/wiki/Shackleton_(crater)">
     <en>
-      <extract>Shackleton crater is an impact crater at the south pole of the Moon. The crater interior is in perpetual darkness, while the peaks along its rim are exposed to near-constant sunlight. This makes it a prime candidate landing site for NASA's Artemis III crewed mission to access water ice.</extract>
+      <extract>Shackleton crater is an impact crater at the south pole of the Moon. The crater interior is in perpetual darkness, while the peaks along its rim are exposed to near-constant sunlight. Following mission architecture revisions where Artemis III was redesignated as a systems demonstration flight, this region remains a prime candidate landing site for NASA's Artemis IV crewed mission to achieve the first landing.</extract>
     </en>
     <am>
-      <extract>የሻክልተን እሳተ ጎመራ በጨረቃ ደቡባዊ ዋልታ ላይ ተጽዕኖ የሚያሳድር ጉድጓድ ነው። የጭራሹ ውስጠኛው ክፍል በዘለአለማዊ ጨለማ ውስጥ ነው ፣ በዳርቻው በኩል ያሉት ጫፎች ደግሞ ለቋሚ የፀሐይ ብርሃን ይጋለጣሉ። ይህ ለናሳው አርጤምስ III የተሳተፈ ተልእኮ የውሃ በረዶን ለማግኘት ዋና እጩ ማረፊያ ያደርገዋል።</extract>
+      <extract>የሻክልተን ቆሬ በጨረቃ ደቡባዊ ዋልታ ላይ የሚገኝ የቆሬ ተፋሰስ ነው። የቆሬው ውስጠኛው ክፍል በዘለአለማዊ ጨለማ ውስጥ ሲሆን፣ የዳርቻው ጫፎች ደግሞ ለቋሚ የፀሐይ ብርሃን ይጋለጣሉ። አርጤምስ 3 በምህዋር ላይ የሚደረግ የሙከራ ተልዕኮ እንዲሆን ከተደረገ በኋላ፣ ይህ አካባቢ የመጀመሪያውን የሰው ልጅ ማረፊያ ለሚያከናውነው የናሳ አርጤምስ 4 ተልዕኮ ዋነኛ እጩ ማረፊያ ሆኖ ይቀጥላል።</extract>
     </am>
   </poi>
-  <poi id="artemis3-malapert" image="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Malapert_crater_4179_h1.jpg/330px-Malapert_crater_4179_h1.jpg" url="https://en.wikipedia.org/wiki/Malapert_(crater)">
+  <poi id="artemis4-malapert" image="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Malapert_crater_4179_h1.jpg/330px-Malapert_crater_4179_h1.jpg" url="https://en.wikipedia.org/wiki/Malapert_(crater)">
     <en>
-      <extract>Malapert is a lunar impact crater near the south pole of the Moon. The nearby Malapert Mountain (Malapert Massif) is one of the candidate landing regions for NASA's Artemis III crewed mission due to its high visibility to Earth and solar illumination.</extract>
+      <extract>Malapert is a lunar impact crater near the south pole of the Moon. The nearby Malapert Mountain (Malapert Massif) remains one of the candidate landing regions for NASA's Artemis IV crewed landing mission (targeting the first human landing of the program) due to its high visibility to Earth and continuous solar illumination.</extract>
     </en>
     <am>
-      <extract>ማላፐርት በጨረቃ ደቡባዊ ምሰሶ አቅራቢያ የሚገኝ የጨረቃ ተጽዕኖ ጉድጓድ ነው። በአቅራቢያው ያለው የማላፐርት ማውንቴን (ማላፐርት ማሲፍ) ለምድር ባለው ከፍተኛ እይታ እና በፀሀይ ብርሃን ምክንያት ለናሳ አርጤምስ III ቡድን አባላት ተልእኮ ከዕጩ ማረፊያ ክልሎች አንዱ ነው።</extract>
+      <extract>ማላፐርት በጨረቃ ደቡባዊ ዋልታ አቅራቢያ የሚገኝ ቆሬ ነው። በአቅራቢያው የሚገኘው የማላፐርት ተራራ ለምድር ባለው ከፍተኛ እይታ እና ቀጣይ የፀሐይ ብርሃን ስለሚያገኝ፣ የመጀመሪያውን የሰው ልጅ ማረፊያ ለሚያደርገው የናሳ አርጤምስ 4 ተልዕኮ እጩ ማረፊያ ክልል ሆኖ ይቀጥላል።</extract>
     </am>
   </poi>
   <poi id="aitken" image="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Aitken_crater_AS17-M-0341.jpg/330px-Aitken_crater_AS17-M-0341.jpg" url="https://en.wikipedia.org/wiki/Aitken_(crater)">

@@ -101,8 +101,8 @@ const lunarSites = [
     {type: 'mountain', id: 'montes-cordillera', name: 'Montes Cordillera', lat: -17.5, lon: -81.6, wikiTitle: 'Montes_Cordillera', description: 'The outer ring of mountains surrounding the Mare Orientale impact basin.', descriptionAm: 'የማሬ ኦሬንታሌ ተፋሰስ የውጭውን ቀለበት የሚፈጥሩ ተራሮች።'},
     
     // PLANNED
-    {type: 'planned', id: 'artemis3-shackleton', name: 'Artemis III: Shackleton Crater', lat: -89.9, lon: 0.0, wikiTitle: 'Shackleton_(crater)', description: 'A planned candidate landing region for NASA\'s Artemis III mission, located exactly at the lunar South Pole. The crater interior is permanently shadowed, potentially trapping water ice.', descriptionAm: 'በጨረቃ ደቡብ ዋልታ ላይ የሚገኝ ለናሳ አርጤምስ 3 ተልዕኮ የታቀደ ማረፊያ ክልል።'},
-    {type: 'planned', id: 'artemis3-malapert', name: 'Artemis III: Malapert Massif', lat: -85.99, lon: -2.94, wikiTitle: 'Malapert_(crater)', description: 'Another prime candidate landing region for Artemis III. This prominent mountain near the South Pole receives near-continuous sunlight and offers line-of-sight communication with Earth.', descriptionAm: 'ለአርጤምስ 3 ሌላ የታቀደ ማረፊያ ክልል። ከምድር ጋር ቀጥተኛ ግንኙነትን ይሰጣል።'}
+    {type: 'planned', id: 'artemis4-shackleton', name: 'Artemis IV: Shackleton Crater', lat: -89.9, lon: 0.0, wikiTitle: 'Shackleton_(crater)', description: 'A candidate landing region for NASA\'s Artemis IV mission, located at the lunar South Pole. Artemis IV aims to return humans to the Moon for the first time since Apollo 17 in 1972 (following Artemis III, which was redesignated as a systems demonstration flight). The crater interior is permanently shadowed, potentially trapping water ice.', descriptionAm: 'በጨረቃ ደቡብ ዋልታ ላይ የሚገኝ ለናሳ አርጤምስ 4 ተልዕኮ እጩ ማረፊያ ክልል። አርጤምስ 4 ከ1972 ከአፖሎ 17 ወዲህ ለመጀመሪያ ጊዜ ሰዎችን ወደ ጨረቃ ለመመለስ ያለመ ነው (አርጤምስ 3 የሙከራ ተልዕኮ እንዲሆን ከተደረገ በኋላ)። የቆሬው ውስጠኛ ክፍል ዘወትር ጥላ ውስጥ ሆኖ ውሃ ሊይዝ ይችላል።'},
+    {type: 'planned', id: 'artemis4-malapert', name: 'Artemis IV: Malapert Massif', lat: -85.99, lon: -2.94, wikiTitle: 'Malapert_(crater)', description: 'Another prime candidate landing region for the planned Artemis IV mission. This prominent mountain near the South Pole receives near-continuous sunlight, making it ideal for solar power, and offers direct line-of-sight communication with Earth.', descriptionAm: 'ለታቀደው አርጤምስ 4 ተልዕኮ ሌላ ዋና እጩ ማረፊያ ክልል። ይህ ከደቡብ ዋልታ አቅራቢያ ያለው ተራራ ቀጣይ የፀሐይ ብርሃን ስለሚቀበል ለሶላር ኃይል ተስማሚ ሲሆን ከምድር ጋር ቀጥተኛ ግንኙነትንም ይሰጣል።'}
 ];
 
 const siteTranslations = {
@@ -141,8 +141,8 @@ const siteTranslations = {
     'Mare Serenitatis (Sea of Serenity)': 'ማሬ ሴሬኒታቲስ (የሰላም ባህር)',
     'Mare Crisium (Sea of Crises)': 'ማሬ ክሪሲየም (የቀውስ ባህር)',
     'Mons Huygens': 'ሁይገንስ ተራራ',
-    'Artemis III: Shackleton Crater': 'አርጤምስ 3: ሻክልተን ቆሬ',
-    'Artemis III: Malapert Massif': 'አርጤምስ 3: ማላፐርት ተራራ',
+    'Artemis IV: Shackleton Crater': 'አርጤምስ 4: ሻክልተን ቆሬ',
+    'Artemis IV: Malapert Massif': 'አርጤምስ 4: ማላፐርት ተራራ',
     'Plato Crater': 'ፕላቶ ቆሬ',
     'Kepler Crater': 'ኬፕለር ቆሬ',
     'Ptolemaeus Crater': 'ቶለሚ ቆሬ',
