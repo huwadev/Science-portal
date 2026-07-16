@@ -1,4 +1,4 @@
-const CACHE_NAME = 'esss-science-portal-v19';
+const CACHE_NAME = 'esss-science-portal-v32';
 const RUNTIME_CACHE = 'esss-science-portal-runtime';
 
 // Assets to pre-cache immediately on service worker install
@@ -58,7 +58,13 @@ const PRECACHE_ASSETS = [
 
   // Walk in the Solar System Core
   './modules/walk-in-solar-system/index.html',
-  './modules/walk-in-solar-system/translations.js'
+  './modules/walk-in-solar-system/translations.js',
+
+  // Eclipses & Transits Core
+  './modules/eclipses-transits/index.html',
+  './modules/eclipses-transits/app.js',
+  './modules/eclipses-transits/style.css',
+  './modules/eclipses-transits/astronomy-helper.js'
 ];
 
 // Install Event

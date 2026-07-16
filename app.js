@@ -97,6 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
             aud_students___enthusiasts: "Students & Enthusiasts",
             aud_enthusiasts___nerds: "Enthusiasts & Nerds",
             
+            "module-eclipses-transits_title": "Eclipses & Transits Lab",
+            "module-eclipses-transits_concept": "Calculate and map solar/lunar eclipses and planetary transits with interactive 3D/2D models.",
             "module-cosmic-ladder_title": "The Cosmic Distance Ladder",
             "module-cosmic-ladder_concept": "Interactive journey through history to measure the scale of the universe.",
             "module-1_title": "Exoplanet Transit Light Curve Lab",
@@ -196,6 +198,8 @@ document.addEventListener('DOMContentLoaded', () => {
             aud_students___enthusiasts: "ተማሪዎች እና ወዳጆች",
             aud_enthusiasts___nerds: "የሳይንስ ወዳጆች",
             
+            "module-eclipses-transits_title": "የፀሐይና ጨረቃ ግርዶሽ እና የፕላኔቶች ሽግግር ቤተ-ሙከራ",
+            "module-eclipses-transits_concept": "የፀሐይ እና ጨረቃ ግርዶሾችን እንዲሁም የፕላኔቶችን ሽግግሮች በባለ 2-ዲ እና 3-ዲ በይነተገናኝ ሞዴሎች ያሰሉ እና ያሳዩ።",
             "module-cosmic-ladder_title": "የኮስሚክ ርቀት መሰላል",
             "module-cosmic-ladder_concept": "የዩኒቨርስን ስፋት ለመለካት የሚረዳ በይነተገናኝ ታሪካዊ ጉዞ።",
             "module-1_title": "የኤክሶፕላኔት ሽግግር የብርሃን ቅነሳ ቤተ-ሙከራ",

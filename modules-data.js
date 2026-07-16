@@ -1,5 +1,18 @@
 const modulesData = [
     {
+        id: "module-eclipses-transits",
+        num: "11",
+        title: "Eclipses & Transits Lab",
+        category: "Planetary Science",
+        complexity: "High",
+        audience: "Students & Enthusiasts",
+        concept: "Calculate and map solar/lunar eclipses and planetary transits with interactive 3D/2D models.",
+        tech: "Astronomy Engine • Three.js • Leaflet.js",
+        status: "build",
+        href: "modules/eclipses-transits/index.html",
+        iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9" stroke-width="1.5"/><circle cx="12" cy="12" r="5" fill="currentColor"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke-width="1.5"/></svg>`
+    },
+    {
         id: "module-cosmic-ladder",
         num: "10",
         title: "The Cosmic Distance Ladder",
