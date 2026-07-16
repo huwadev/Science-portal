@@ -11,3 +11,5 @@ Thumbs.db
 .gemini/
 scratch/
 transcript*.jsonl
+
+reference project/
