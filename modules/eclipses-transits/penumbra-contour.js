@@ -64,7 +64,7 @@
         }
 
         const Astronomy = global.Astronomy;
-        const resolution = options.gridResolution || 1.5; // 1.5 degrees is ideal for sub-500ms speed
+        const resolution = options.gridResolution || 1.0; // 1.0 degree for smooth contours
         const width = Math.round(360 / resolution);
         const height = Math.round(180 / resolution);
 
@@ -236,8 +236,8 @@
                 }
                 minDist = Math.sqrt(minDist);
 
-                // If shadow center is further than RE + Penumbra radius (~3900km) from observer, magnitude is 0
-                if (minDist > 3900) {
+                // If shadow center is further than RE + Penumbra radius (~4500km) from observer, magnitude is 0
+                if (minDist > 4500) {
                     gridData[y * width + x] = 0;
                     continue;
                 }
@@ -273,6 +273,7 @@
         const thresholds = [0.01, 0.25, 0.50, 0.75];
         const contourPolygons = global.d3.contours()
             .size([width, height])
+            .smooth(true)
             .thresholds(thresholds)(gridData);
 
         // 4. Map grid coordinates back to real-world Geodetic Lat/Lon
@@ -280,27 +281,31 @@
         contourPolygons.forEach(contour => {
             if (!contour.coordinates || contour.coordinates.length === 0) return;
 
-            const transformedCoords = contour.coordinates.map(polygon => {
-                return polygon.map(ring => {
-                    return ring.map(pt => {
-                        const px = pt[0];
-                        const py = pt[1];
-                        const lon = -180 + px * (360 / width);
-                        const lat = -90 + py * (180 / height);
-                        return [lon, lat];
+            // Generate 5 copies shifted horizontally by [-720, -360, 0, 360, 720]
+            const offsets = [-720, -360, 0, 360, 720];
+            offsets.forEach(offset => {
+                const transformedCoords = contour.coordinates.map(polygon => {
+                    return polygon.map(ring => {
+                        return ring.map(pt => {
+                            const px = pt[0];
+                            const py = pt[1];
+                            const lon = -180 + px * (360 / width) + offset;
+                            const lat = -90 + py * (180 / height);
+                            return [lon, lat];
+                        });
                     });
                 });
-            });
 
-            features.push({
-                type: "Feature",
-                properties: {
-                    magnitude: contour.value
-                },
-                geometry: {
-                    type: "MultiPolygon",
-                    coordinates: transformedCoords
-                }
+                features.push({
+                    type: "Feature",
+                    properties: {
+                        magnitude: contour.value
+                    },
+                    geometry: {
+                        type: "MultiPolygon",
+                        coordinates: transformedCoords
+                    }
+                });
             });
         });
 
@@ -311,10 +316,10 @@
 
         // 5. Style and render separate Leaflet GeoJSON layer
         const styleMap = {
-            0.01: { fillColor: '#ffe082', fillOpacity: 0.12, stroke: true, color: '#ffe082', weight: 1.5, opacity: 0.15 },
-            0.25: { fillColor: '#ffa726', fillOpacity: 0.18, stroke: true, color: '#ffa726', weight: 1.5, opacity: 0.22 },
-            0.50: { fillColor: '#fb8c00', fillOpacity: 0.24, stroke: true, color: '#fb8c00', weight: 1.5, opacity: 0.28 },
-            0.75: { fillColor: '#d84315', fillOpacity: 0.30, stroke: true, color: '#d84315', weight: 1.5, opacity: 0.35 }
+            0.01: { fillColor: '#ffe082', fillOpacity: 0.14, stroke: true, color: '#ffe082', weight: 1.0, opacity: 0.22, pane: 'penumbraPane', interactive: false, smoothFactor: 0 },
+            0.25: { fillColor: '#ffa726', fillOpacity: 0.14, stroke: true, color: '#ffa726', weight: 1.0, opacity: 0.27, pane: 'penumbraPane', interactive: false, smoothFactor: 0 },
+            0.50: { fillColor: '#fb8c00', fillOpacity: 0.14, stroke: true, color: '#fb8c00', weight: 1.0, opacity: 0.32, pane: 'penumbraPane', interactive: false, smoothFactor: 0 },
+            0.75: { fillColor: '#d84315', fillOpacity: 0.14, stroke: true, color: '#d84315', weight: 1.0, opacity: 0.37, pane: 'penumbraPane', interactive: false, smoothFactor: 0 }
         };
 
         const penumbraGeoJsonLayer = L.geoJSON(geoJsonData, {
@@ -322,19 +327,20 @@
                 const mag = feature.properties.magnitude;
                 return styleMap[mag] || { stroke: false, fill: false };
             },
-            onEachFeature: function (feature, layer) {
-                const mag = feature.properties.magnitude;
-                const label = mag === 0.01 ? "0.01 (Outer Penumbra)" : `${mag.toFixed(2)}`;
-                layer.bindTooltip(`Eclipse Magnitude: &ge; ${label}`, {
-                    sticky: true,
-                    className: 'penumbra-contour-tooltip'
-                });
-            }
+            pane: 'penumbraPane'
         });
 
         // Add to map and save reference for removal
         penumbraGeoJsonLayer.addTo(mapInstance);
         mapInstance._penumbraLayer = penumbraGeoJsonLayer;
+
+        // Save the magnitude grid for hover tooltip lookups
+        mapInstance._penumbraGrid = { data: gridData, width, height, resolution };
+
+        // Inform 3D globe to build contours if function exists
+        if (typeof global.buildGlobeContours === 'function') {
+            global.buildGlobeContours(features);
+        }
     }
 
     /**
@@ -356,7 +362,7 @@
 
             const targetDate = activeDate;
             const Astronomy = global.Astronomy;
-            const resolution = options.gridResolution || 2.0; // 2.0 degrees is super fast and smooth for dynamic display
+            const resolution = options.gridResolution || 1.0; // 1.0 degree for smooth animated contours
             const width = Math.round(360 / resolution);
             const height = Math.round(180 / resolution);
             const gridData = new Array(width * height).fill(0);
@@ -405,25 +411,33 @@
                 return (thetaS + thetaM - sep) / (2 * thetaS);
             }
 
-            // Fill grid data (restricting calculations to a 45-degree bounding box around the shadow center)
+            // Fill grid data (restricting calculations to a 36-degree great-circle spherical circle around the shadow center)
+            const centerLatRad = centerLat * Math.PI / 180;
+            const sinCenterLat = Math.sin(centerLatRad);
+            const cosCenterLat = Math.cos(centerLatRad);
+
             for (let y = 0; y < height; y++) {
                 const lat = -90 + (y / height) * 180;
                 const dLat = lat - centerLat;
-                const latClose = Math.abs(dLat) < 45;
+                if (Math.abs(dLat) >= 36) {
+                    continue;
+                }
+
+                const latRad = lat * Math.PI / 180;
+                const sinLat = Math.sin(latRad);
+                const cosLat = Math.cos(latRad);
 
                 for (let x = 0; x < width; x++) {
-                    if (!latClose) {
-                        gridData[y * width + x] = 0;
-                        continue;
-                    }
-
                     const lon = -180 + (x / width) * 360;
                     let dLon = lon - centerLon;
                     while (dLon < -180) dLon += 360;
                     while (dLon > 180) dLon -= 360;
 
-                    if (dLat*dLat + dLon*dLon > 45*45) {
-                        gridData[y * width + x] = 0;
+                    const dLonRad = dLon * Math.PI / 180;
+                    const cosDst = sinLat * sinCenterLat + cosLat * cosCenterLat * Math.cos(dLonRad);
+                    const distDeg = Math.acos(Math.max(-1, Math.min(1, cosDst))) * 180 / Math.PI;
+
+                    if (distDeg > 36) {
                         continue;
                     }
 
@@ -431,37 +445,42 @@
                 }
             }
 
-            // Generate contour isolines
+            // Generate contour isolines with smoothing
             const thresholds = [0.01, 0.25, 0.50, 0.75];
             const contourPolygons = global.d3.contours()
                 .size([width, height])
+                .smooth(true)
                 .thresholds(thresholds)(gridData);
 
             const features = [];
             contourPolygons.forEach(contour => {
                 if (!contour.coordinates || contour.coordinates.length === 0) return;
 
-                const transformedCoords = contour.coordinates.map(polygon => {
-                    return polygon.map(ring => {
-                        return ring.map(pt => {
-                            const px = pt[0];
-                            const py = pt[1];
-                            const lon = -180 + px * (360 / width);
-                            const lat = -90 + py * (180 / height);
-                            return [lon, lat];
+                // Generate 5 copies shifted horizontally by [-720, -360, 0, 360, 720]
+                const offsets = [-720, -360, 0, 360, 720];
+                offsets.forEach(offset => {
+                    const transformedCoords = contour.coordinates.map(polygon => {
+                        return polygon.map(ring => {
+                            return ring.map(pt => {
+                                const px = pt[0];
+                                const py = pt[1];
+                                const lon = -180 + px * (360 / width) + offset;
+                                const lat = -90 + py * (180 / height);
+                                return [lon, lat];
+                            });
                         });
                     });
-                });
 
-                features.push({
-                    type: "Feature",
-                    properties: {
-                        magnitude: contour.value
-                    },
-                    geometry: {
-                        type: "MultiPolygon",
-                        coordinates: transformedCoords
-                    }
+                    features.push({
+                        type: "Feature",
+                        properties: {
+                            magnitude: contour.value
+                        },
+                        geometry: {
+                            type: "MultiPolygon",
+                            coordinates: transformedCoords
+                        }
+                    });
                 });
             });
 
@@ -471,10 +490,10 @@
             };
 
             const styleMap = {
-                0.01: { fillColor: '#ffe082', fillOpacity: 0.12, stroke: true, color: '#ffe082', weight: 1.5, opacity: 0.15 },
-                0.25: { fillColor: '#ffa726', fillOpacity: 0.18, stroke: true, color: '#ffa726', weight: 1.5, opacity: 0.22 },
-                0.50: { fillColor: '#fb8c00', fillOpacity: 0.24, stroke: true, color: '#fb8c00', weight: 1.5, opacity: 0.28 },
-                0.75: { fillColor: '#d84315', fillOpacity: 0.30, stroke: true, color: '#d84315', weight: 1.5, opacity: 0.35 }
+                0.01: { fillColor: '#ffe082', fillOpacity: 0.14, stroke: true, color: '#ffe082', weight: 1.0, opacity: 0.22, pane: 'penumbraPane', interactive: false, smoothFactor: 0 },
+                0.25: { fillColor: '#ffa726', fillOpacity: 0.14, stroke: true, color: '#ffa726', weight: 1.0, opacity: 0.27, pane: 'penumbraPane', interactive: false, smoothFactor: 0 },
+                0.50: { fillColor: '#fb8c00', fillOpacity: 0.14, stroke: true, color: '#fb8c00', weight: 1.0, opacity: 0.32, pane: 'penumbraPane', interactive: false, smoothFactor: 0 },
+                0.75: { fillColor: '#d84315', fillOpacity: 0.14, stroke: true, color: '#d84315', weight: 1.0, opacity: 0.37, pane: 'penumbraPane', interactive: false, smoothFactor: 0 }
             };
 
             const penumbraGeoJsonLayer = L.geoJSON(geoJsonData, {
@@ -482,14 +501,7 @@
                     const mag = feature.properties.magnitude;
                     return styleMap[mag] || { stroke: false, fill: false };
                 },
-                onEachFeature: function (feature, layer) {
-                    const mag = feature.properties.magnitude;
-                    const label = mag === 0.01 ? "0.01 (Outer Penumbra)" : `${mag.toFixed(2)}`;
-                    layer.bindTooltip(`Eclipse Magnitude: &ge; ${label}`, {
-                        sticky: true,
-                        className: 'penumbra-contour-tooltip'
-                    });
-                }
+                pane: 'penumbraPane'
             });
 
             if (mapInstance._instantaneousPenumbraLayer) {
@@ -497,6 +509,11 @@
             }
             penumbraGeoJsonLayer.addTo(mapInstance);
             mapInstance._instantaneousPenumbraLayer = penumbraGeoJsonLayer;
+
+            // Inform 3D globe of instantaneous contours if function exists
+            if (typeof global.buildGlobeInstantaneousContours === 'function') {
+                global.buildGlobeInstantaneousContours(features);
+            }
 
         } catch (err) {
             console.error("Error in appendInstantaneousPenumbraLayer:", err);

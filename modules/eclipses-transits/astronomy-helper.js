@@ -368,8 +368,8 @@ const AstronomyHelper = {
             const lat_gc = Math.atan2(Pz, Math.sqrt(Px*Px + Py*Py));
             const lat_gd = Math.atan((this.RE_KM*this.RE_KM)/(this.RP_KM*this.RP_KM) * Math.tan(lat_gc));
             let lat = lat_gd * 180 / Math.PI;
-            if (lat > 85.0) lat = 85.0;
-            if (lat < -85.0) lat = -85.0;
+            if (lat > 89.99) lat = 89.99;
+            if (lat < -89.99) lat = -89.99;
             coords.push([lat, lonRad * 180 / Math.PI]);
         }
 
@@ -386,7 +386,7 @@ const AstronomyHelper = {
         if (coords.length > 2) {
             const span = coords[coords.length - 1][1] - coords[0][1];
             if (Math.abs(span) > 270) {
-                const poleLat = (coords[0][0] > 0) ? 85.0 : -85.0;
+                const poleLat = (coords[0][0] > 0) ? 89.99 : -89.99;
                 coords.push([poleLat, coords[coords.length - 1][1]]);
                 coords.push([poleLat, coords[0][1]]);
             }
@@ -954,6 +954,63 @@ const AstronomyHelper = {
         }
 
         return coords;
+    },
+
+    /**
+     * Calculates the maximum obscuration and magnitude at a given location (lat, lon)
+     * over the course of a solar eclipse (defined around the peak JD).
+     */
+    calculateMaxLocalSolarObscuration(peakJD, lat, lon) {
+        const rangeDays = 3.5 / 24; // +/- 3.5 hours
+        const steps = 15;
+        let maxObscuration = 0;
+        let maxMagnitude = 0;
+        let bestJD = peakJD;
+
+        // Step 1: Coarse search
+        for (let i = 0; i <= steps; i++) {
+            const offset = -rangeDays + (i / steps) * 2 * rangeDays;
+            const jd = peakJD + offset;
+            // Helper convert JD to Date
+            const date = new Date((jd - 2440587.5) * 86400000);
+            const res = this.calculateLocalSolarEclipse(date, lat, lon);
+            if (res && res.obscuration > maxObscuration) {
+                maxObscuration = res.obscuration;
+                maxMagnitude = res.magnitude;
+                bestJD = jd;
+            }
+        }
+
+        // Step 2: Fine search around the best coarse time (ternary search)
+        if (maxObscuration > 0) {
+            let lo = bestJD - (rangeDays / steps);
+            let hi = bestJD + (rangeDays / steps);
+            for (let iter = 0; iter < 5; iter++) {
+                const m1 = lo + (hi - lo) / 3;
+                const m2 = hi - (hi - lo) / 3;
+                const date1 = new Date((m1 - 2440587.5) * 86400000);
+                const date2 = new Date((m2 - 2440587.5) * 86400000);
+                const res1 = this.calculateLocalSolarEclipse(date1, lat, lon);
+                const res2 = this.calculateLocalSolarEclipse(date2, lat, lon);
+                const obs1 = res1 ? res1.obscuration : 0;
+                const obs2 = res2 ? res2.obscuration : 0;
+                if (obs1 > obs2) {
+                    hi = m2;
+                    if (obs1 > maxObscuration) {
+                        maxObscuration = obs1;
+                        maxMagnitude = res1.magnitude;
+                    }
+                } else {
+                    lo = m1;
+                    if (obs2 > maxObscuration) {
+                        maxObscuration = obs2;
+                        maxMagnitude = res2.magnitude;
+                    }
+                }
+            }
+        }
+
+        return { obscuration: maxObscuration, magnitude: maxMagnitude };
     },
 
     /**

@@ -8,9 +8,11 @@ let currentEvent = null;
 let observerLocation = { lat: 9.0300, lon: 38.7400 }; // default: Addis Ababa
 let observerMarker = null;
 let currentTab = 'map-view';
-let timeSliderVal = 50; // percentage along the event timeline
+let timeSliderVal = 0; // percentage along the event timeline (default to start)
 let animInterval = null;
 let isAnimating = false;
+let isLooping = true;
+let simSpeedMultiplier = 5;
 
 // 2D Map variables
 let map = null;
@@ -25,22 +27,30 @@ let lastEventId = null;
 let staticTerminatorLayer = null;
 let dynamicTerminatorLayer = null;
 let currentEventTrack = [];
+let shadowCenterMarker = null; // Animated pulsing shadow center marker
 
-// 3D Scene variables
+// 3D Globe Scene variables
 let scene3D = {
     renderer: null,
     scene: null,
     camera: null,
     controls: null,
     earth: null,
-    moon: null,
-    moonOrbit: null,
-    sunLight: null,
-    nodesLine: null,
-    orbitPlane: null,
-    isGlobeMode: false,
-    globeShadowDisc: null
+    earthTexture: null,
+    baseCanvas: null,        // Off-screen canvas with static base map
+    renderCanvas: null,      // Canvas used as Three.js texture
+    renderContext: null,
+    staticContours: [],      // Cached static contour features
+    instantaneousContours: [], // Cached instantaneous contour features
+    topojsonData: null,      // Cached TopoJSON country data
+    atmosphereGlow: null
 };
+
+// Globe animation state
+let globeSliderVal = 0;
+let globeAnimInterval = null;
+let isGlobeAnimating = false;
+let globeSpeedMultiplier = 5;
 
 // Sidebar Events Database (100-Year Catalog 2000-2100)
 let sidebarEvents = [];
@@ -52,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     initUI();
     init2DMap();
-    init3DScene();
+    initGlobeScene();
     
     // Find next upcoming eclipse starting from today (2026-07-14)
     const now = new Date();
@@ -203,9 +213,19 @@ function initUI() {
             }
             timeSliderVal = parseFloat(e.target.value);
             sliders.forEach(s => s.value = timeSliderVal);
+            updateSliderGradient();
             updateTimeFromSlider();
         });
     });
+
+    // Initialize slider gradient
+    updateSliderGradient();
+
+    // Initialize loop button to active state
+    const loopBtn = document.getElementById('loop-btn');
+    if (loopBtn && isLooping) {
+        loopBtn.classList.add('active');
+    }
 
     // Play Buttons
     const playBtns = [document.getElementById('play-btn'), document.getElementById('sim-play-btn')];
@@ -218,6 +238,58 @@ function initUI() {
             }
         });
     });
+
+    // Restart Button
+    const restartBtn = document.getElementById('restart-btn');
+    if (restartBtn) {
+        restartBtn.addEventListener('click', () => {
+            timeSliderVal = 0;
+            sliders.forEach(s => s.value = timeSliderVal);
+            updateTimeFromSlider();
+        });
+    }
+
+    // Previous Button
+    const prevBtn = document.getElementById('prev-btn');
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            if (isAnimating) {
+                stopAnimation();
+            }
+            timeSliderVal = Math.max(0, timeSliderVal - 2.0);
+            sliders.forEach(s => s.value = timeSliderVal);
+            updateTimeFromSlider();
+        });
+    }
+
+    // Next Button
+    const nextBtn = document.getElementById('next-btn');
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            if (isAnimating) {
+                stopAnimation();
+            }
+            timeSliderVal = Math.min(100, timeSliderVal + 2.0);
+            sliders.forEach(s => s.value = timeSliderVal);
+            updateTimeFromSlider();
+        });
+    }
+
+    // Loop Button
+    if (loopBtn) {
+        loopBtn.addEventListener('click', () => {
+            isLooping = !isLooping;
+            loopBtn.classList.toggle('active', isLooping);
+        });
+    }
+
+    // Speed Select
+    const speedSelect = document.getElementById('speed-select');
+    if (speedSelect) {
+        speedSelect.addEventListener('change', (e) => {
+            simSpeedMultiplier = parseFloat(e.target.value) || 5;
+        });
+    }
 
     // Location Inputs
     document.getElementById('btn-calculate-custom').addEventListener('click', () => {
@@ -274,37 +346,56 @@ function initUI() {
         }
     });
 
-    // 3D Buttons
-    document.getElementById('btn-toggle-orbit-plane').addEventListener('click', () => {
-        if (scene3D.orbitPlane) scene3D.orbitPlane.visible = !scene3D.orbitPlane.visible;
+    // 3D Globe Buttons
+    document.getElementById('btn-globe-reset').addEventListener('click', () => {
+        if (scene3D.controls) scene3D.controls.reset();
     });
-    document.getElementById('btn-reset-camera').addEventListener('click', () => {
-        scene3D.controls.reset();
-    });
-    document.getElementById('btn-3d-mode').addEventListener('click', (e) => {
-        scene3D.isGlobeMode = !scene3D.isGlobeMode;
-        e.target.innerText = scene3D.isGlobeMode ? "Switch to Space Orrery View" : "Switch to Earth Globe View";
-        
-        // Hide/Show correct nodes
-        if (scene3D.isGlobeMode) {
-            scene3D.earth.position.set(0, 0, 0);
-            scene3D.earth.scale.set(3, 3, 3);
-            scene3D.moon.visible = false;
-            scene3D.moonOrbit.visible = false;
-            scene3D.orbitPlane.visible = false;
-            if (scene3D.nodesLine) scene3D.nodesLine.visible = false;
-            if (scene3D.globeShadowDisc) scene3D.globeShadowDisc.visible = true;
-        } else {
-            scene3D.earth.position.set(0, 0, 0);
-            scene3D.earth.scale.set(1.5, 1.5, 1.5);
-            scene3D.moon.visible = true;
-            scene3D.moonOrbit.visible = true;
-            scene3D.orbitPlane.visible = true;
-            if (scene3D.nodesLine) scene3D.nodesLine.visible = true;
-            if (scene3D.globeShadowDisc) scene3D.globeShadowDisc.visible = false;
-        }
-        updateViews();
-    });
+
+    // Globe Playback Controls
+    const globePlayBtn = document.getElementById('globe-play-btn');
+    if (globePlayBtn) {
+        globePlayBtn.addEventListener('click', () => {
+            toggleGlobeAnimation();
+        });
+    }
+    const globeRestartBtn = document.getElementById('globe-restart-btn');
+    if (globeRestartBtn) {
+        globeRestartBtn.addEventListener('click', () => {
+            globeSliderVal = 0;
+            document.getElementById('globe-time-slider').value = 0;
+            stopGlobeAnimation();
+            updateGlobeView();
+        });
+    }
+    const globePrevBtn = document.getElementById('globe-prev-btn');
+    if (globePrevBtn) {
+        globePrevBtn.addEventListener('click', () => {
+            globeSliderVal = Math.max(0, globeSliderVal - 1);
+            document.getElementById('globe-time-slider').value = globeSliderVal;
+            updateGlobeView();
+        });
+    }
+    const globeNextBtn = document.getElementById('globe-next-btn');
+    if (globeNextBtn) {
+        globeNextBtn.addEventListener('click', () => {
+            globeSliderVal = Math.min(100, globeSliderVal + 1);
+            document.getElementById('globe-time-slider').value = globeSliderVal;
+            updateGlobeView();
+        });
+    }
+    const globeTimeSlider = document.getElementById('globe-time-slider');
+    if (globeTimeSlider) {
+        globeTimeSlider.addEventListener('input', (e) => {
+            globeSliderVal = parseFloat(e.target.value);
+            updateGlobeView();
+        });
+    }
+    const globeSpeedSelect = document.getElementById('globe-speed-select');
+    if (globeSpeedSelect) {
+        globeSpeedSelect.addEventListener('change', (e) => {
+            globeSpeedMultiplier = parseInt(e.target.value);
+        });
+    }
 
     // Kotlin code tab buttons
     document.querySelectorAll('.code-tab-btn').forEach(btn => {
@@ -463,6 +554,12 @@ function init2DMap() {
     map.createPane('terminatorPane');
     map.getPane('terminatorPane').style.zIndex = '450';
 
+    map.createPane('penumbraPane');
+    map.getPane('penumbraPane').style.zIndex = '410';
+
+    map.createPane('pathPane');
+    map.getPane('pathPane').style.zIndex = '420';
+
     const baseMaps = {
         "Satellite Imagery": satellite,
         "Sleek Dark Mode": darkMatter,
@@ -498,6 +595,15 @@ function init2DMap() {
 
     dynamicMap.createPane('terminatorPane');
     dynamicMap.getPane('terminatorPane').style.zIndex = '450';
+
+    dynamicMap.createPane('penumbraPane');
+    dynamicMap.getPane('penumbraPane').style.zIndex = '410';
+
+    dynamicMap.createPane('pathPane');
+    dynamicMap.getPane('pathPane').style.zIndex = '420';
+
+    dynamicMap.createPane('umbraPane');
+    dynamicMap.getPane('umbraPane').style.zIndex = '430';
 
     const baseMapsDynamic = {
         "Satellite Imagery": satelliteDynamic,
@@ -568,110 +674,693 @@ function init2DMap() {
         document.getElementById('obs-lon').value = e.latlng.lng.toFixed(4);
         updateViews();
     });
+
+    // 7. Map Hover Tooltips (exact eclipse obscuration/magnitude calculation)
+    map.on('mousemove', (e) => {
+        updateHoverTooltip(map, 'static-map-hover-tooltip', e, true);
+    });
+    map.on('mouseout', () => {
+        hideHoverTooltip('static-map-hover-tooltip');
+    });
+
+    dynamicMap.on('mousemove', (e) => {
+        updateHoverTooltip(dynamicMap, 'dynamic-map-hover-tooltip', e, false);
+    });
+    dynamicMap.on('mouseout', () => {
+        hideHoverTooltip('dynamic-map-hover-tooltip');
+    });
 }
 
-// 3D Orrery Setup using Three.js
-function init3DScene() {
+function updateHoverTooltip(mapInstance, tooltipId, event, isStatic) {
+    if (!currentEvent || currentEvent.type !== 'solar') {
+        hideHoverTooltip(tooltipId);
+        return;
+    }
+    const lat = event.latlng.lat;
+    const lon = event.latlng.lng;
+    
+    // Bounds check to avoid calculation overflows
+    if (lat < -90 || lat > 90) {
+        hideHoverTooltip(tooltipId);
+        return;
+    }
+
+    let obscuration = 0;
+    let magnitude = 0;
+
+    if (isStatic) {
+        // Use the pre-computed penumbra magnitude grid for instant lookup across all shaded regions
+        const grid = mapInstance._penumbraGrid;
+        if (grid) {
+            // Normalize longitude to [-180, 180]
+            let nLon = ((lon % 360) + 540) % 360 - 180;
+            // Map lat/lon to grid coordinates
+            const gx = ((nLon + 180) / 360) * grid.width;
+            const gy = ((lat + 90) / 180) * grid.height;
+            // Bilinear interpolation for smooth values
+            const x0 = Math.floor(gx);
+            const y0 = Math.floor(gy);
+            const x1 = Math.min(x0 + 1, grid.width - 1);
+            const y1 = Math.min(y0 + 1, grid.height - 1);
+            const fx = gx - x0;
+            const fy = gy - y0;
+            const v00 = grid.data[y0 * grid.width + (x0 % grid.width)] || 0;
+            const v10 = grid.data[y0 * grid.width + (x1 % grid.width)] || 0;
+            const v01 = grid.data[y1 * grid.width + (x0 % grid.width)] || 0;
+            const v11 = grid.data[y1 * grid.width + (x1 % grid.width)] || 0;
+            magnitude = v00 * (1-fx)*(1-fy) + v10 * fx*(1-fy) + v01 * (1-fx)*fy + v11 * fx*fy;
+            // Convert magnitude to approximate obscuration
+            // For partial eclipses: obscuration ≈ arccos(1-2m)/π - (1-2m)*sqrt(4m-4m²)/π  (where m = magnitude)
+            if (magnitude > 0.001) {
+                if (magnitude >= 1.0) {
+                    obscuration = 1.0;
+                } else {
+                    const m = magnitude;
+                    obscuration = (Math.acos(1 - 2*m) - (1 - 2*m) * Math.sqrt(4*m - 4*m*m)) / Math.PI;
+                }
+            }
+        }
+    } else {
+        // Calculate instantaneous obscuration for active simulation time
+        const activeDate = getActiveTime();
+        const res = AstronomyHelper.calculateLocalSolarEclipse(activeDate, lat, lon);
+        if (res) {
+            obscuration = res.obscuration;
+            magnitude = res.magnitude;
+        }
+    }
+
+    if (obscuration > 0.001) {
+        const tooltip = document.getElementById(tooltipId);
+        if (tooltip) {
+            tooltip.innerHTML = `
+                <div style="font-weight:700; margin-bottom: 2px;">Exact Location Info</div>
+                <div><strong>Obscuration:</strong> ${(obscuration * 100).toFixed(1)}%</div>
+                <div><strong>Magnitude:</strong> ${magnitude.toFixed(3)}</div>
+                <div style="font-size: 9px; color: rgba(255,255,255,0.4); margin-top: 4px; text-transform: uppercase;">Lat: ${lat.toFixed(2)}&deg; | Lon: ${lon.toFixed(2)}&deg;</div>
+            `;
+            // Coordinates relative to map container
+            const x = event.containerPoint.x + 15;
+            const y = event.containerPoint.y + 15;
+
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+            tooltip.style.display = 'block';
+        }
+    } else {
+        hideHoverTooltip(tooltipId);
+    }
+}
+
+function hideHoverTooltip(tooltipId) {
+    const tooltip = document.getElementById(tooltipId);
+    if (tooltip) {
+        tooltip.style.display = 'none';
+    }
+}
+
+
+// 3D Globe Setup using Three.js
+function initGlobeScene() {
     const container = document.getElementById('canvas-container-3d');
+    if (!container) return;
     const width = container.clientWidth;
     const height = container.clientHeight;
 
     scene3D.scene = new THREE.Scene();
     scene3D.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    scene3D.camera.position.set(0, 15, 20);
+    scene3D.camera.position.set(0, 2, 6);
 
     scene3D.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     scene3D.renderer.setSize(width, height);
     scene3D.renderer.setPixelRatio(window.devicePixelRatio);
+    scene3D.renderer.setClearColor(0x000000, 0);
     container.appendChild(scene3D.renderer.domElement);
 
     scene3D.controls = new THREE.OrbitControls(scene3D.camera, scene3D.renderer.domElement);
     scene3D.controls.enableDamping = true;
     scene3D.controls.dampingFactor = 0.05;
+    scene3D.controls.minDistance = 3;
+    scene3D.controls.maxDistance = 15;
+    scene3D.controls.saveState();
 
-    // Ambient light
-    const ambient = new THREE.AmbientLight(0x222233);
-    scene3D.scene.add(ambient);
+    // No differential lighting — use MeshBasicMaterial for flat, well-contrasted map
 
-    // Directional Sun Light (glowing gold)
-    scene3D.sunLight = new THREE.DirectionalLight(0xfff6e0, 1.5);
-    scene3D.sunLight.position.set(20, 0, 0); // shines from X-axis
-    scene3D.scene.add(scene3D.sunLight);
+    // Create high-resolution off-screen canvases for texture generation
+    scene3D.baseCanvas = document.createElement('canvas');
+    scene3D.baseCanvas.width = 4096;
+    scene3D.baseCanvas.height = 2048;
 
-    // Add Earth (Sphere)
-    const earthGeo = new THREE.SphereGeometry(1.5, 32, 32);
-    // Draw grid lines on earth to look like a telemetry schematic
-    const earthMat = new THREE.MeshPhongMaterial({
-        color: 0x052a6b,
-        emissive: 0x021034,
-        specular: 0x111111,
-        shininess: 10,
-        wireframe: true
+    scene3D.renderCanvas = document.createElement('canvas');
+    scene3D.renderCanvas.width = 4096;
+    scene3D.renderCanvas.height = 2048;
+    scene3D.renderContext = scene3D.renderCanvas.getContext('2d');
+
+    // Draw initial fallback base map
+    renderBaseMap();
+
+    // Copy base to render canvas
+    scene3D.renderContext.drawImage(scene3D.baseCanvas, 0, 0);
+
+    // Create CanvasTexture
+    const earthTexture = new THREE.CanvasTexture(scene3D.renderCanvas);
+    earthTexture.wrapS = THREE.RepeatWrapping;
+    earthTexture.wrapT = THREE.ClampToEdgeWrapping;
+    earthTexture.anisotropy = scene3D.renderer.capabilities.getMaxAnisotropy();
+    scene3D.earthTexture = earthTexture;
+
+    // Earth Globe — flat lit (MeshBasicMaterial) for uniform contrast
+    const earthGeo = new THREE.SphereGeometry(2, 96, 96);
+    const earthMat = new THREE.MeshBasicMaterial({
+        map: earthTexture
     });
     scene3D.earth = new THREE.Mesh(earthGeo, earthMat);
     scene3D.scene.add(scene3D.earth);
 
-    // Add Ecliptic plane grid decoration
-    const eclipticGrid = new THREE.GridHelper(30, 30, 0x125dff, 0x223355);
-    eclipticGrid.position.y = 0;
-    scene3D.scene.add(eclipticGrid);
+    // Atmospheric glow ring — subtle blue halo
+    const glowGeo = new THREE.SphereGeometry(2.06, 96, 96);
+    const glowMat = new THREE.MeshBasicMaterial({
+        color: 0x88bbff,
+        transparent: true,
+        opacity: 0.15,
+        side: THREE.BackSide
+    });
+    scene3D.atmosphereGlow = new THREE.Mesh(glowGeo, glowMat);
+    scene3D.scene.add(scene3D.atmosphereGlow);
 
-    // Moon Orbit plane & path (Tilted 5.14 degrees relative to Earth/ecliptic plane)
-    scene3D.orbitPlane = new THREE.Group();
-    scene3D.orbitPlane.rotation.z = 5.14 * Math.PI / 180; // Tilt!
-    scene3D.scene.add(scene3D.orbitPlane);
+    // Star field backdrop
+    const starGeo = new THREE.BufferGeometry();
+    const starPositions = [];
+    for (let i = 0; i < 2000; i++) {
+        const r = 80 + Math.random() * 120;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        starPositions.push(
+            r * Math.sin(phi) * Math.cos(theta),
+            r * Math.sin(phi) * Math.sin(theta),
+            r * Math.cos(phi)
+        );
+    }
+    starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
+    const starMat = new THREE.PointsMaterial({ color: 0xccddee, size: 0.2, sizeAttenuation: true });
+    const stars = new THREE.Points(starGeo, starMat);
+    scene3D.scene.add(stars);
 
-    // Draw the orbit ring line
-    const orbitRingGeo = new THREE.RingGeometry(8, 8.05, 64);
-    const orbitRingMat = new THREE.MeshBasicMaterial({ color: 0x125dff, side: THREE.DoubleSide });
-    scene3D.moonOrbit = new THREE.Mesh(orbitRingGeo, orbitRingMat);
-    scene3D.moonOrbit.rotation.x = Math.PI / 2;
-    scene3D.orbitPlane.add(scene3D.moonOrbit);
+    // Dark background
+    scene3D.scene.background = new THREE.Color(0x0a0e1a);
 
-    // Add Moon (Sphere)
-    const moonGeo = new THREE.SphereGeometry(0.4, 16, 16);
-    const moonMat = new THREE.MeshPhongMaterial({ color: 0x888888, emissive: 0x111111 });
-    scene3D.moon = new THREE.Mesh(moonGeo, moonMat);
-    scene3D.orbitPlane.add(scene3D.moon);
-
-    // Draw Line of Nodes (Intersection line along Y-axis or custom)
-    const nodesLineGeo = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(-12, 0, 0),
-        new THREE.Vector3(12, 0, 0)
-    ]);
-    const nodesLineMat = new THREE.LineBasicMaterial({ color: 0x28a745, linewidth: 2 });
-    scene3D.nodesLine = new THREE.Line(nodesLineGeo, nodesLineMat);
-    scene3D.scene.add(scene3D.nodesLine);
-
-    // Create Globe mode shadow projected disc (Only shown in Earth Globe view)
-    const shadowDiscGeo = new THREE.RingGeometry(0.1, 0.4, 32);
-    const shadowDiscMat = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide, opacity: 0.9, transparent: true });
-    scene3D.globeShadowDisc = new THREE.Mesh(shadowDiscGeo, shadowDiscMat);
-    scene3D.globeShadowDisc.visible = false;
-    scene3D.scene.add(scene3D.globeShadowDisc);
+    // Fetch and load TopoJSON for high-fidelity world map
+    fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json')
+        .then(res => res.json())
+        .then(topo => {
+            if (typeof topojson !== 'undefined') {
+                scene3D.topojsonData = topojson.feature(topo, topo.objects.countries);
+                // Re-render the base map with high-fidelity borders
+                renderBaseMap();
+                // Update the rendering
+                drawGlobeLayers();
+            }
+        })
+        .catch(err => {
+            console.warn("Could not load high-fidelity world map from CDN, using simplified fallback contours.", err);
+        });
 
     // Resize event
     window.addEventListener('resize', () => {
         const w = container.clientWidth;
         const h = container.clientHeight;
-        scene3D.camera.aspect = w / h;
-        scene3D.camera.updateProjectionMatrix();
-        scene3D.renderer.setSize(w, h);
+        if (w > 0 && h > 0) {
+            scene3D.camera.aspect = w / h;
+            scene3D.camera.updateProjectionMatrix();
+            scene3D.renderer.setSize(w, h);
+        }
     });
 
-    // Animation Loop
+    // Animation Loop — no idle spin; globe only moves when user pans
     function animate() {
         requestAnimationFrame(animate);
         scene3D.controls.update();
-        
-        // Rotate Earth slowly
-        if (scene3D.earth) {
-            scene3D.earth.rotation.y += 0.001;
-        }
-
         scene3D.renderer.render(scene3D.scene, scene3D.camera);
     }
     animate();
+}
+
+/**
+ * Render the static base map to baseCanvas.
+ * Draws oceans, grid lines, and landmass outlines.
+ */
+function renderBaseMap() {
+    if (!scene3D.baseCanvas) return;
+    const canvas = scene3D.baseCanvas;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+
+    // Fill ocean — strong contrast light blue
+    ctx.fillStyle = '#aed4f0'; 
+    ctx.fillRect(0, 0, W, H);
+
+    // Draw lat/lon gridlines — very subtle on ocean
+    ctx.strokeStyle = 'rgba(160, 195, 225, 0.35)';
+    ctx.lineWidth = 1;
+    // Longitude lines (meridians) go all the way from pole to pole
+    for (let x = 0; x < W; x += W / 36) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, H);
+        ctx.stroke();
+    }
+    // Latitude lines (parallels) go from H/18 to H - H/18
+    for (let y = H / 18; y < H - H / 18 + 1; y += H / 18) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
+    }
+
+    if (scene3D.topojsonData) {
+        // Draw high-fidelity country boundaries from TopoJSON
+        ctx.fillStyle = '#e8e4d8'; // Warm light tan — good contrast against blue ocean
+        ctx.strokeStyle = '#c8c4b8'; // Subtle gray borders between countries
+        ctx.lineWidth = 1;
+
+        scene3D.topojsonData.features.forEach(feature => {
+            if (!feature.geometry) return;
+            const type = feature.geometry.type;
+            const coords = feature.geometry.coordinates;
+
+            if (type === 'Polygon') {
+                drawCanvasPolygon(ctx, coords, W, H);
+            } else if (type === 'MultiPolygon') {
+                coords.forEach(poly => {
+                    drawCanvasPolygon(ctx, poly, W, H);
+                });
+            }
+        });
+    } else {
+        // Fallback: simplified continent shapes
+        ctx.fillStyle = '#e8e4d8';
+        ctx.strokeStyle = '#c8c4b8';
+        ctx.lineWidth = 1;
+        const continents = [
+            // North America
+            [[220,80],[280,75],[310,100],[320,140],[300,180],[260,200],[220,190],[200,160],[190,120]],
+            // South America
+            [[260,220],[290,230],[300,260],[295,310],[280,350],[255,360],[240,330],[245,280]],
+            // Europe
+            [[470,85],[510,80],[530,100],[520,130],[490,140],[470,120]],
+            // Africa
+            [[470,160],[520,155],[550,180],[560,230],[550,290],[520,320],[490,310],[470,270],[460,220],[460,180]],
+            // Asia
+            [[530,60],[620,50],[700,55],[750,80],[780,110],[760,140],[720,160],[670,170],[620,155],[570,130],[530,100]],
+            // India
+            [[620,160],[650,170],[640,210],[620,220],[610,200]],
+            // Australia
+            [[720,270],[780,260],[800,280],[790,310],[760,320],[730,300]],
+            // Antarctica
+            [[100,440],[300,450],[500,445],[700,450],[900,445],[1000,450],[1024,460],[1024,512],[0,512],[0,460]]
+        ];
+
+        continents.forEach(pts => {
+            ctx.beginPath();
+            const scaleX = W / 1024;
+            const scaleY = H / 512;
+            ctx.moveTo(pts[0][0] * scaleX, pts[0][1] * scaleY);
+            for (let i = 1; i < pts.length; i++) {
+                const xc = ((pts[i][0] + (pts[(i+1) % pts.length] || pts[i])[0]) / 2) * scaleX;
+                const yc = ((pts[i][1] + (pts[(i+1) % pts.length] || pts[i])[1]) / 2) * scaleY;
+                ctx.quadraticCurveTo(pts[i][0] * scaleX, pts[i][1] * scaleY, xc, yc);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        });
+    }
+}
+
+function drawCanvasPolygon(ctx, rings, W, H) {
+    ctx.beginPath();
+    rings.forEach((ring, ringIdx) => {
+        if (ring.length < 3) return;
+        for (let i = 0; i < ring.length; i++) {
+            const [lon, lat] = ring[i];
+            const x = ((lon + 180) / 360) * W;
+            const y = ((90 - lat) / 180) * H;
+            if (i === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        ctx.closePath();
+    });
+    ctx.fill('evenodd');
+    ctx.stroke();
+}
+
+/**
+ * Convert lat/lon (degrees) to a 3D position on the globe surface.
+ */
+function latLonToGlobe(lat, lon, R = 2.01) {
+    const latRad = lat * Math.PI / 180;
+    const lonRad = lon * Math.PI / 180;
+    return new THREE.Vector3(
+        -R * Math.cos(latRad) * Math.cos(lonRad),
+        R * Math.sin(latRad),
+        R * Math.cos(latRad) * Math.sin(lonRad)
+    );
+}
+
+/**
+ * Caches static contours on the 3D globe and draws them.
+ */
+function buildGlobeContours(contourFeatures) {
+    scene3D.staticContours = contourFeatures || [];
+    drawGlobeLayers();
+}
+
+/**
+ * Caches instantaneous contours during playback and updates the globe texture.
+ */
+function buildGlobeInstantaneousContours(contourFeatures) {
+    scene3D.instantaneousContours = contourFeatures || [];
+    drawGlobeLayers();
+}
+
+/**
+ * Draws all layers (Base Map + Path Ribbon + Contours + Shadow disc) onto renderCanvas
+ * and triggers a WebGL texture reload.
+ */
+function drawGlobeLayers() {
+    if (!scene3D.renderCanvas || !scene3D.baseCanvas) return;
+    const canvas = scene3D.renderCanvas;
+    const ctx = scene3D.renderContext;
+    const W = canvas.width;
+    const H = canvas.height;
+
+    // 1. Copy base map
+    ctx.clearRect(0, 0, W, H);
+    ctx.drawImage(scene3D.baseCanvas, 0, 0);
+
+    // 2. Draw totality path ribbon & centerline
+    drawTotalityRibbonOnCanvas(ctx, W, H);
+
+    // 3. Draw contours
+    if (!isGlobeAnimating && globeSliderVal === 0) {
+        drawContoursOnCanvas(ctx, scene3D.staticContours, W, H);
+    } else {
+        drawContoursOnCanvas(ctx, scene3D.instantaneousContours, W, H);
+        
+        // Draw shadow center black dot
+        if (currentEvent && currentEvent.type === 'solar') {
+            const ev = currentEvent;
+            const durationHours = 6;
+            const startJD = ev.peakJD - durationHours / 48;
+            const fraction = globeSliderVal / 100;
+            const activeJD = startJD + fraction * (durationHours / 24);
+            const activeDate = dateFromJD(activeJD);
+            
+            const shadow = AstronomyHelper.calculateShadowCenter(activeDate);
+            if (shadow && isFinite(shadow.lat) && isFinite(shadow.lon)) {
+                drawShadowCenterOnCanvas(ctx, shadow.lat, shadow.lon, W, H);
+            }
+        }
+    }
+
+    // 4. Update Three.js Texture
+    if (scene3D.earthTexture) {
+        scene3D.earthTexture.needsUpdate = true;
+    }
+}
+
+/**
+ * Draw the static/dynamic penumbral contours onto the canvas.
+ */
+function drawContoursOnCanvas(ctx, features, W, H) {
+    if (!features || features.length === 0) return;
+
+    // Polished contour shades — warm tones with good contrast on the light map
+    const styleMap = {
+        0.01: { fillColor: 'rgba(255, 235, 190, 0.40)', strokeColor: 'rgba(230, 200, 140, 0.60)' }, // >0%  — pale gold
+        0.25: { fillColor: 'rgba(255, 200, 145, 0.45)', strokeColor: 'rgba(230, 170, 100, 0.65)' }, // >25% — warm peach
+        0.50: { fillColor: 'rgba(240, 155, 140, 0.50)', strokeColor: 'rgba(210, 120, 100, 0.70)' }, // >50% — salmon
+        0.75: { fillColor: 'rgba(210, 80, 100, 0.55)',  strokeColor: 'rgba(190, 55, 75, 0.75)' }   // >75% — deep rose
+    };
+
+    // Sort features from outermost (lowest threshold) to innermost (highest) to layer properly
+    const sorted = [...features].sort((a, b) => {
+        const ma = a.properties ? (a.properties.magnitude || a.properties.threshold || 0) : 0;
+        const mb = b.properties ? (b.properties.magnitude || b.properties.threshold || 0) : 0;
+        return ma - mb;
+    });
+
+    sorted.forEach(feature => {
+        const threshold = feature.properties ? feature.properties.magnitude || feature.properties.threshold : 0.01;
+        const style = styleMap[threshold] || styleMap[0.01];
+
+        ctx.fillStyle = style.fillColor;
+        ctx.strokeStyle = style.strokeColor;
+        ctx.lineWidth = 1.0;
+
+        const type = feature.geometry.type;
+        const coords = feature.geometry.coordinates;
+
+        if (type === 'Polygon') {
+            drawContourPolygon(ctx, coords, W, H);
+        } else if (type === 'MultiPolygon') {
+            coords.forEach(poly => {
+                drawContourPolygon(ctx, poly, W, H);
+            });
+        }
+    });
+}
+
+/**
+ * Draw a contour polygon, handling pole-encircling cases.
+ * If the ring encircles the north or south pole, extend the polygon to the map edge.
+ */
+function drawContourPolygon(ctx, rings, W, H) {
+    if (!rings || rings.length === 0) return;
+
+    // To prevent antimeridian crossing cuts/fraying, draw the polygon path
+    // with three offset copies: shifted left by W, centered, and shifted right by W.
+    // This allows unrolled coordinates outside [-180, 180] to wrap seamlessly.
+    const offsets = [-W, 0, W];
+
+    ctx.beginPath();
+    offsets.forEach(offset => {
+        rings.forEach(ring => {
+            if (!ring || ring.length < 3) return;
+            for (let i = 0; i < ring.length; i++) {
+                const [lon, lat] = ring[i];
+                const x = ((lon + 180) / 360) * W + offset;
+                const y = ((90 - lat) / 180) * H;
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.closePath();
+        });
+    });
+
+    ctx.fill('evenodd');
+    ctx.stroke();
+}
+
+/**
+ * Draw the totality path ribbon and centerline wrapping-safely onto the canvas.
+ */
+function drawTotalityRibbonOnCanvas(ctx, W, H) {
+    if (!currentEventTrack || currentEventTrack.length === 0) return;
+
+    const central = currentEventTrack.filter(pt => pt.type === 'Total' || pt.type === 'Annular');
+    if (central.length < 2) return;
+
+    const segments = segmentTrack(central);
+    ctx.fillStyle = 'rgba(224, 94, 117, 0.50)'; // Exact pink/magenta totality ribbon shade
+    ctx.strokeStyle = 'rgba(224, 94, 117, 0.75)';
+    ctx.lineWidth = 1.2;
+
+    segments.forEach(seg => {
+        if (seg.length < 2) return;
+        ctx.beginPath();
+        // Forward along northern limit
+        for (let i = 0; i < seg.length; i++) {
+            const pt = seg[i];
+            const x = ((pt.northLon + 180) / 360) * W;
+            const y = ((90 - pt.northLat) / 180) * H;
+            if (i === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        // Backward along southern limit
+        for (let i = seg.length - 1; i >= 0; i--) {
+            const pt = seg[i];
+            const x = ((pt.southLon + 180) / 360) * W;
+            const y = ((90 - pt.southLat) / 180) * H;
+            ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Also draw centerline dashed line
+        ctx.strokeStyle = 'rgba(191, 54, 12, 0.5)';
+        ctx.lineWidth = 1.0;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        for (let i = 0; i < seg.length; i++) {
+            const pt = seg[i];
+            const x = ((pt.lon + 180) / 360) * W;
+            const y = ((90 - pt.lat) / 180) * H;
+            if (i === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        ctx.stroke();
+        ctx.setLineDash([]); // Reset
+    });
+}
+
+/**
+ * Draw a small black circle at the shadow center.
+ */
+function drawShadowCenterOnCanvas(ctx, lat, lon, W, H) {
+    const x = ((lon + 180) / 360) * W;
+    const y = ((90 - lat) / 180) * H;
+    
+    // Draw pulsing ring around shadow center
+    ctx.strokeStyle = 'rgba(255, 59, 48, 0.8)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(x, y, 7, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Draw small black umbra circle
+    ctx.fillStyle = '#000000';
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+/**
+ * Updates the 3D globe view parameters.
+ */
+function updateGlobeView() {
+    if (!currentEvent || !scene3D.scene) return;
+
+    // Calculate active time
+    const ev = currentEvent;
+    const durationHours = 6;
+    const startJD = ev.peakJD - durationHours / 48;
+    const fraction = globeSliderVal / 100;
+    const activeJD = startJD + fraction * (durationHours / 24);
+    const activeDate = dateFromJD(activeJD);
+
+    // Update time displays
+    const timeStr = activeDate.toUTCString().split(' ')[4] || '--:--:--';
+    const globeTimeDisplay = document.getElementById('globe-time-display');
+    if (globeTimeDisplay) globeTimeDisplay.innerText = timeStr + ' UTC';
+
+    const valGlobeTime = document.getElementById('val-globe-time');
+    if (valGlobeTime) valGlobeTime.innerText = timeStr + ' UTC';
+
+    if (ev.type === 'solar') {
+        const shadow = AstronomyHelper.calculateShadowCenter(activeDate);
+        if (shadow && isFinite(shadow.lat) && isFinite(shadow.lon)) {
+            // Globe stays fixed — shadow sweeps across the surface naturally
+
+            // Update info sidebar
+            const valLat = document.getElementById('val-globe-lat');
+            const valLon = document.getElementById('val-globe-lon');
+            const valObs = document.getElementById('val-globe-obs');
+            if (valLat) valLat.innerText = shadow.lat.toFixed(2) + '°';
+            if (valLon) valLon.innerText = shadow.lon.toFixed(2) + '°';
+            if (valObs) valObs.innerText = '100%';
+        } else {
+            const valLat = document.getElementById('val-globe-lat');
+            const valLon = document.getElementById('val-globe-lon');
+            const valObs = document.getElementById('val-globe-obs');
+            if (valLat) valLat.innerText = '--°';
+            if (valLon) valLon.innerText = '--°';
+            if (valObs) valObs.innerText = '--%';
+        }
+
+        // Calculate dynamic shadow contours if animating
+        if (isGlobeAnimating || globeSliderVal > 0) {
+            const footprints = AstronomyHelper.calculateProjectedShadowFootprints(activeDate);
+            const dynamicFeatures = [];
+            if (footprints) {
+                const levels = [0.01, 0.25, 0.50, 0.75];
+                levels.forEach(l => {
+                    const coords = footprints.penumbra[l];
+                    if (coords && coords.length > 2) {
+                        dynamicFeatures.push({
+                            type: "Feature",
+                            properties: { magnitude: l },
+                            geometry: {
+                                type: "Polygon",
+                                coordinates: [coords.map(pt => [pt[1], pt[0]])] // geojson uses lon, lat
+                            }
+                        });
+                    }
+                });
+            }
+            scene3D.instantaneousContours = dynamicFeatures;
+        }
+    }
+
+    // Draw the active canvas texture layers
+    drawGlobeLayers();
+}
+
+/**
+ * Toggle animation state
+ */
+function toggleGlobeAnimation() {
+    if (isGlobeAnimating) {
+        stopGlobeAnimation();
+    } else {
+        startGlobeAnimation();
+    }
+}
+
+function startGlobeAnimation() {
+    isGlobeAnimating = true;
+    const playBtn = document.getElementById('globe-play-btn');
+    if (playBtn) {
+        playBtn.querySelector('.play-icon').style.display = 'none';
+        playBtn.querySelector('.pause-icon').style.display = 'block';
+    }
+
+    if (globeAnimInterval) clearInterval(globeAnimInterval);
+    globeAnimInterval = setInterval(() => {
+        globeSliderVal += 0.15 * globeSpeedMultiplier;
+        if (globeSliderVal >= 100) {
+            globeSliderVal = 0;
+        }
+        document.getElementById('globe-time-slider').value = globeSliderVal;
+        updateGlobeView();
+    }, 30);
+}
+
+function stopGlobeAnimation() {
+    isGlobeAnimating = false;
+    const playBtn = document.getElementById('globe-play-btn');
+    if (playBtn) {
+        playBtn.querySelector('.play-icon').style.display = 'block';
+        playBtn.querySelector('.pause-icon').style.display = 'none';
+    }
+    if (globeAnimInterval) {
+        clearInterval(globeAnimInterval);
+        globeAnimInterval = null;
+    }
 }
 
 // Select Preset Event
@@ -688,9 +1377,24 @@ function selectEvent(ev) {
     document.getElementById('val-duration').innerText = ev.duration;
 
     // Reset Sliders
-    timeSliderVal = 50;
-    document.getElementById('time-slider').value = 50;
-    document.getElementById('sim-time-slider').value = 50;
+    timeSliderVal = 0;
+    document.getElementById('time-slider').value = 0;
+    document.getElementById('sim-time-slider').value = 0;
+    updateSliderGradient();
+
+    // Reset Globe Slider & Animation
+    globeSliderVal = 0;
+    const globeTimeSlider = document.getElementById('globe-time-slider');
+    if (globeTimeSlider) globeTimeSlider.value = 0;
+    stopGlobeAnimation();
+
+    // Reset shadow center marker so it will be recreated for the new event
+    if (shadowCenterMarker && dynamicMap) {
+        if (dynamicMap.hasLayer(shadowCenterMarker)) {
+            dynamicMap.removeLayer(shadowCenterMarker);
+        }
+        shadowCenterMarker = null;
+    }
 
     // Set custom inputs
     let localDateTime;
@@ -729,6 +1433,14 @@ function getActiveTime() {
     return dateFromJD(activeJD);
 }
 
+function updateSliderGradient() {
+    const slider = document.getElementById('time-slider');
+    if (slider) {
+        const pct = ((slider.value - slider.min) / (slider.max - slider.min) * 100).toFixed(1) + '%';
+        slider.style.setProperty('--pct', pct);
+    }
+}
+
 function updateTimeFromSlider() {
     const activeDate = getActiveTime();
     
@@ -744,6 +1456,9 @@ function updateTimeFromSlider() {
     document.getElementById('time-display').innerText = timeStr;
     document.getElementById('sim-time-display').innerText = activeDate.toUTCString().split(" ")[4] + " UTC";
     
+    // Sync slider gradient
+    updateSliderGradient();
+    
     updateViews();
 }
 
@@ -752,16 +1467,17 @@ function startAnimation() {
     if (isAnimating) return;
     isAnimating = true;
     
-    // Set play buttons to pause icon
-    const playBtns = [document.getElementById('play-btn'), document.getElementById('sim-play-btn')];
-    playBtns.forEach(btn => {
-        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
-    });
+    updatePlayButtonsState();
 
     animInterval = setInterval(() => {
-        timeSliderVal += 0.4;
+        timeSliderVal += 0.08 * simSpeedMultiplier;
         if (timeSliderVal > 100) {
-            timeSliderVal = 0; // loop
+            if (isLooping) {
+                timeSliderVal = 0;
+            } else {
+                timeSliderVal = 100;
+                stopAnimation();
+            }
         }
         
         const sliders = [document.getElementById('time-slider'), document.getElementById('sim-time-slider')];
@@ -775,11 +1491,33 @@ function stopAnimation() {
     isAnimating = false;
     clearInterval(animInterval);
     
-    // Set play buttons to play icon
-    const playBtns = [document.getElementById('play-btn'), document.getElementById('sim-play-btn')];
-    playBtns.forEach(btn => {
-        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
-    });
+    updatePlayButtonsState();
+}
+
+function updatePlayButtonsState() {
+    const playBtn = document.getElementById('play-btn');
+    if (playBtn) {
+        const playIcon = playBtn.querySelector('.play-icon');
+        const pauseIcon = playBtn.querySelector('.pause-icon');
+        if (playIcon && pauseIcon) {
+            if (isAnimating) {
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+            } else {
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+            }
+        }
+    }
+    
+    const simPlayBtn = document.getElementById('sim-play-btn');
+    if (simPlayBtn) {
+        if (isAnimating) {
+            simPlayBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
+        } else {
+            simPlayBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+        }
+    }
 }
 
 // Update all visualizations
@@ -790,8 +1528,8 @@ function updateViews() {
     // 1. Update 2D Map shadow overlays
     updateMapOverlays(activeTime);
 
-    // 2. Update 3D Orrery orbits
-    update3DOrbits(activeTime);
+    // 2. Update 3D Globe View
+    updateGlobeView();
     // 3. Update Local Sky Canvas
     updateLocalSimulator(activeTime);
 }
@@ -1018,21 +1756,26 @@ function updateMapOverlays(date) {
     dynamicMapOverlayLayers.forEach(layer => dynamicMap.removeLayer(layer));
     dynamicMapOverlayLayers = [];
 
-    // Clear and draw dynamic day/night terminator on dynamicMap
+    // Clear and draw dynamic day/night terminator on dynamicMap (wrapped across multiple world copies)
     if (dynamicTerminatorLayer) {
         dynamicMap.removeLayer(dynamicTerminatorLayer);
         dynamicTerminatorLayer = null;
     }
     const dynamicTerminatorCoords = AstronomyHelper.calculateDayNightTerminator(date);
     if (dynamicTerminatorCoords) {
-        dynamicTerminatorLayer = L.polygon(dynamicTerminatorCoords, {
-            fillColor: '#000000',
-            fillOpacity: 0.28,
-            color: 'none',
-            stroke: false,
-            interactive: false,
-            pane: 'terminatorPane'
-        }).addTo(dynamicMap);
+        const polygons = [];
+        [-720, -360, 0, 360, 720].forEach(offset => {
+            const shiftedCoords = dynamicTerminatorCoords.map(coord => [coord[0], coord[1] + offset]);
+            polygons.push(L.polygon(shiftedCoords, {
+                fillColor: '#000000',
+                fillOpacity: 0.28,
+                color: 'none',
+                stroke: false,
+                interactive: false,
+                pane: 'terminatorPane'
+            }));
+        });
+        dynamicTerminatorLayer = L.layerGroup(polygons).addTo(dynamicMap);
     }
 
     // Cache and draw the static centerline track, obscuration contours, and static terminator ONLY on selection change
@@ -1066,7 +1809,7 @@ function updateMapOverlays(date) {
 
             if (staticDayTrack.length > 1) {
                 const segments = segmentTrack(staticDayTrack);
-                for (let offset = -360; offset <= 360; offset += 360) {
+                for (let offset = -720; offset <= 720; offset += 360) {
                     segments.forEach(seg => {
                         if (seg.length === 0) return;
                         
@@ -1090,7 +1833,10 @@ function updateMapOverlays(date) {
                             color: '#bf360c', // Dark orange-red
                             weight: 2,
                             opacity: 0.8,
-                            dashArray: '6, 6'
+                            dashArray: '6, 6',
+                            pane: 'pathPane',
+                            interactive: false,
+                            smoothFactor: 0
                         }).addTo(map);
                         mapOverlayLayers.push(line);
                         
@@ -1104,16 +1850,21 @@ function updateMapOverlays(date) {
                             const polygon = L.polygon(polygonPoints, {
                                 color: 'none',
                                 fillColor: '#4a1204',
-                                fillOpacity: 0.55,
-                                stroke: false
+                                fillOpacity: 0.22,
+                                stroke: false,
+                                pane: 'pathPane',
+                                interactive: false,
+                                smoothFactor: 0
                             }).addTo(map);
-                            polygon.bindPopup(`<h4>Path of Central Eclipse</h4>`);
                             mapOverlayLayers.push(polygon);
 
                             const northLine = L.polyline(northSide, {
                                 color: '#d84315',
                                 weight: 1.5,
-                                opacity: 0.8
+                                opacity: 0.8,
+                                pane: 'pathPane',
+                                interactive: false,
+                                smoothFactor: 0
                             }).addTo(map);
                             mapOverlayLayers.push(northLine);
                             
@@ -1121,7 +1872,10 @@ function updateMapOverlays(date) {
                             const southLine = L.polyline(southSideForward, {
                                 color: '#d84315',
                                 weight: 1.5,
-                                opacity: 0.8
+                                opacity: 0.8,
+                                pane: 'pathPane',
+                                interactive: false,
+                                smoothFactor: 0
                             }).addTo(map);
                             mapOverlayLayers.push(southLine);
                         }
@@ -1144,7 +1898,7 @@ function updateMapOverlays(date) {
 
         if (dynamicDayTrack.length > 1) {
             const segments = segmentTrack(dynamicDayTrack);
-            for (let offset = -360; offset <= 360; offset += 360) {
+            for (let offset = -720; offset <= 720; offset += 360) {
                 segments.forEach(seg => {
                     if (seg.length === 0) return;
                     
@@ -1168,7 +1922,10 @@ function updateMapOverlays(date) {
                         color: '#bf360c', // Dark orange-red
                         weight: 2,
                         opacity: 0.8,
-                        dashArray: '6, 6'
+                        dashArray: '6, 6',
+                        pane: 'pathPane',
+                        interactive: false,
+                        smoothFactor: 0
                     }).addTo(dynamicMap);
                     dynamicMapOverlayLayers.push(lineDynamic);
                     
@@ -1182,16 +1939,21 @@ function updateMapOverlays(date) {
                         const polygonDynamic = L.polygon(polygonPoints, {
                             color: 'none',
                             fillColor: '#4a1204',
-                            fillOpacity: 0.55,
-                            stroke: false
+                            fillOpacity: 0.22,
+                            stroke: false,
+                            pane: 'pathPane',
+                            interactive: false,
+                            smoothFactor: 0
                         }).addTo(dynamicMap);
-                        polygonDynamic.bindPopup(`<h4>Path of Central Eclipse</h4>`);
                         dynamicMapOverlayLayers.push(polygonDynamic);
 
                         const northLineDynamic = L.polyline(northSide, {
                             color: '#d84315',
                             weight: 1.5,
-                            opacity: 0.8
+                            opacity: 0.8,
+                            pane: 'pathPane',
+                            interactive: false,
+                            smoothFactor: 0
                         }).addTo(dynamicMap);
                         dynamicMapOverlayLayers.push(northLineDynamic);
 
@@ -1199,7 +1961,10 @@ function updateMapOverlays(date) {
                         const southLineDynamic = L.polyline(southSideForward, {
                             color: '#d84315',
                             weight: 1.5,
-                            opacity: 0.8
+                            opacity: 0.8,
+                            pane: 'pathPane',
+                            interactive: false,
+                            smoothFactor: 0
                         }).addTo(dynamicMap);
                         dynamicMapOverlayLayers.push(southLineDynamic);
                     }
@@ -1215,41 +1980,35 @@ function updateMapOverlays(date) {
             // Draw umbral core if present
             if (footprints.umbra && footprints.umbra.coordinates.length > 2) {
                 const type = footprints.umbra.type;
-                for (let offset = -360; offset <= 360; offset += 360) {
+                for (let offset = -720; offset <= 720; offset += 360) {
                     const offsetCoords = footprints.umbra.coordinates.map(pt => [pt[0], pt[1] + offset]);
                     const poly = L.polygon(offsetCoords, {
                         color: type === 'Total' ? '#ff3b30' : '#ffcc00',
                         weight: 1.5,
                         fillColor: '#000000',
-                        fillOpacity: 0.85
+                        fillOpacity: 0.45,
+                        pane: 'umbraPane',
+                        interactive: false,
+                        smoothFactor: 0
                     }).addTo(dynamicMap);
-                    
-                    poly.bindPopup(`<h4>${type} Shadow Core</h4>Radius: ${footprints.umbra.ru.toFixed(1)} km`);
                     shadowCenterCircles.push(poly);
                 }
             }
             // Draw penumbral contours (from largest 0.01 to smallest 0.75)
             const levels = [0.01, 0.25, 0.50, 0.75];
             const styleMap = {
-                0.01: { fillColor: '#ffe082', fillOpacity: 0.12, stroke: true, color: '#ffe082', weight: 1.5, opacity: 0.15, interactive: false },
-                0.25: { fillColor: '#ffa726', fillOpacity: 0.18, stroke: true, color: '#ffa726', weight: 1.5, opacity: 0.22, interactive: false },
-                0.50: { fillColor: '#fb8c00', fillOpacity: 0.24, stroke: true, color: '#fb8c00', weight: 1.5, opacity: 0.28, interactive: false },
-                0.75: { fillColor: '#d84315', fillOpacity: 0.30, stroke: true, color: '#d84315', weight: 1.5, opacity: 0.35, interactive: false }
+                0.01: { fillColor: '#ffe082', fillOpacity: 0.14, stroke: true, color: '#ffe082', weight: 1.0, opacity: 0.22, interactive: false, pane: 'penumbraPane', smoothFactor: 0 },
+                0.25: { fillColor: '#ffa726', fillOpacity: 0.14, stroke: true, color: '#ffa726', weight: 1.0, opacity: 0.27, interactive: false, pane: 'penumbraPane', smoothFactor: 0 },
+                0.50: { fillColor: '#fb8c00', fillOpacity: 0.14, stroke: true, color: '#fb8c00', weight: 1.0, opacity: 0.32, interactive: false, pane: 'penumbraPane', smoothFactor: 0 },
+                0.75: { fillColor: '#d84315', fillOpacity: 0.14, stroke: true, color: '#d84315', weight: 1.0, opacity: 0.37, interactive: false, pane: 'penumbraPane', smoothFactor: 0 }
             };
 
             levels.forEach(l => {
                 const coords = footprints.penumbra[l];
                 if (coords && coords.length > 2) {
-                    for (let offset = -360; offset <= 360; offset += 360) {
+                    for (let offset = -720; offset <= 720; offset += 360) {
                         const offsetCoords = coords.map(pt => [pt[0], pt[1] + offset]);
                         const poly = L.polygon(offsetCoords, styleMap[l]).addTo(dynamicMap);
-                        
-                        const label = l === 0.01 ? "0.01 (Outer Penumbra)" : `${l.toFixed(2)}`;
-                        poly.bindTooltip(`Eclipse Magnitude: &ge; ${label}`, {
-                            sticky: true,
-                            className: 'penumbra-contour-tooltip'
-                        });
-                        
                         penumbraCircles.push(poly);
                     }
                 }
@@ -1257,6 +2016,41 @@ function updateMapOverlays(date) {
         }
 
         const shadow = AstronomyHelper.calculateShadowCenter(date);
+
+        // Update / create pulsing shadow center marker
+        if (shadow) {
+            const pulseHtml = `
+                <div style="position:relative; width:22px; height:22px;">
+                    <div class="shadow-center-pulse" style="position:absolute;top:0;left:0;width:22px;height:22px;border-radius:50%;background:rgba(255,59,48,0.55);border:2px solid #ff3b30;"></div>
+                    <div style="position:absolute;top:5px;left:5px;width:12px;height:12px;border-radius:50%;background:#ff3b30;box-shadow:0 0 8px #ff3b30;"></div>
+                </div>`;
+            const pulseIcon = L.divIcon({
+                className: '',
+                html: pulseHtml,
+                iconSize: [22, 22],
+                iconAnchor: [11, 11]
+            });
+
+            if (!shadowCenterMarker) {
+                shadowCenterMarker = L.marker([shadow.lat, shadow.lon], {
+                    icon: pulseIcon,
+                    interactive: false,
+                    zIndexOffset: 1500
+                }).addTo(dynamicMap);
+            } else {
+                shadowCenterMarker.setLatLng([shadow.lat, shadow.lon]);
+                shadowCenterMarker.setIcon(pulseIcon);
+                if (!dynamicMap.hasLayer(shadowCenterMarker)) {
+                    shadowCenterMarker.addTo(dynamicMap);
+                }
+            }
+        } else {
+            // No shadow center (eclipse not visible on Earth face)
+            if (shadowCenterMarker && dynamicMap.hasLayer(shadowCenterMarker)) {
+                dynamicMap.removeLayer(shadowCenterMarker);
+            }
+        }
+
         // Update local obscuration statistics for current time & observer
         const local = AstronomyHelper.calculateLocalSolarEclipse(date, observerLocation.lat, observerLocation.lon);
         if (local) {
@@ -1264,6 +2058,10 @@ function updateMapOverlays(date) {
             document.getElementById('val-shadow-speed').innerText = shadow ? (3400 * Math.cos(shadow.lat * Math.PI / 180)).toFixed(0) + " km/h" : "-- km/h";
         }
     } else {
+        // Non-solar: hide shadow center marker
+        if (shadowCenterMarker && dynamicMap.hasLayer(shadowCenterMarker)) {
+            dynamicMap.removeLayer(shadowCenterMarker);
+        }
         if (currentEvent.type === 'lunar') {
             document.getElementById('val-obs-obscuration').innerText = "--";
             document.getElementById('val-shadow-speed').innerText = "--";
@@ -1277,51 +2075,7 @@ function updateMapOverlays(date) {
 
 
 
-// 3D Orrery Orbit Updates
-function update3DOrbits(date) {
-    // Calculate Moon orbital angular angle based on date
-    // Normalize slider 0-100 to angle in radians [0, 2*PI]
-    const angle = (timeSliderVal / 100) * 2 * Math.PI;
-
-    if (scene3D.isGlobeMode) {
-        // Globe Mode: project shadow onto rotating 3D Earth
-        if (currentEvent.type === 'solar') {
-            const shadow = AstronomyHelper.calculateShadowCenter(date);
-            if (shadow) {
-                // Spherical to Cartesian coordinates
-                const latRad = shadow.lat * Math.PI / 180;
-                const lonRad = shadow.lon * Math.PI / 180;
-                
-                const R = 3.02; // Slightly above earth mesh radius (3.0)
-                const x = R * Math.cos(latRad) * Math.cos(lonRad);
-                const y = R * Math.sin(latRad);
-                const z = -R * Math.cos(latRad) * Math.sin(lonRad);
-                
-                scene3D.globeShadowDisc.position.set(x, y, z);
-                scene3D.globeShadowDisc.lookAt(new THREE.Vector3(0, 0, 0));
-                scene3D.globeShadowDisc.visible = true;
-            } else {
-                scene3D.globeShadowDisc.visible = false;
-            }
-        }
-    } else {
-        // Orrery Mode: place Moon on its orbits
-        const radius = 8.0;
-        const x = radius * Math.cos(angle);
-        const z = radius * Math.sin(angle);
-        scene3D.moon.position.set(x, 0, z);
-
-        // Update telemetry indicators
-        const eclipticDist = Math.abs(x * Math.sin(5.14 * Math.PI / 180) * 384400 / 8.0).toFixed(0);
-        document.getElementById('val-3d-ecliptic-dist').innerText = eclipticDist + " km";
-        
-        const alignmentAngle = Math.abs(angle * 180 / Math.PI - 180).toFixed(1);
-        document.getElementById('val-3d-alignment-angle').innerText = alignmentAngle + "°";
-        
-        const nodeAngle = (5.14 * Math.sin(angle)).toFixed(2);
-        document.getElementById('val-3d-node-angle').innerText = nodeAngle + "°";
-    }
-}
+// Deprecated update3DOrbits (orrery moved to orrery-3d.js)
 
 // Local Sky Simulator Canvas rendering
 function updateLocalSimulator(date) {
@@ -1549,66 +2303,89 @@ function fetchNASAImages(ev) {
     const peakDate = dateFromJD(ev.peakJD);
     const dateString = peakDate.toISOString().split('T')[0]; // YYYY-MM-DD
     
-    // Query APOD for the specific date of the eclipse using the API key
-    fetch(`https://api.nasa.gov/planetary/apod?api_key=${apiKey}&date=${dateString}`)
-        .then(res => {
-            if (!res.ok) throw new Error("APOD not available for this exact date");
-            return res.json();
-        })
+    const today = new Date();
+    const isFuture = peakDate.getTime() > today.getTime();
+    
+    if (isFuture) {
+        // Skip APOD query for future events to avoid console 400 errors
+        triggerNASAArchiveSearch(ev, gallery);
+    } else {
+        // Query APOD for the specific date of the eclipse using the API key
+        fetch(`https://api.nasa.gov/planetary/apod?api_key=${apiKey}&date=${dateString}`)
+            .then(res => {
+                if (!res.ok) throw new Error("APOD not available for this exact date");
+                return res.json();
+            })
+            .then(data => {
+                if (data.media_type === 'image') {
+                    gallery.innerHTML = '';
+                    const card = document.createElement('div');
+                    card.className = 'nasa-apod-card';
+                    card.innerHTML = `
+                        <img src="${data.url}" alt="${data.title}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="nasa-card-placeholder" style="display: none; height: 140px; justify-content: center; align-items: center; background: linear-gradient(135deg, rgba(2,16,52,0.6), rgba(6,12,32,0.8)); color: rgba(255,255,255,0.4); font-size: 11px; flex-direction: column;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 24px; height: 24px; margin-bottom: 6px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            </svg>
+                            <span>Photograph Offline</span>
+                        </div>
+                        <div class="info">
+                            <div class="title" title="${data.title}">${data.title}</div>
+                            <div class="date">NASA APOD • ${data.date}</div>
+                        </div>
+                    `;
+                    gallery.appendChild(card);
+                } else {
+                    throw new Error("APOD is not an image");
+                }
+            })
+            .catch(err => {
+                triggerNASAArchiveSearch(ev, gallery);
+            });
+    }
+}
+
+function triggerNASAArchiveSearch(ev, gallery) {
+    const query = ev.type === 'transit' ? 'transit of mercury' : 'solar eclipse';
+    fetch(`https://images-api.nasa.gov/search?q=${query}&media_type=image`)
+        .then(res => res.json())
         .then(data => {
-            if (data.media_type === 'image') {
+            const items = data.collection.items;
+            if (items && items.length > 0) {
                 gallery.innerHTML = '';
-                const card = document.createElement('div');
-                card.className = 'nasa-apod-card';
-                card.innerHTML = `
-                    <img src="${data.url}" alt="${data.title}" loading="lazy">
-                    <div class="info">
-                        <div class="title" title="${data.title}">${data.title}</div>
-                        <div class="date">NASA APOD • ${data.date}</div>
-                    </div>
-                `;
-                gallery.appendChild(card);
+                let count = 0;
+                for (let i = 0; i < items.length && count < 2; i++) {
+                    const item = items[i];
+                    if (item.links && item.links[0]) {
+                        const imgUrl = item.links[0].href;
+                        const title = item.data[0].title;
+                        const dateStr = new Date(item.data[0].date_created).toLocaleDateString();
+                        
+                        const card = document.createElement('div');
+                        card.className = 'nasa-apod-card';
+                        card.innerHTML = `
+                            <img src="${imgUrl}" alt="${title}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="nasa-card-placeholder" style="display: none; height: 140px; justify-content: center; align-items: center; background: linear-gradient(135deg, rgba(2,16,52,0.6), rgba(6,12,32,0.8)); color: rgba(255,255,255,0.4); font-size: 11px; flex-direction: column;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 24px; height: 24px; margin-bottom: 6px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                </svg>
+                                <span>Photograph Offline</span>
+                            </div>
+                            <div class="info">
+                                <div class="title" title="${title}">${title}</div>
+                                <div class="date">NASA Archive • ${dateStr}</div>
+                            </div>
+                        `;
+                        gallery.appendChild(card);
+                        count++;
+                    }
+                }
             } else {
-                throw new Error("APOD is not an image");
+                gallery.innerHTML = '<div class="gallery-placeholder">No matching NASA photographs found.</div>';
             }
         })
-        .catch(err => {
-            // Fallback: search the public image library for the event name or type
-            const query = ev.type === 'transit' ? 'transit of mercury' : 'solar eclipse';
-            fetch(`https://images-api.nasa.gov/search?q=${query}&media_type=image`)
-                .then(res => res.json())
-                .then(data => {
-                    const items = data.collection.items;
-                    if (items && items.length > 0) {
-                        gallery.innerHTML = '';
-                        let count = 0;
-                        for (let i = 0; i < items.length && count < 2; i++) {
-                            const item = items[i];
-                            if (item.links && item.links[0]) {
-                                const imgUrl = item.links[0].href;
-                                const title = item.data[0].title;
-                                const dateStr = new Date(item.data[0].date_created).toLocaleDateString();
-                                
-                                const card = document.createElement('div');
-                                card.className = 'nasa-apod-card';
-                                card.innerHTML = `
-                                    <img src="${imgUrl}" alt="${title}" loading="lazy">
-                                    <div class="info">
-                                        <div class="title" title="${title}">${title}</div>
-                                        <div class="date">NASA Archive • ${dateStr}</div>
-                                    </div>
-                                `;
-                                gallery.appendChild(card);
-                                count++;
-                            }
-                        }
-                    } else {
-                        gallery.innerHTML = '<div class="gallery-placeholder">No matching NASA photographs found.</div>';
-                    }
-                })
-                .catch(() => {
-                    gallery.innerHTML = '<div class="gallery-placeholder">Unable to load NASA gallery.</div>';
-                });
+        .catch(() => {
+            gallery.innerHTML = '<div class="gallery-placeholder">Unable to load NASA gallery.</div>';
         });
 }
 

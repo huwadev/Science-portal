@@ -1918,3 +1918,77 @@ body.stargazer-mode::after {
     90% { opacity: 1; bottom: 30px; }
     100% { opacity: 0; bottom: 10px; }
 }
+
+/* Eclipse Schematic Visualizer */
+.eclipse-schematic {
+    width: 380px;
+    height: 380px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.schematic-sun-body {
+    position: absolute;
+    left: 30px;
+    top: calc(50% - 35px);
+    width: 70px;
+    height: 70px;
+    background: radial-gradient(circle, #ffffff 30%, #ffd54f 60%, #ffa726 100%);
+    border-radius: 50%;
+    z-index: 10;
+    box-shadow: 0 0 35px 8px rgba(255, 193, 7, 0.7);
+}
+
+.schematic-moon-body {
+    position: absolute;
+    left: 180px;
+    top: calc(50% - 10px);
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle at 30% 30%, #475569, #1e293b 80%, #0f172a 100%);
+    border-radius: 50%;
+    z-index: 11;
+    box-shadow: inset -2px -2px 5px rgba(0,0,0,0.8), 0 0 10px rgba(0, 0, 0, 0.5);
+    animation: moonDrift 4s ease-in-out infinite alternate;
+}
+
+.schematic-earth-body {
+    position: absolute;
+    right: 25px;
+    top: calc(50% - 45px);
+    width: 90px;
+    height: 90px;
+    background: radial-gradient(circle at 30% 30%, #93c5fd, #2563eb 50%, #1d4ed8 80%, #1e3a8a 100%);
+    border-radius: 50%;
+    z-index: 10;
+    box-shadow: inset -8px -8px 15px rgba(0,0,0,0.6), 0 0 25px rgba(37, 99, 235, 0.3);
+    animation: rotateCW 60s linear infinite;
+}
+
+.earth-glow {
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(147, 197, 253, 0.2) 0%, rgba(147, 197, 253, 0) 70%);
+    pointer-events: none;
+}
+
+.eclipse-geometry-svg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 5;
+}
+
+@keyframes moonDrift {
+    0% { transform: translateX(-4px); }
+    100% { transform: translateX(4px); }
+}

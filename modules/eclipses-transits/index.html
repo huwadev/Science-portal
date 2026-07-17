@@ -119,7 +119,7 @@
                 </button>
                 <button class="tab-btn" data-tab="space-view">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10zM2 12h20"/></svg>
-                    3D Celestial View
+                    3D Globe View
                 </button>
                 <button class="tab-btn" data-tab="simulator-view">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
@@ -150,6 +150,7 @@
                             <div class="map-wrapper glass-panel" id="static-map-wrapper">
                                 <div class="map-card-content">
                                     <div id="map"></div>
+                                    <div class="map-hover-tooltip" id="static-map-hover-tooltip" style="display: none;"></div>
                                     <div class="map-overlay-controls">
                                         <button class="map-btn" id="btn-static-center" title="Center Map to Observer/Peak">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/></svg>
@@ -158,9 +159,23 @@
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
                                         </button>
                                     </div>
-                                    <div class="map-info-bar">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; color: var(--color-cosmic-base);"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                                        <span class="info-text" style="font-size: 12px; color: var(--color-neutral-base); font-weight: 500;">Contours: 1% (Outer Limit) to 75% Cumulative Obscuration</span>
+                                    <!-- Eclipse Obscuration Legend Bar -->
+                                    <div class="eclipse-legend-bar">
+                                        <div class="legend-bar-text">
+                                            <span class="legend-bar-title">Portion of Sun covered by the Moon (Eclipse obscuration)</span>
+                                            <span class="legend-bar-note">The dark areas symbolize night and twilight.</span>
+                                        </div>
+                                        <div class="legend-bar-gradient">
+                                            <div class="legend-gradient-strip"></div>
+                                            <div class="legend-gradient-labels">
+                                                <span>0%</span>
+                                                <span>&gt;0%</span>
+                                                <span>25%</span>
+                                                <span>50%</span>
+                                                <span>75%</span>
+                                                <span>100%</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -168,6 +183,8 @@
                             <div class="map-wrapper glass-panel collapsed" id="dynamic-map-wrapper">
                                 <div class="map-card-content">
                                     <div id="dynamic-map"></div>
+                                    <div class="map-hover-tooltip" id="dynamic-map-hover-tooltip" style="display: none;"></div>
+
                                     <div class="map-overlay-controls">
                                         <button class="map-btn" id="btn-dynamic-center" title="Center Map to Shadow Center">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/></svg>
@@ -176,20 +193,40 @@
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
                                         </button>
                                     </div>
-                                    <div class="map-time-controls">
+
+                                    <!-- Eclipse Obscuration Legend Bar -->
+                                    <div class="eclipse-legend-bar">
+                                        <div class="legend-bar-text">
+                                            <span class="legend-bar-title">Portion of Sun covered by the Moon (Eclipse obscuration)</span>
+                                            <span class="legend-bar-note">The dark areas symbolize night and twilight.</span>
+                                        </div>
+                                        <div class="legend-bar-gradient">
+                                            <div class="legend-gradient-strip"></div>
+                                            <div class="legend-gradient-labels">
+                                                <span>0%</span>
+                                                <span>&gt;0%</span>
+                                                <span>25%</span>
+                                                <span>50%</span>
+                                                <span>75%</span>
+                                                <span>100%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="map-time-controls" id="dynamic-time-controls">
                                         <!-- Control buttons group -->
                                         <div class="ctrl-buttons-group">
                                             <button class="btn-ctrl" id="restart-btn" title="Restart to Eclipse Start">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
                                             </button>
-                                            <button class="btn-ctrl" id="prev-btn" title="Previous Frame">
+                                            <button class="btn-ctrl" id="prev-btn" title="Step Backward">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
                                             </button>
-                                            <button class="btn-ctrl" id="play-btn" title="Play/Pause Animation">
-                                                <svg class="play-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                                                <svg class="pause-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                                            <button class="btn-ctrl btn-ctrl-play" id="play-btn" title="Play/Pause Animation">
+                                                <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                                <svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="display: none;"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg>
                                             </button>
-                                            <button class="btn-ctrl" id="next-btn" title="Next Frame">
+                                            <button class="btn-ctrl" id="next-btn" title="Step Forward">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
                                             </button>
                                             <button class="btn-ctrl" id="loop-btn" title="Toggle Loop Mode">
@@ -198,16 +235,18 @@
                                         </div>
 
                                         <!-- Time Slider -->
-                                        <input type="range" class="time-slider" id="time-slider" min="0" max="100" value="0" step="0.1">
+                                        <div class="time-slider-wrapper">
+                                            <input type="range" class="time-slider" id="time-slider" min="0" max="100" value="0" step="0.1">
+                                        </div>
 
                                         <!-- Speed Selector & Time Display -->
                                         <div class="ctrl-metadata-group">
                                             <select class="select-speed" id="speed-select" title="Simulation Speed">
-                                                <option value="1">1x Speed</option>
-                                                <option value="2">2x Speed</option>
-                                                <option value="5" selected>5x Speed</option>
-                                                <option value="10">10x Speed</option>
-                                                <option value="25">25x Speed</option>
+                                                <option value="1">1x</option>
+                                                <option value="2">2x</option>
+                                                <option value="5" selected>5x</option>
+                                                <option value="10">10x</option>
+                                                <option value="25">25x</option>
                                             </select>
                                             <span class="time-display" id="time-display">00:00:00 UTC</span>
                                         </div>
@@ -261,54 +300,77 @@
                     </div>
                 </div>
 
-                <!-- Tab 2: 3D Celestial View -->
+                <!-- Tab 2: 3D Globe View -->
                 <div class="tab-pane" id="space-view">
                     <div class="pane-layout-3d">
                         <div class="scene-3d-wrapper glass-panel">
                             <div id="canvas-container-3d"></div>
-                            <div class="overlay-legend">
-                                <div class="legend-item"><span class="color-dot sun"></span>Sun Vector</div>
-                                <div class="legend-item"><span class="color-dot orbit"></span>Moon Orbit Plane (5.1° tilt)</div>
-                                <div class="legend-item"><span class="color-dot nodes"></span>Line of Nodes</div>
-                                <div class="legend-item"><span class="color-dot shadow"></span>Umbral Shadow Cone</div>
+                            <div class="overlay-legend globe-legend">
+                                <div class="legend-item"><span class="color-dot" style="background:#ffe082;"></span>&gt;0% Obscuration</div>
+                                <div class="legend-item"><span class="color-dot" style="background:#ffa726;"></span>25% Obscuration</div>
+                                <div class="legend-item"><span class="color-dot" style="background:#ff7043;"></span>50% Obscuration</div>
+                                <div class="legend-item"><span class="color-dot" style="background:#e53935;"></span>75%+ Obscuration</div>
                             </div>
                             <div class="scene-controls-overlay">
-                                <button class="btn btn-secondary btn-sm" id="btn-toggle-orbit-plane">Toggle Orbital Plane</button>
-                                <button class="btn btn-secondary btn-sm" id="btn-reset-camera">Reset View</button>
-                                <button class="btn btn-primary btn-sm" id="btn-3d-mode">Switch to Earth Globe View</button>
+                                <button class="btn btn-secondary btn-sm" id="btn-globe-reset">Reset View</button>
+                            </div>
+
+                            <!-- Globe Playback Controls -->
+                            <div class="globe-time-controls" id="globe-time-controls">
+                                <div class="ctrl-buttons-group">
+                                    <button class="btn-ctrl" id="globe-restart-btn" title="Restart to Eclipse Start">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                                    </button>
+                                    <button class="btn-ctrl" id="globe-prev-btn" title="Step Backward">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+                                    </button>
+                                    <button class="btn-ctrl btn-ctrl-play" id="globe-play-btn" title="Play/Pause Eclipse Animation">
+                                        <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                        <svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="display: none;"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg>
+                                    </button>
+                                    <button class="btn-ctrl" id="globe-next-btn" title="Step Forward">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+                                    </button>
+                                </div>
+                                <div class="time-slider-wrapper">
+                                    <input type="range" class="time-slider" id="globe-time-slider" min="0" max="100" value="0" step="0.1">
+                                </div>
+                                <div class="ctrl-metadata-group">
+                                    <select class="select-speed" id="globe-speed-select" title="Simulation Speed">
+                                        <option value="1">1x</option>
+                                        <option value="2">2x</option>
+                                        <option value="5" selected>5x</option>
+                                        <option value="10">10x</option>
+                                        <option value="25">25x</option>
+                                    </select>
+                                    <span class="time-display" id="globe-time-display">00:00:00 UTC</span>
+                                </div>
                             </div>
                         </div>
                         <div class="info-sidebar glass-panel">
                             <div class="stats-section">
-                                <h3>Orbital Alignment Mechanics</h3>
+                                <h3>3D Eclipse Globe</h3>
                                 <div class="stats-section-content">
                                     <p class="description">
-                                        Eclipses only happen when the Moon crosses the Earth's orbital plane (the Ecliptic) at specific points called **Nodes**, while the Sun, Moon, and Earth align in a straight line (Syzygy).
+                                        View the eclipse shadow sweeping across the Earth in 3D. The static contours show the cumulative penumbral coverage, and the play button animates the shadow in real-time.
                                     </p>
                                     <div class="data-block" style="margin-top: 15px;">
                                         <div class="stat-row">
-                                            <span>Moon Distance to Ecliptic:</span>
-                                            <span class="val" id="val-3d-ecliptic-dist">-- km</span>
+                                            <span>Shadow Latitude:</span>
+                                            <span class="val" id="val-globe-lat">--°</span>
                                         </div>
                                         <div class="stat-row">
-                                            <span>Node Angle:</span>
-                                            <span class="val" id="val-3d-node-angle">--°</span>
+                                            <span>Shadow Longitude:</span>
+                                            <span class="val" id="val-globe-lon">--°</span>
                                         </div>
                                         <div class="stat-row">
-                                            <span>Sun-Moon-Earth Angle:</span>
-                                            <span class="val" id="val-3d-alignment-angle">--°</span>
+                                            <span>Obscuration at Center:</span>
+                                            <span class="val" id="val-globe-obs">--%</span>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="stats-section" style="margin-top: 20px;">
-                                <h3>Orrery Controls</h3>
-                                <div class="stats-section-content">
-                                    <div class="orrery-controls">
-                                        <label for="orrery-scale">Orbital Radius Scale</label>
-                                        <input type="range" id="orrery-scale" min="1" max="10" value="5">
-                                        <p class="caption">Note: Distances and planet sizes are scaled to make details visible.</p>
+                                        <div class="stat-row">
+                                            <span>Animation Time:</span>
+                                            <span class="val" id="val-globe-time">--:--:-- UTC</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -388,6 +450,7 @@
     <!-- D3 array & contour (for penumbra isolines) -->
     <script src="https://cdn.jsdelivr.net/npm/d3-array@3"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-contour@4"></script>
+    <script src="https://unpkg.com/topojson-client@3"></script>
     <script src="penumbra-contour.js"></script>
     
     <!-- Local Module Scripts -->

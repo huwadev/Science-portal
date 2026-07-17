@@ -862,10 +862,29 @@ body {
 
 .scene-controls-overlay {
     position: absolute;
-    bottom: 15px;
+    bottom: 75px; /* Lifted up so it doesn't overlap the playback bar */
     right: 15px;
     display: flex;
     gap: 8px;
+    z-index: 12;
+}
+
+/* Globe Playback Controls Overlaid Bar */
+.globe-time-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: rgba(2, 16, 52, 0.95);
+    border-top: 1px solid var(--color-glass-border);
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    justify-content: space-between;
+    box-sizing: border-box;
+    z-index: 10;
 }
 
 .info-sidebar .description {
@@ -1468,6 +1487,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%;
+    position: relative;
 }
 
 .map-wrapper.collapsed {
@@ -1491,4 +1511,224 @@ body {
     gap: 10px;
 }
 
+/* ============================================================
+   Dynamic Map Polish
+   ============================================================ */
+
+/* Eclipse Obscuration Legend Bar (horizontal, below the map) */
+.eclipse-legend-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 8px 20px;
+    background: rgba(2, 16, 52, 0.95);
+    border-top: 1px solid var(--color-glass-border);
+    flex-shrink: 0;
+}
+
+.legend-bar-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-shrink: 0;
+    min-width: 0;
+}
+
+.legend-bar-title {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--color-neutral-secondary);
+    font-family: 'Outfit', sans-serif;
+    white-space: nowrap;
+}
+
+.legend-bar-note {
+    font-size: 10px;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.legend-bar-gradient {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 260px;
+    flex-shrink: 0;
+}
+
+.legend-gradient-strip {
+    height: 14px;
+    border-radius: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background-color: #ffffff; /* Solid white backing for accurate overlay rendering */
+    background-image: linear-gradient(
+        to right,
+        #ffffff 0%,
+        rgba(255, 224, 130, 0.14) 5%,
+        rgba(255, 193, 7, 0.28) 20%,
+        rgba(255, 167, 38, 0.42) 35%,
+        rgba(251, 140, 0, 0.50) 50%,
+        rgba(230, 81, 0, 0.58) 70%,
+        rgba(216, 67, 21, 0.65) 82%,
+        rgba(191, 54, 12, 0.72) 92%,
+        rgba(139, 0, 0, 0.80) 100%
+    );
+}
+
+.legend-gradient-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.55);
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: 0.02em;
+    padding: 0 1px;
+}
+
+/* Enlarged Play button */
+.btn-ctrl-play {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 50% !important;
+    background: var(--color-cosmic-base) !important;
+    border-color: var(--color-cosmic-base) !important;
+    color: #fff !important;
+    box-shadow: 0 0 18px var(--color-cosmic-glow), 0 4px 12px rgba(0,0,0,0.4) !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.btn-ctrl-play:hover {
+    transform: scale(1.12) !important;
+    box-shadow: 0 0 26px var(--color-cosmic-glow), 0 4px 16px rgba(0,0,0,0.5) !important;
+    background: #2670ff !important;
+    border-color: #2670ff !important;
+}
+
+.btn-ctrl-play svg {
+    width: 17px !important;
+    height: 17px !important;
+}
+
+/* Time Slider wrapper for gradient track */
+.time-slider-wrapper {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.time-slider-wrapper .time-slider {
+    width: 100%;
+}
+
+/* Time display monospace glow */
+.time-display {
+    font-family: 'Outfit', monospace !important;
+    font-size: 12px !important;
+    color: var(--color-cosmic-secondary) !important;
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 8px rgba(18, 93, 255, 0.4);
+    min-width: 120px;
+}
+
+/* Speed select refinement */
+.select-speed {
+    min-width: 48px;
+}
+
+/* Animated shadow center pulsing marker */
+@keyframes shadow-pulse {
+    0%   { transform: scale(1);   opacity: 0.9; }
+    50%  { transform: scale(1.65); opacity: 0.35; }
+    100% { transform: scale(1);   opacity: 0.9; }
+}
+
+.shadow-center-pulse {
+    animation: shadow-pulse 1.8s ease-in-out infinite;
+}
+
+/* Fullscreen: overlay controls above the legend+controls stack */
+.map-wrapper.fullscreen .map-overlay-controls {
+    z-index: 100001;
+    bottom: 140px;
+}
+
+/* Overlay controls position (above legend bar + time controls) */
+.map-overlay-controls {
+    bottom: 115px;
+}
+
+/* Map time control bar height and gap tightening */
+.map-time-controls {
+    height: 62px;
+    padding: 0 16px;
+    gap: 14px;
+}
+
+/* Fullscreen: legend bar floats as part of the bottom controls stack */
+.map-wrapper.fullscreen .eclipse-legend-bar {
+    position: absolute !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 99999 !important;
+    background: rgba(2, 16, 52, 0.92) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 30px !important;
+    padding: 10px 24px !important;
+    width: 650px !important;
+    max-width: 90vw !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
+    bottom: 24px !important;
+}
+
+#dynamic-map-wrapper.fullscreen .eclipse-legend-bar {
+    bottom: 96px !important;
+}
+
+/* Adjust overlay controls in fullscreen mode depending on map wrapper */
+#static-map-wrapper.fullscreen .map-overlay-controls {
+    bottom: 90px !important;
+}
+#dynamic-map-wrapper.fullscreen .map-overlay-controls {
+    bottom: 172px !important;
+}
+
+/* Map hover tooltip */
+.map-hover-tooltip {
+    position: absolute;
+    pointer-events: none;
+    z-index: 100000;
+    background: rgba(2, 16, 52, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1.5px solid var(--color-cosmic-base);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 11.5px;
+    color: var(--color-neutral-secondary);
+    font-family: 'Outfit', sans-serif;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+    transition: opacity 0.15s ease;
+}
+.map-hover-tooltip strong {
+    color: var(--color-cosmic-secondary);
+}
+
+/* Slider gradient track (JS updates --pct CSS var) */
+.time-slider {
+    --pct: 0%;
+    background: linear-gradient(
+        to right,
+        var(--color-cosmic-base) 0%,
+        var(--color-cosmic-base) var(--pct),
+        rgba(255,255,255,0.12) var(--pct),
+        rgba(255,255,255,0.12) 100%
+    ) !important;
+}
 

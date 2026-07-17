@@ -173,6 +173,99 @@
                 </div>
             </section>
 
+            <!-- Featured Project: Solar & Lunar Eclipse Predictor -->
+            <section class="featured-section" id="featured-eclipse" style="margin-bottom: 60px;">
+                <div class="section-header text-center">
+                    <span class="section-tag" data-i18n="eclipse_tag" id="eclipse-tag-txt">Featured Project</span>
+                    <h2 class="section-title"><span class="text-gradient" data-i18n="eclipse_title_main" id="eclipse-title-main-txt">Solar & Lunar Eclipse Predictor</span></h2>
+                </div>
+
+                <div class="featured-card glass-panel">
+                    <div class="featured-info">
+                        <span class="status-badge live" data-i18n="status_active_eclipse" id="status-active-eclipse-txt">Interactive Tool</span>
+                        <h3 class="featured-project-title" data-i18n="eclipse_title" id="eclipse-title-txt">Solar & Lunar Eclipse Predictor</h3>
+                        <p class="featured-project-desc" data-i18n="eclipse_desc" id="eclipse-desc-txt">
+                            Explore past and future solar and lunar eclipses. Inspect totality paths, penumbral coverage, and local obscuration details using our high-precision simulation engine.
+                        </p>
+                        
+                        <div class="project-features">
+                            <h4 class="features-heading" data-i18n="eclipse_features_title" id="eclipse-features-title-txt">Key Features:</h4>
+                            <ul class="features-list">
+                                <li>
+                                    <svg class="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                                    <span data-i18n="eclipse_feat_1" id="eclipse-feat-1-txt">Precision 2D/3D dynamic map views</span>
+                                </li>
+                                <li>
+                                    <svg class="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                                    <span data-i18n="eclipse_feat_2" id="eclipse-feat-2-txt">Custom local simulation & stats</span>
+                                </li>
+                                <li>
+                                    <svg class="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                                    <span data-i18n="eclipse_feat_3" id="eclipse-feat-3-txt">Kotlin integration & offline support</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="featured-actions">
+                            <a href="modules/eclipses-transits/index.html" class="btn btn-primary btn-large btn-icon" id="eclipse-launch-btn">
+                                <span data-i18n="eclipse_button" id="eclipse-button-txt">Launch Eclipse Predictor</span>
+                                <svg class="btn-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Custom Eclipse Schematic Visual -->
+                    <div class="featured-visual-container">
+                        <div class="eclipse-schematic">
+                            <!-- Sun Body -->
+                            <div class="schematic-sun-body">
+                                <div class="sun-glow"></div>
+                            </div>
+                            
+                            <!-- Moon Body -->
+                            <div class="schematic-moon-body"></div>
+
+                            <!-- Earth Body -->
+                            <div class="schematic-earth-body">
+                                <div class="earth-glow"></div>
+                            </div>
+
+                            <!-- SVG Ray tracing geometry overlay -->
+                            <svg class="eclipse-geometry-svg" viewBox="0 0 380 380">
+                                <!-- Ray lines from Sun to Moon -->
+                                <line x1="65" y1="155" x2="190" y2="180" stroke="rgba(18, 93, 255, 0.25)" stroke-width="1" stroke-dasharray="3, 3" />
+                                <line x1="65" y1="225" x2="190" y2="200" stroke="rgba(18, 93, 255, 0.25)" stroke-width="1" stroke-dasharray="3, 3" />
+                                <line x1="65" y1="155" x2="190" y2="200" stroke="rgba(255, 204, 0, 0.12)" stroke-width="0.8" stroke-dasharray="2, 2" />
+                                <line x1="65" y1="225" x2="190" y2="180" stroke="rgba(255, 204, 0, 0.12)" stroke-width="0.8" stroke-dasharray="2, 2" />
+
+                                <!-- Shadow cones from Moon to Earth -->
+                                <polygon points="190,180 310,186 310,194 190,200" fill="rgba(2, 6, 20, 0.75)" />
+                                <polygon points="190,180 310,150 310,230 190,200" fill="rgba(255, 167, 38, 0.08)" />
+
+                                <!-- Shadow boundaries -->
+                                <line x1="190" y1="180" x2="310" y2="186" stroke="rgba(255, 59, 48, 0.25)" stroke-width="1" />
+                                <line x1="190" y1="200" x2="310" y2="194" stroke="rgba(255, 59, 48, 0.25)" stroke-width="1" />
+                                <line x1="190" y1="180" x2="310" y2="150" stroke="rgba(255, 204, 0, 0.15)" stroke-width="1" stroke-dasharray="4, 4" />
+                                <line x1="190" y1="200" x2="310" y2="230" stroke="rgba(255, 204, 0, 0.15)" stroke-width="1" stroke-dasharray="4, 4" />
+                            </svg>
+                        </div>
+                        
+                        <div class="visual-panel-telemetry">
+                            <div class="telemetry-bar">
+                                <span class="lbl">ALIGNMENT</span>
+                                <span class="val">SYZYGY 🟢</span>
+                            </div>
+                            <div class="telemetry-bar">
+                                <span class="lbl">SHADOW AXIS</span>
+                                <span class="val">UMBRA / PENUMBRA</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Featured Project: Walk in the Solar System -->
             <section class="featured-section" id="featured-project">
                 <div class="section-header text-center">
