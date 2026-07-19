@@ -8,9 +8,6 @@
 (function (global) {
     'use strict';
 
-    let isCalculatingPenumbra = false;
-    let pendingPenumbraDate = null;
-
     // Script loader helper
     function loadScript(url) {
         return new Promise((resolve, reject) => {
@@ -64,7 +61,7 @@
         }
 
         const Astronomy = global.Astronomy;
-        const resolution = options.gridResolution || 1.0; // 1.0 degree for smooth contours
+        const resolution = options.gridResolution || 0.25; // 0.25 degrees for ultra-smooth contours
         const width = Math.round(360 / resolution);
         const height = Math.round(180 / resolution);
 
@@ -97,6 +94,7 @@
 
             states.push({
                 M: { x: Mx, y: My, z: Mz },
+                S: { x: Sx, y: Sy, z: Sz },
                 w: { x: wx, y: wy, z: wz },
                 cosTheta0: Math.cos(theta0),
                 sinTheta0: Math.sin(theta0)
@@ -105,63 +103,9 @@
 
         if (states.length === 0) return;
 
-        // Local topocentric magnitude calculator
-        function getLocalMagnitude(t, lat, lon) {
-            const obs = new Astronomy.Observer(lat, lon, 0);
-            const sunEq = Astronomy.Equator(Astronomy.Body.Sun, t, obs, true, true);
-            const moonEq = Astronomy.Equator(Astronomy.Body.Moon, t, obs, true, true);
-            if (!sunEq || !moonEq) return 0;
-
-            const sep = Astronomy.AngleBetween(sunEq.vec, moonEq.vec);
-            const distSun = sunEq.dist * AU_KM;
-            const distMoon = moonEq.dist * AU_KM;
-            const thetaS = Math.asin(RS_KM / distSun) * 180 / Math.PI;
-            const thetaM = Math.asin(RM_KM / distMoon) * 180 / Math.PI;
-
-            // Sunrise/Sunset check: if Sun is below horizon, check if eclipse was visible before sunset/after sunrise
-            let sunHor = Astronomy.Horizon(t, obs, sunEq.ra, sunEq.dec, 'normal');
-            if (sunHor.altitude < 0) {
-                if (sunHor.altitude > -15.0) {
-                    // Estimate the time of sunset/sunrise (altitude = 0) and evaluate magnitude there
-                    const tMs = t.date.getTime();
-                    const tPrev = Astronomy.MakeTime(new Date(tMs - 5 * 60000));
-                    const sunEqPrev = Astronomy.Equator(Astronomy.Body.Sun, tPrev, obs, true, true);
-                    if (sunEqPrev) {
-                        const sunHorPrev = Astronomy.Horizon(tPrev, obs, sunEqPrev.ra, sunEqPrev.dec, 'normal');
-                        const dAlt = (sunHor.altitude - sunHorPrev.altitude) / (5 * 60000);
-                        if (dAlt !== 0) {
-                            const dt = -sunHor.altitude / dAlt;
-                            const tZeroMs = tMs + dt;
-                            if (tZeroMs >= startMs && tZeroMs <= endMs) {
-                                const tZero = Astronomy.MakeTime(new Date(tZeroMs));
-                                const sunEqZero = Astronomy.Equator(Astronomy.Body.Sun, tZero, obs, true, true);
-                                const moonEqZero = Astronomy.Equator(Astronomy.Body.Moon, tZero, obs, true, true);
-                                if (sunEqZero && moonEqZero) {
-                                    const sepZero = Astronomy.AngleBetween(sunEqZero.vec, moonEqZero.vec);
-                                    const distSunZero = sunEqZero.dist * AU_KM;
-                                    const distMoonZero = moonEqZero.dist * AU_KM;
-                                    const thetaSZero = Math.asin(RS_KM / distSunZero) * 180 / Math.PI;
-                                    const thetaMZero = Math.asin(RM_KM / distMoonZero) * 180 / Math.PI;
-                                    if (sepZero < thetaSZero + thetaMZero) {
-                                        if (sepZero <= Math.abs(thetaSZero - thetaMZero)) return thetaMZero / thetaSZero;
-                                        return (thetaSZero + thetaMZero - sepZero) / (2 * thetaSZero);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                return 0;
-            }
-
-            if (sep >= thetaS + thetaM) return 0;
-            if (sep <= Math.abs(thetaS - thetaM)) return thetaM / thetaS;
-            return (thetaS + thetaM - sep) / (2 * thetaS);
-        }
-
-        // Interpolated distance from observer to shadow axis
-        function getInterpolatedDist(ms, latRad, cosLat, sinLat, cosLon, sinLon) {
-            const idx = (ms - startMs) / stepMs;
+        // Retrieve interpolated state at a given millisecond timestamp
+        function getInterpolatedState(ms) {
+            const idx = Math.max(0, Math.min(states.length - 1, (ms - startMs) / stepMs));
             const i0 = Math.floor(idx);
             const i1 = Math.min(states.length - 1, i0 + 1);
             const f = idx - i0;
@@ -169,28 +113,116 @@
             const s0 = states[i0];
             const s1 = states[i1];
 
-            const Mx = s0.M.x + f * (s1.M.x - s0.M.x);
-            const My = s0.M.y + f * (s1.M.y - s0.M.y);
-            const Mz = s0.M.z + f * (s1.M.z - s0.M.z);
+            return {
+                Mx: s0.M.x + f * (s1.M.x - s0.M.x),
+                My: s0.M.y + f * (s1.M.y - s0.M.y),
+                Mz: s0.M.z + f * (s1.M.z - s0.M.z),
+                Sx: s0.S.x + f * (s1.S.x - s0.S.x),
+                Sy: s0.S.y + f * (s1.S.y - s0.S.y),
+                Sz: s0.S.z + f * (s1.S.z - s0.S.z),
+                wx: s0.w.x + f * (s1.w.x - s0.w.x),
+                wy: s0.w.y + f * (s1.w.y - s0.w.y),
+                wz: s0.w.z + f * (s1.w.z - s0.w.z),
+                cosTheta0: s0.cosTheta0 + f * (s1.cosTheta0 - s0.cosTheta0),
+                sinTheta0: s0.sinTheta0 + f * (s1.sinTheta0 - s0.sinTheta0)
+            };
+        }
 
-            const wx = s0.w.x + f * (s1.w.x - s0.w.x);
-            const wy = s0.w.y + f * (s1.w.y - s0.w.y);
-            const wz = s0.w.z + f * (s1.w.z - s0.w.z);
-
-            const cosTheta0 = s0.cosTheta0 + f * (s1.cosTheta0 - s0.cosTheta0);
-            const sinTheta0 = s0.sinTheta0 + f * (s1.sinTheta0 - s0.sinTheta0);
-
-            const cosTheta = cosTheta0 * cosLon - sinTheta0 * sinLon;
-            const sinTheta = sinTheta0 * cosLon + cosTheta0 * sinLon;
+        // Get Sun's sine of altitude at a timestamp (stable, no trig calls needed)
+        function getSunSinAlt(ms, latRad, cosLat, sinLat, cosLon, sinLon) {
+            const s = getInterpolatedState(ms);
+            const cosTheta = s.cosTheta0 * cosLon - s.sinTheta0 * sinLon;
+            const sinTheta = s.sinTheta0 * cosLon + s.cosTheta0 * sinLon;
 
             const Px = RE * cosLat * cosTheta;
             const Py = RE * cosLat * sinTheta;
             const Pz = RE * sinLat;
 
-            const rx = Px - Mx, ry = Py - My, rz = Pz - Mz;
-            const cx = ry * wz - rz * wy;
-            const cy = rz * wx - rx * wz;
-            const cz = rx * wy - ry * wx;
+            const rsx = s.Sx - Px, rsy = s.Sy - Py, rsz = s.Sz - Pz;
+            const distSun = Math.sqrt(rsx*rsx + rsy*rsy + rsz*rsz);
+
+            return (rsx * cosLat * cosTheta + rsy * cosLat * sinTheta + rsz * sinLat) / distSun;
+        }
+
+        // Evaluate topocentric magnitude at a timestamp
+        function evaluateMagnitudeAtTime(ms, latRad, cosLat, sinLat, cosLon, sinLon) {
+            const s = getInterpolatedState(ms);
+            const cosTheta = s.cosTheta0 * cosLon - s.sinTheta0 * sinLon;
+            const sinTheta = s.sinTheta0 * cosLon + s.cosTheta0 * sinLon;
+
+            const Px = RE * cosLat * cosTheta;
+            const Py = RE * cosLat * sinTheta;
+            const Pz = RE * sinLat;
+
+            const rx = s.Mx - Px, ry = s.My - Py, rz = s.Mz - Pz;
+            const rsx = s.Sx - Px, rsy = s.Sy - Py, rsz = s.Sz - Pz;
+
+            const distMoon = Math.sqrt(rx*rx + ry*ry + rz*rz);
+            const distSun = Math.sqrt(rsx*rsx + rsy*rsy + rsz*rsz);
+
+            const cosSep = (rx*rsx + ry*rsy + rz*rsz) / (distMoon * distSun);
+            const sep = Math.acos(Math.max(-1, Math.min(1, cosSep)));
+
+            const thetaS = Math.asin(RS_KM / distSun);
+            const thetaM = Math.asin(RM_KM / distMoon);
+
+            if (sep >= thetaS + thetaM) return 0;
+            if (sep <= Math.abs(thetaS - thetaM)) return thetaM / thetaS;
+            return (thetaS + thetaM - sep) / (2 * thetaS);
+        }
+
+        // Fast vector-based topocentric magnitude calculator with stable sunrise/sunset interpolation
+        function getLocalMagnitude(ms, lat, lon) {
+            const latRad = lat * Math.PI / 180;
+            const lonRad = lon * Math.PI / 180;
+            const cosLat = Math.cos(latRad);
+            const sinLat = Math.sin(latRad);
+            const cosLon = Math.cos(lonRad);
+            const sinLon = Math.sin(lonRad);
+
+            // 1. Check if Sun is above horizon at the closest approach time
+            const sinAltBest = getSunSinAlt(ms, latRad, cosLat, sinLat, cosLon, sinLon);
+            if (sinAltBest >= 0) {
+                return evaluateMagnitudeAtTime(ms, latRad, cosLat, sinLat, cosLon, sinLon);
+            }
+
+            // 2. Sun is below horizon at closest approach time.
+            // Check if sunset occurred during the eclipse window
+            const sinAltStart = getSunSinAlt(startMs, latRad, cosLat, sinLat, cosLon, sinLon);
+            if (sinAltStart > 0) {
+                // Sunset occurred! Interpolate to find exact sunset time
+                const fraction = sinAltStart / (sinAltStart - sinAltBest);
+                const tZeroMs = startMs + fraction * (ms - startMs);
+                return evaluateMagnitudeAtTime(tZeroMs, latRad, cosLat, sinLat, cosLon, sinLon);
+            }
+
+            // Check if sunrise occurred during the eclipse window
+            const sinAltEnd = getSunSinAlt(endMs, latRad, cosLat, sinLat, cosLon, sinLon);
+            if (sinAltEnd > 0) {
+                // Sunrise occurred! Interpolate to find exact sunrise time
+                const fraction = sinAltEnd / (sinAltEnd - sinAltBest);
+                const tZeroMs = endMs - fraction * (endMs - ms);
+                return evaluateMagnitudeAtTime(tZeroMs, latRad, cosLat, sinLat, cosLon, sinLon);
+            }
+
+            // Completely below horizon during the entire eclipse window
+            return 0;
+        }
+
+        // Interpolated distance from observer to shadow axis
+        function getInterpolatedDist(ms, latRad, cosLat, sinLat, cosLon, sinLon) {
+            const s = getInterpolatedState(ms);
+            const cosTheta = s.cosTheta0 * cosLon - s.sinTheta0 * sinLon;
+            const sinTheta = s.sinTheta0 * cosLon + s.cosTheta0 * sinLon;
+
+            const Px = RE * cosLat * cosTheta;
+            const Py = RE * cosLat * sinTheta;
+            const Pz = RE * sinLat;
+
+            const rx = Px - s.Mx, ry = Py - s.My, rz = Pz - s.Mz;
+            const cx = ry * s.wz - rz * s.wy;
+            const cy = rz * s.wx - rx * s.wz;
+            const cz = rx * s.wy - ry * s.wx;
             return Math.sqrt(cx*cx + cy*cy + cz*cz);
         }
 
@@ -264,8 +296,7 @@
                 }
 
                 // Compute exact topocentric magnitude at closest approach time
-                const peakTime = Astronomy.MakeTime(new Date(bestT));
-                gridData[y * width + x] = getLocalMagnitude(peakTime, lat, lon);
+                gridData[y * width + x] = getLocalMagnitude(bestT, lat, lon);
             }
         }
 
@@ -344,188 +375,96 @@
     }
 
     /**
-     * Calculates the instantaneous penumbra contour bands and adds them
-     * to the map instance as a distinct, styled Leaflet GeoJSON layer.
+     * Calculates the instantaneous penumbra contour bands using fast, analytical
+     * projections and adds them to the map instance as a distinct Leaflet GeoJSON layer.
+     * This provides smooth, continuous, and lag-free rendering during animation.
      */
     async function appendInstantaneousPenumbraLayer(mapInstance, activeDate, options = {}) {
-        if (isCalculatingPenumbra) {
-            pendingPenumbraDate = activeDate;
+        if (!global.AstronomyHelper) return;
+
+        const date = new Date(activeDate);
+        const footprints = global.AstronomyHelper.calculateProjectedShadowFootprints(date);
+        if (!footprints) {
+            if (mapInstance._instantaneousPenumbraLayer) {
+                mapInstance.removeLayer(mapInstance._instantaneousPenumbraLayer);
+                mapInstance._instantaneousPenumbraLayer = null;
+            }
+            if (typeof global.buildGlobeInstantaneousContours === 'function') {
+                global.buildGlobeInstantaneousContours([]);
+            }
             return;
         }
-        isCalculatingPenumbra = true;
-        pendingPenumbraDate = null;
 
-        try {
-            await ensureDependencies();
-
-            if (!global.Astronomy) return;
-
-            const targetDate = activeDate;
-            const Astronomy = global.Astronomy;
-            const resolution = options.gridResolution || 1.0; // 1.0 degree for smooth animated contours
-            const width = Math.round(360 / resolution);
-            const height = Math.round(180 / resolution);
-            const gridData = new Array(width * height).fill(0);
-
-            const t = Astronomy.MakeTime(new Date(targetDate));
-            const AstronomyHelper = global.AstronomyHelper;
-            if (!AstronomyHelper) return;
-
-            const shadow = AstronomyHelper.calculateShadowCenter(new Date(targetDate));
-            if (!shadow) {
-                if (mapInstance._instantaneousPenumbraLayer) {
-                    mapInstance.removeLayer(mapInstance._instantaneousPenumbraLayer);
-                    mapInstance._instantaneousPenumbraLayer = null;
-                }
-                return;
-            }
-
-            const centerLat = shadow.lat;
-            const centerLon = shadow.lon;
-
-            const AU_KM = 149597870.7;
-            const RS_KM = 696340.0;
-            const RM_KM = 1737.4;
-
-            // Local topocentric magnitude calculator
-            function getLocalMagnitude(lat, lon) {
-                const obs = new Astronomy.Observer(lat, lon, 0);
-                const sunEq = Astronomy.Equator(Astronomy.Body.Sun, t, obs, true, true);
-                const moonEq = Astronomy.Equator(Astronomy.Body.Moon, t, obs, true, true);
-                if (!sunEq || !moonEq) return 0;
-
-                const sep = Astronomy.AngleBetween(sunEq.vec, moonEq.vec);
-                const distSun = sunEq.dist * AU_KM;
-                const distMoon = moonEq.dist * AU_KM;
-                const thetaS = Math.asin(RS_KM / distSun) * 180 / Math.PI;
-                const thetaM = Math.asin(RM_KM / distMoon) * 180 / Math.PI;
-
-                // Sunrise/Sunset check: if Sun is below horizon, magnitude is 0
-                const sunHor = Astronomy.Horizon(t, obs, sunEq.ra, sunEq.dec, 'normal');
-                if (sunHor.altitude < 0) {
-                    return 0;
-                }
-
-                if (sep >= thetaS + thetaM) return 0;
-                if (sep <= Math.abs(thetaS - thetaM)) return thetaM / thetaS;
-                return (thetaS + thetaM - sep) / (2 * thetaS);
-            }
-
-            // Fill grid data (restricting calculations to a 36-degree great-circle spherical circle around the shadow center)
-            const centerLatRad = centerLat * Math.PI / 180;
-            const sinCenterLat = Math.sin(centerLatRad);
-            const cosCenterLat = Math.cos(centerLatRad);
-
-            for (let y = 0; y < height; y++) {
-                const lat = -90 + (y / height) * 180;
-                const dLat = lat - centerLat;
-                if (Math.abs(dLat) >= 36) {
-                    continue;
-                }
-
-                const latRad = lat * Math.PI / 180;
-                const sinLat = Math.sin(latRad);
-                const cosLat = Math.cos(latRad);
-
-                for (let x = 0; x < width; x++) {
-                    const lon = -180 + (x / width) * 360;
-                    let dLon = lon - centerLon;
-                    while (dLon < -180) dLon += 360;
-                    while (dLon > 180) dLon -= 360;
-
-                    const dLonRad = dLon * Math.PI / 180;
-                    const cosDst = sinLat * sinCenterLat + cosLat * cosCenterLat * Math.cos(dLonRad);
-                    const distDeg = Math.acos(Math.max(-1, Math.min(1, cosDst))) * 180 / Math.PI;
-
-                    if (distDeg > 36) {
-                        continue;
-                    }
-
-                    gridData[y * width + x] = getLocalMagnitude(lat, lon);
-                }
-            }
-
-            // Generate contour isolines with smoothing
-            const thresholds = [0.01, 0.25, 0.50, 0.75];
-            const contourPolygons = global.d3.contours()
-                .size([width, height])
-                .smooth(true)
-                .thresholds(thresholds)(gridData);
-
-            const features = [];
-            contourPolygons.forEach(contour => {
-                if (!contour.coordinates || contour.coordinates.length === 0) return;
-
-                // Generate 5 copies shifted horizontally by [-720, -360, 0, 360, 720]
+        const features = [];
+        const levels = [0.01, 0.25, 0.50, 0.75];
+        levels.forEach(l => {
+            const coords = footprints.penumbra[l];
+            if (coords && coords.length > 2) {
+                // Generate 5 copies shifted horizontally by [-720, -360, 0, 360, 720] for wrapping
                 const offsets = [-720, -360, 0, 360, 720];
                 offsets.forEach(offset => {
-                    const transformedCoords = contour.coordinates.map(polygon => {
-                        return polygon.map(ring => {
-                            return ring.map(pt => {
-                                const px = pt[0];
-                                const py = pt[1];
-                                const lon = -180 + px * (360 / width) + offset;
-                                const lat = -90 + py * (180 / height);
-                                return [lon, lat];
-                            });
-                        });
-                    });
-
+                    const ring = coords.map(pt => [pt[1] + offset, pt[0]]); // pt is [lat, lon], geojson is [lon, lat]
                     features.push({
                         type: "Feature",
-                        properties: {
-                            magnitude: contour.value
-                        },
+                        properties: { magnitude: l },
                         geometry: {
-                            type: "MultiPolygon",
-                            coordinates: transformedCoords
+                            type: "Polygon",
+                            coordinates: [ring]
                         }
                     });
                 });
+            }
+        });
+
+        // Add umbra layer if present
+        if (footprints.umbra && footprints.umbra.coordinates && footprints.umbra.coordinates.length > 2) {
+            const coords = footprints.umbra.coordinates;
+            const offsets = [-720, -360, 0, 360, 720];
+            offsets.forEach(offset => {
+                const ring = coords.map(pt => [pt[1] + offset, pt[0]]);
+                features.push({
+                    type: "Feature",
+                    properties: { isUmbra: true, umbraType: footprints.umbra.type },
+                    geometry: {
+                        type: "Polygon",
+                        coordinates: [ring]
+                    }
+                });
             });
+        }
 
-            const geoJsonData = {
-                type: "FeatureCollection",
-                features: features
-            };
+        const geoJsonData = {
+            type: "FeatureCollection",
+            features: features
+        };
 
-            const styleMap = {
-                0.01: { fillColor: '#ffe082', fillOpacity: 0.14, stroke: true, color: '#ffe082', weight: 1.0, opacity: 0.22, pane: 'penumbraPane', interactive: false, smoothFactor: 0 },
-                0.25: { fillColor: '#ffa726', fillOpacity: 0.14, stroke: true, color: '#ffa726', weight: 1.0, opacity: 0.27, pane: 'penumbraPane', interactive: false, smoothFactor: 0 },
-                0.50: { fillColor: '#fb8c00', fillOpacity: 0.14, stroke: true, color: '#fb8c00', weight: 1.0, opacity: 0.32, pane: 'penumbraPane', interactive: false, smoothFactor: 0 },
-                0.75: { fillColor: '#d84315', fillOpacity: 0.14, stroke: true, color: '#d84315', weight: 1.0, opacity: 0.37, pane: 'penumbraPane', interactive: false, smoothFactor: 0 }
-            };
+        const styleMap = {
+            0.01: { fillColor: '#ffe082', fillOpacity: 0.14, stroke: true, color: '#ffe082', weight: 1.0, opacity: 0.22, pane: 'penumbraPane', interactive: false },
+            0.25: { fillColor: '#ffa726', fillOpacity: 0.14, stroke: true, color: '#ffa726', weight: 1.0, opacity: 0.27, pane: 'penumbraPane', interactive: false },
+            0.50: { fillColor: '#fb8c00', fillOpacity: 0.14, stroke: true, color: '#fb8c00', weight: 1.0, opacity: 0.32, pane: 'penumbraPane', interactive: false },
+            0.75: { fillColor: '#d84315', fillOpacity: 0.14, stroke: true, color: '#d84315', weight: 1.0, opacity: 0.37, pane: 'penumbraPane', interactive: false }
+        };
 
-            const penumbraGeoJsonLayer = L.geoJSON(geoJsonData, {
-                style: function (feature) {
-                    const mag = feature.properties.magnitude;
-                    return styleMap[mag] || { stroke: false, fill: false };
-                },
-                pane: 'penumbraPane'
-            });
+        const penumbraGeoJsonLayer = L.geoJSON(geoJsonData, {
+            style: function (feature) {
+                if (feature.properties && feature.properties.isUmbra) {
+                    return { fillColor: '#000000', fillOpacity: 0.85, stroke: true, color: '#ff3b30', weight: 1.5, opacity: 0.9, pane: 'penumbraPane', interactive: false };
+                }
+                const mag = feature.properties.magnitude;
+                return styleMap[mag] || { stroke: false, fill: false };
+            },
+            pane: 'penumbraPane'
+        });
 
-            if (mapInstance._instantaneousPenumbraLayer) {
-                mapInstance.removeLayer(mapInstance._instantaneousPenumbraLayer);
-            }
-            penumbraGeoJsonLayer.addTo(mapInstance);
-            mapInstance._instantaneousPenumbraLayer = penumbraGeoJsonLayer;
+        if (mapInstance._instantaneousPenumbraLayer) {
+            mapInstance.removeLayer(mapInstance._instantaneousPenumbraLayer);
+        }
+        penumbraGeoJsonLayer.addTo(mapInstance);
+        mapInstance._instantaneousPenumbraLayer = penumbraGeoJsonLayer;
 
-            // Inform 3D globe of instantaneous contours if function exists
-            if (typeof global.buildGlobeInstantaneousContours === 'function') {
-                global.buildGlobeInstantaneousContours(features);
-            }
-
-        } catch (err) {
-            console.error("Error in appendInstantaneousPenumbraLayer:", err);
-        } finally {
-            isCalculatingPenumbra = false;
-            if (pendingPenumbraDate !== null) {
-                const nextDate = pendingPenumbraDate;
-                pendingPenumbraDate = null;
-                setTimeout(() => {
-                    appendInstantaneousPenumbraLayer(mapInstance, nextDate, options);
-                }, 0);
-            }
+        // Also inform the 3D globe of these new features!
+        if (typeof global.buildGlobeInstantaneousContours === 'function') {
+            global.buildGlobeInstantaneousContours(features);
         }
     }
 

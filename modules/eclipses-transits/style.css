@@ -138,6 +138,43 @@ body {
     gap: 6px;
 }
 
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+/* Language Selector Styles */
+.language-selector-container {
+    display: inline-flex;
+    align-items: center;
+}
+
+.select-language {
+    background: rgba(2, 16, 52, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.85);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+.select-language:hover {
+    border-color: var(--color-cosmic-base);
+    background: rgba(2, 16, 52, 0.85);
+}
+
+.select-language option {
+    background: #021034;
+    color: white;
+    padding: 8px;
+}
+
 .api-key-container::before {
     content: '';
     display: inline-block;
@@ -683,17 +720,26 @@ body {
     height: 4px;
     border-radius: 2px;
     outline: none;
+    position: relative;
+    z-index: 6;
 }
 
 .time-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     background: var(--color-cosmic-base);
-    cursor: pointer;
+    cursor: grab;
     box-shadow: 0 0 5px var(--color-cosmic-glow);
     transition: transform 0.1s ease;
+    position: relative;
+    z-index: 20;
+}
+
+.time-slider::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scale(1.3);
 }
 
 .time-slider::-webkit-slider-thumb:hover {
@@ -757,61 +803,104 @@ body {
     color: var(--color-neutral-secondary);
 }
 
-/* NASA APOD Gallery styling */
-.nasa-gallery {
-    flex: 1;
-    margin-top: 10px;
+/* Canvas/Simulator Toolbar styling */
+.canvas-toolbar {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    overflow-y: auto;
-    min-height: 180px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: rgba(2, 16, 52, 0.95);
+    border-bottom: 1px solid var(--color-glass-border);
+    width: 100%;
+    box-sizing: border-box;
+    flex-shrink: 0;
 }
 
-.gallery-placeholder {
+.toolbar-group {
     display: flex;
     align-items: center;
-    justify-content: center;
-    height: 100%;
-    color: rgba(255, 255, 255, 0.3);
-    font-size: 12px;
-    border: 1px dashed rgba(255, 255, 255, 0.1);
-    border-radius: var(--border-radius-sm);
-    text-align: center;
-    padding: 20px;
+    gap: 12px;
 }
 
-.nasa-apod-card {
-    border-radius: var(--border-radius-sm);
-    overflow: hidden;
-    border: 1px solid var(--color-glass-border);
-    background: rgba(2, 16, 52, 0.3);
-}
-
-.nasa-apod-card img {
-    width: 100%;
-    height: auto;
-    max-height: 140px;
-    object-fit: cover;
-    display: block;
-}
-
-.nasa-apod-card .info {
-    padding: 8px;
-}
-
-.nasa-apod-card .title {
+.toolbar-label {
     font-size: 11px;
     font-weight: 600;
     color: var(--color-neutral-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
 }
 
-.nasa-apod-card .date {
-    font-size: 9px;
-    color: rgba(255, 255, 255, 0.4);
+.toggle-buttons {
+    display: flex;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.toggle-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-neutral-base);
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Outfit', sans-serif;
+}
+
+.toggle-btn svg {
+    width: 12px;
+    height: 12px;
+}
+
+.toggle-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.toggle-btn.active {
+    background: var(--color-cosmic-base);
+    color: #ffffff;
+    box-shadow: 0 0 8px var(--color-cosmic-glow-soft);
+}
+
+.toolbar-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--color-neutral-secondary);
+    font-family: 'Outfit', sans-serif;
+}
+
+.toolbar-checkbox-label input[type="checkbox"] {
+    accent-color: var(--color-cosmic-base);
+    width: 13px;
+    height: 13px;
+    cursor: pointer;
+}
+
+/* Highlight style for active eclipse phase */
+.timing-row.active-phase {
+    background: rgba(18, 93, 255, 0.16) !important;
+    border-color: rgba(18, 93, 255, 0.4) !important;
+    box-shadow: 0 0 12px rgba(18, 93, 255, 0.25);
+    transform: scale(1.01);
+    transition: all 0.25s ease-in-out;
+}
+
+.timing-row.active-phase span:last-child {
+    color: var(--color-cosmic-secondary) !important;
+    text-shadow: 0 0 8px rgba(18, 93, 255, 0.5);
 }
 
 /* 3D Scene Specifics */
@@ -835,11 +924,14 @@ body {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    background: rgba(2, 16, 52, 0.85);
+    background: rgba(255, 255, 255, 0.95);
     padding: 10px 14px;
     border-radius: var(--border-radius-sm);
-    border: 1px solid var(--color-glass-border);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     font-size: 11px;
+    color: #121824;
+    z-index: 10;
 }
 
 .legend-item {
@@ -942,14 +1034,14 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    align-items: stretch;
     background: #000209;
 }
 
 #simulator-canvas {
     max-width: 100%;
-    max-height: calc(100% - 60px);
+    max-height: 100%;
+    display: block;
 }
 
 .contact-timings {
@@ -1522,8 +1614,9 @@ body {
     justify-content: space-between;
     gap: 20px;
     padding: 8px 20px;
-    background: rgba(2, 16, 52, 0.95);
-    border-top: 1px solid var(--color-glass-border);
+    background: rgba(255, 255, 255, 0.95);
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
     flex-shrink: 0;
 }
 
@@ -1538,7 +1631,7 @@ body {
 .legend-bar-title {
     font-size: 11.5px;
     font-weight: 600;
-    color: var(--color-neutral-secondary);
+    color: #121824;
     font-family: 'Outfit', sans-serif;
     white-space: nowrap;
 }
@@ -1546,7 +1639,7 @@ body {
 .legend-bar-note {
     font-size: 10px;
     font-style: italic;
-    color: rgba(255, 255, 255, 0.4);
+    color: #4a5568;
 }
 
 .legend-bar-gradient {
@@ -1560,7 +1653,7 @@ body {
 .legend-gradient-strip {
     height: 14px;
     border-radius: 2px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.15);
     background-color: #ffffff; /* Solid white backing for accurate overlay rendering */
     background-image: linear-gradient(
         to right,
@@ -1581,7 +1674,7 @@ body {
     justify-content: space-between;
     font-size: 9.5px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.55);
+    color: #4a5568;
     font-family: 'Outfit', sans-serif;
     letter-spacing: 0.02em;
     padding: 0 1px;
@@ -1674,15 +1767,15 @@ body {
     left: 50% !important;
     transform: translateX(-50%) !important;
     z-index: 99999 !important;
-    background: rgba(2, 16, 52, 0.92) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
     border-radius: 30px !important;
     padding: 10px 24px !important;
     width: 650px !important;
     max-width: 90vw !important;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
     bottom: 24px !important;
 }
 
@@ -1731,4 +1824,65 @@ body {
         rgba(255,255,255,0.12) 100%
     ) !important;
 }
+
+/* Embed Mode and Hide Tabs CSS Styles */
+body.embed-mode header,
+body.embed-mode .sidebar,
+body.embed-mode .info-sidebar,
+body.embed-mode .stats-panel,
+body.embed-mode .app-intro-banner {
+    display: none !important;
+}
+
+body.embed-mode .workspace {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    grid-template-columns: 1fr !important; /* Remove sidebar column */
+}
+
+body.embed-mode .main-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 100vh !important;
+}
+
+body.embed-mode .pane-layout,
+body.embed-mode .pane-layout-3d {
+    grid-template-columns: 1fr !important; /* Remove stats panel column */
+    height: 100vh !important;
+}
+
+body.hide-tabs-mode .view-tabs,
+body.hide-tabs-mode .map-tabs-bar {
+    display: none !important;
+}
+
+/* Add custom padding adjustment when tabs are hidden */
+body.hide-tabs-mode .tab-pane {
+    height: 100vh !important;
+}
+
+/* Timeline slider bookmark tick dots */
+.slider-bookmark-dot {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    border: 1.5px solid #000209;
+    cursor: pointer;
+    z-index: 4;
+    pointer-events: auto;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.slider-bookmark-dot:hover {
+    background: #ffffff !important;
+    box-shadow: 0 0 10px #ffffff !important;
+    transform: translate(-50%, -50%) scale(1.4);
+}
+
 

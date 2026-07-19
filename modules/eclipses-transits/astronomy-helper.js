@@ -365,8 +365,7 @@ const AstronomyHelper = {
             while (lonRad < -Math.PI) lonRad += 2*Math.PI;
             while (lonRad > Math.PI) lonRad -= 2*Math.PI;
 
-            const lat_gc = Math.atan2(Pz, Math.sqrt(Px*Px + Py*Py));
-            const lat_gd = Math.atan((this.RE_KM*this.RE_KM)/(this.RP_KM*this.RP_KM) * Math.tan(lat_gc));
+            const lat_gd = Math.atan2((this.RE_KM * this.RE_KM) / (this.RP_KM * this.RP_KM) * Pz, Math.sqrt(Px*Px + Py*Py));
             let lat = lat_gd * 180 / Math.PI;
             if (lat > 89.99) lat = 89.99;
             if (lat < -89.99) lat = -89.99;
@@ -787,8 +786,9 @@ const AstronomyHelper = {
     /**
      * Computes local circumstances for a lunar eclipse.
      */
-    calculateLocalLunarEclipse(date) {
+    calculateLocalLunarEclipse(date, observerLat, observerLon) {
         const t = Astronomy.MakeTime(date);
+        const obs = new Astronomy.Observer(observerLat, observerLon, 0);
 
         // Get geocentric J2000 positions
         const sun = Astronomy.GeoVector(Astronomy.Body.Sun, t, false);
@@ -835,14 +835,17 @@ const AstronomyHelper = {
         const cosSep = Math.sin(dec1)*Math.sin(dec2) + Math.cos(dec1)*Math.cos(dec2)*Math.cos(raDiff);
         const sep = Math.acos(Math.max(-1, Math.min(1, cosSep))) * 180 / Math.PI;
 
-        // Determine Eclipse Phase
+        // Determine Eclipse Phase & Magnitudes
         let type = "None";
         let obscuration = 0;
+        const pmag = Math.max(0, (thetaP + thetaM - sep) / (2 * thetaM));
+        const umag = Math.max(0, (thetaU + thetaM - sep) / (2 * thetaM));
         if (sep < thetaP + thetaM) {
             type = "Penumbral";
-            obscuration = (thetaP + thetaM - sep) / (2 * thetaM);
+            obscuration = pmag;
             if (sep < thetaU + thetaM) {
                 type = "Partial";
+                obscuration = umag;
                 if (sep <= thetaU - thetaM) {
                     type = "Total";
                     obscuration = 1.0;
@@ -855,6 +858,21 @@ const AstronomyHelper = {
         const dx = (moonRa - shadowRa) * Math.cos(dec1);
         const dy = moonDec - shadowDec;
 
+        // Topocentric Alt/Az
+        const sunEq = Astronomy.Equator(Astronomy.Body.Sun, t, obs, true, true);
+        const moonEq = Astronomy.Equator(Astronomy.Body.Moon, t, obs, true, true);
+        let sunAlt = 0, sunAz = 0;
+        let moonAlt = 0, moonAz = 0;
+        
+        if (sunEq && moonEq) {
+            const sunHor = Astronomy.Horizon(t, obs, sunEq.ra, sunEq.dec, 'normal');
+            const moonHor = Astronomy.Horizon(t, obs, moonEq.ra, moonEq.dec, 'normal');
+            sunAlt = sunHor.altitude;
+            sunAz = sunHor.azimuth;
+            moonAlt = moonHor.altitude;
+            moonAz = moonHor.azimuth;
+        }
+
         return {
             separation: sep,
             dx: dx,
@@ -863,7 +881,13 @@ const AstronomyHelper = {
             penumbraRadius: thetaP,
             moonRadius: thetaM,
             type: type,
-            obscuration: Math.min(1.0, obscuration)
+            obscuration: Math.min(1.0, obscuration),
+            penumbralMagnitude: pmag,
+            umbralMagnitude: umag,
+            sunAlt: sunAlt,
+            sunAz: sunAz,
+            moonAlt: moonAlt,
+            moonAz: moonAz
         };
     },
 
@@ -957,6 +981,48 @@ const AstronomyHelper = {
     },
 
     /**
+     * Calculates the daylight side polygon (day/night terminator coords) at a given date.
+     */
+    calculateDaylightTerminator(date) {
+        const t = Astronomy.MakeTime(date);
+        const sun = Astronomy.GeoVector(Astronomy.Body.Sun, t, false);
+        if (!sun) return null;
+
+        const R = Math.sqrt(sun.x*sun.x + sun.y*sun.y + sun.z*sun.z);
+        const sx = sun.x/R, sy = sun.y/R, sz = sun.z/R;
+
+        const phi0 = Math.asin(sz); // Sun declination in radians
+        const gmst = Astronomy.SiderealTime(t);
+        const theta = gmst * 15 * Math.PI / 180;
+        let lambda0 = Math.atan2(sy, sx) - theta; // Sun subsolar longitude in radians
+        while (lambda0 < -Math.PI) lambda0 += 2*Math.PI;
+        while (lambda0 > Math.PI) lambda0 -= 2*Math.PI;
+
+        const tanPhi0 = Math.tan(phi0 === 0 ? 1e-7 : phi0);
+
+        const coords = [];
+        if (phi0 >= 0) {
+            coords.push([90, 180]);
+            for (let lon = 180; lon >= -180; lon -= 2) {
+                const lonRad = lon * Math.PI / 180;
+                const latRad = Math.atan(-Math.cos(lonRad - lambda0) / tanPhi0);
+                coords.push([latRad * 180 / Math.PI, lon]);
+            }
+            coords.push([90, -180]);
+        } else {
+            coords.push([-90, -180]);
+            for (let lon = -180; lon <= 180; lon += 2) {
+                const lonRad = lon * Math.PI / 180;
+                const latRad = Math.atan(-Math.cos(lonRad - lambda0) / tanPhi0);
+                coords.push([latRad * 180 / Math.PI, lon]);
+            }
+            coords.push([-90, 180]);
+        }
+
+        return coords;
+    },
+
+    /**
      * Calculates the maximum obscuration and magnitude at a given location (lat, lon)
      * over the course of a solar eclipse (defined around the peak JD).
      */
@@ -1037,5 +1103,31 @@ const AstronomyHelper = {
         // Calculate Sun's altitude (sine of altitude)
         const sin_alt = Math.sin(latRad) * Math.sin(phi0) + Math.cos(latRad) * Math.cos(phi0) * Math.cos(lonRad - lambda0);
         return sin_alt > 0;
+    },
+
+    calculateMaxLocalLunarEclipse(peakJD, lat, lon) {
+        const rangeDays = 2.0 / 24; // +/- 2 hours
+        const steps = 12;
+        let maxObsc = 0;
+        let maxType = 'None';
+        let maxPmag = 0;
+        let maxUmag = 0;
+        for (let i = 0; i <= steps; i++) {
+            const offset = -rangeDays + (i / steps) * 2 * rangeDays;
+            const date = Astronomy.MakeTime(peakJD + offset).date;
+            const res = this.calculateLocalLunarEclipse(date, lat, lon);
+            if (res && res.moonAlt > 0 && res.obscuration > maxObsc) {
+                maxObsc = res.obscuration;
+                maxType = res.type;
+                maxPmag = res.penumbralMagnitude;
+                maxUmag = res.umbralMagnitude;
+            }
+        }
+        return { 
+            obscuration: maxObsc, 
+            type: maxType,
+            penumbralMagnitude: maxPmag,
+            umbralMagnitude: maxUmag
+        };
     }
 };

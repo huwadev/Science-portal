@@ -13,6 +13,17 @@ let animInterval = null;
 let isAnimating = false;
 let isLooping = true;
 let simSpeedMultiplier = 5;
+let simViewMode = 'closeup'; // 'closeup' or 'dome'
+let showSimGrid = false;
+let cachedContactTimes = null;
+let simStars = [];
+let cachedSunTrajectory = [];
+let cachedMoonTrajectory = [];
+let bookmarkPauseActive = false;
+let passedBookmarkPcts = new Set();
+let activeInfoTimeout = null;
+let isUserDragging = false;
+let activeBookmarkInfo = null;
 
 // 2D Map variables
 let map = null;
@@ -46,11 +57,7 @@ let scene3D = {
     atmosphereGlow: null
 };
 
-// Globe animation state
-let globeSliderVal = 0;
-let globeAnimInterval = null;
-let isGlobeAnimating = false;
-let globeSpeedMultiplier = 5;
+// Globe animation state — unified with timeSliderVal
 
 // Sidebar Events Database (100-Year Catalog 2000-2100)
 let sidebarEvents = [];
@@ -59,6 +66,7 @@ let sidebarEvents = [];
 document.addEventListener('DOMContentLoaded', () => {
     // Generate the 100-year list for the sidebar
     sidebarEvents = generate100YearCatalog();
+    generateSimStars();
     
     initUI();
     init2DMap();
@@ -70,7 +78,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!defaultEv) defaultEv = sidebarEvents[0];
     
     selectEvent(defaultEv);
+    
+    // Parse URL query parameters to load state if present
+    parseURLParameters();
+    
     loadKotlinFiles();
+
+    // Initialize Language Selector
+    const langSelect = document.getElementById('language-select');
+    if (langSelect) {
+        langSelect.addEventListener('change', (e) => {
+            applyTranslations(e.target.value);
+        });
+    }
+    // Set initial language
+    const currentLang = getCurrentLanguage();
+    applyTranslations(currentLang);
 });
 
 // UI Setup & Listeners
@@ -204,18 +227,55 @@ function initUI() {
         });
     });
 
-    // Time Sliders
-    const sliders = [document.getElementById('time-slider'), document.getElementById('sim-time-slider')];
+    // Time Sliders — unified to timeSliderVal
+    const sliders = [
+        document.getElementById('time-slider'),
+        document.getElementById('sim-time-slider'),
+        document.getElementById('globe-time-slider')
+    ];
     sliders.forEach(slider => {
-        slider.addEventListener('input', (e) => {
-            if (isAnimating) {
-                stopAnimation();
-            }
-            timeSliderVal = parseFloat(e.target.value);
-            sliders.forEach(s => s.value = timeSliderVal);
-            updateSliderGradient();
-            updateTimeFromSlider();
-        });
+        if (slider) {
+            slider.addEventListener('input', (e) => {
+                if (isAnimating) {
+                    stopAnimation();
+                }
+                timeSliderVal = parseFloat(e.target.value);
+                sliders.forEach(s => { if (s) s.value = timeSliderVal; });
+                updateSliderGradient();
+                updateTimeFromSlider();
+                
+                // Contextually display info box when dragging past a bookmark
+                updateInfoForSliderVal(timeSliderVal);
+            });
+
+            slider.addEventListener('change', (e) => {
+                const val = parseFloat(e.target.value);
+                const bookmarks = getBookmarkPcts();
+                const snapThreshold = 1.5;
+                let snapTo = null;
+
+                for (const b of bookmarks) {
+                    if (Math.abs(val - b.pct) < snapThreshold) {
+                        snapTo = b;
+                        break;
+                    }
+                }
+
+                if (snapTo) {
+                    timeSliderVal = snapTo.pct;
+                    sliders.forEach(s => { if (s) s.value = snapTo.pct; });
+                    updateSliderGradient();
+                    updateTimeFromSlider();
+                    showEventInfo(snapTo);
+
+                    if (activeInfoTimeout) clearTimeout(activeInfoTimeout);
+                    activeInfoTimeout = setTimeout(() => {
+                        hideEventInfo();
+                        activeInfoTimeout = null;
+                    }, 4000);
+                }
+            });
+        }
     });
 
     // Initialize slider gradient
@@ -279,17 +339,25 @@ function initUI() {
     if (loopBtn) {
         loopBtn.addEventListener('click', () => {
             isLooping = !isLooping;
-            loopBtn.classList.toggle('active', isLooping);
+            const loopBtns = [document.getElementById('loop-btn'), document.getElementById('sim-loop-btn')];
+            loopBtns.forEach(btn => { if (btn) btn.classList.toggle('active', isLooping); });
         });
     }
 
-    // Speed Select
-    const speedSelect = document.getElementById('speed-select');
-    if (speedSelect) {
-        speedSelect.addEventListener('change', (e) => {
-            simSpeedMultiplier = parseFloat(e.target.value) || 5;
-        });
-    }
+    // Speed Select — unified and synchronized
+    const speedSelects = [
+        document.getElementById('speed-select'),
+        document.getElementById('globe-speed-select'),
+        document.getElementById('sim-speed-select')
+    ];
+    speedSelects.forEach(sel => {
+        if (sel) {
+            sel.addEventListener('change', (e) => {
+                simSpeedMultiplier = parseFloat(e.target.value) || 5;
+                speedSelects.forEach(s => { if (s && s !== sel) s.value = e.target.value; });
+            });
+        }
+    });
 
     // Location Inputs
     document.getElementById('btn-calculate-custom').addEventListener('click', () => {
@@ -312,14 +380,39 @@ function initUI() {
 
             if (dateInput) {
                 const customDate = new Date(dateInput);
+                
+                // Search for the nearest global solar eclipse to align the custom time window with the actual eclipse peak!
+                let peakDate = customDate;
+                let peakJD = Astronomy.MakeTime(customDate).value;
+                let eventName = "Custom Calculation";
+                let eventType = "solar";
+                let eventTypeName = "Local View";
+                
+                try {
+                    // Search starting 15 days before the user's entered date
+                    const searchStart = new Date(customDate.getTime() - 15 * 24 * 60 * 60 * 1000);
+                    const nextSolar = Astronomy.SearchGlobalSolarEclipse(searchStart);
+                    if (nextSolar) {
+                        const diffDays = Math.abs(nextSolar.peak.date.getTime() - customDate.getTime()) / (24 * 60 * 60 * 1000);
+                        if (diffDays <= 15) {
+                            peakDate = nextSolar.peak.date;
+                            peakJD = nextSolar.peak.jd;
+                            eventName = "Custom Solar Eclipse";
+                            eventTypeName = nextSolar.kind.charAt(0).toUpperCase() + nextSolar.kind.slice(1) + " Solar Eclipse";
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error searching for global solar eclipse peak:", e);
+                }
+
                 const customEv = {
                     id: "custom",
-                    name: "Custom Calculation",
-                    year: customDate.getUTCFullYear(),
-                    type: "solar", // default
-                    typeName: "Local View",
-                    peakTime: customDate.toISOString(),
-                    peakJD: Astronomy.MakeTime(customDate).value,
+                    name: eventName,
+                    year: peakDate.getUTCFullYear(),
+                    type: eventType,
+                    typeName: eventTypeName,
+                    peakTime: peakDate.toISOString(),
+                    peakJD: peakJD,
                     duration: "--",
                     description: "User defined custom coordinate and time window.",
                     lat: observerLocation.lat,
@@ -350,52 +443,57 @@ function initUI() {
     document.getElementById('btn-globe-reset').addEventListener('click', () => {
         if (scene3D.controls) scene3D.controls.reset();
     });
-
-    // Globe Playback Controls
+    // Globe Playback Controls — mapped to the unified animation state
     const globePlayBtn = document.getElementById('globe-play-btn');
     if (globePlayBtn) {
         globePlayBtn.addEventListener('click', () => {
-            toggleGlobeAnimation();
+            if (isAnimating) {
+                stopAnimation();
+            } else {
+                startAnimation();
+            }
         });
     }
     const globeRestartBtn = document.getElementById('globe-restart-btn');
     if (globeRestartBtn) {
         globeRestartBtn.addEventListener('click', () => {
-            globeSliderVal = 0;
-            document.getElementById('globe-time-slider').value = 0;
-            stopGlobeAnimation();
-            updateGlobeView();
+            timeSliderVal = 0;
+            sliders.forEach(s => { if (s) s.value = 0; });
+            updateSliderGradient();
+            updateTimeFromSlider();
         });
     }
     const globePrevBtn = document.getElementById('globe-prev-btn');
     if (globePrevBtn) {
         globePrevBtn.addEventListener('click', () => {
-            globeSliderVal = Math.max(0, globeSliderVal - 1);
-            document.getElementById('globe-time-slider').value = globeSliderVal;
-            updateGlobeView();
+            timeSliderVal = Math.max(0, timeSliderVal - 2.0);
+            sliders.forEach(s => { if (s) s.value = timeSliderVal; });
+            updateSliderGradient();
+            updateTimeFromSlider();
         });
     }
     const globeNextBtn = document.getElementById('globe-next-btn');
     if (globeNextBtn) {
         globeNextBtn.addEventListener('click', () => {
-            globeSliderVal = Math.min(100, globeSliderVal + 1);
-            document.getElementById('globe-time-slider').value = globeSliderVal;
-            updateGlobeView();
+            timeSliderVal = Math.min(100, timeSliderVal + 2.0);
+            sliders.forEach(s => { if (s) s.value = timeSliderVal; });
+            updateSliderGradient();
+            updateTimeFromSlider();
         });
     }
     const globeTimeSlider = document.getElementById('globe-time-slider');
     if (globeTimeSlider) {
         globeTimeSlider.addEventListener('input', (e) => {
-            globeSliderVal = parseFloat(e.target.value);
-            updateGlobeView();
+            if (isAnimating) {
+                stopAnimation();
+            }
+            timeSliderVal = parseFloat(e.target.value);
+            sliders.forEach(s => { if (s) s.value = timeSliderVal; });
+            updateSliderGradient();
+            updateTimeFromSlider();
         });
     }
-    const globeSpeedSelect = document.getElementById('globe-speed-select');
-    if (globeSpeedSelect) {
-        globeSpeedSelect.addEventListener('change', (e) => {
-            globeSpeedMultiplier = parseInt(e.target.value);
-        });
-    }
+
 
     // Kotlin code tab buttons
     document.querySelectorAll('.code-tab-btn').forEach(btn => {
@@ -521,6 +619,136 @@ function initUI() {
             }
         });
     }
+
+    // Generate Shareable Link listener
+    const btnGenerateLink = document.getElementById('btn-generate-link');
+    if (btnGenerateLink) {
+        btnGenerateLink.addEventListener('click', () => {
+            const viewType = document.getElementById('share-view-type').value;
+            const embedMode = document.getElementById('share-embed-mode').checked;
+            const autoplay = document.getElementById('share-autoplay').checked;
+
+            const params = new URLSearchParams();
+            params.set('view', viewType);
+            if (embedMode) params.set('embed', 'true');
+            if (autoplay) params.set('autoplay', 'true');
+
+            if (currentEvent) {
+                params.set('event', currentEvent.id);
+                if (currentEvent.id === 'custom') {
+                    const customDate = document.getElementById('custom-date').value;
+                    if (customDate) params.set('date', customDate);
+                    params.set('lat', observerLocation.lat.toFixed(4));
+                    params.set('lon', observerLocation.lon.toFixed(4));
+                }
+            }
+
+            const currentSlider = document.getElementById('time-slider');
+            if (currentSlider) {
+                params.set('time', currentSlider.value);
+            }
+
+            const baseShareUrl = window.location.origin + window.location.pathname + '?' + params.toString();
+            
+            // Populate outputs
+            document.getElementById('share-url-text').value = baseShareUrl;
+            
+            // HTML IFrame Code
+            const iframeCode = `<iframe src="${baseShareUrl}&hide_tabs=true" width="100%" height="500px" style="border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;" allowfullscreen></iframe>`;
+            document.getElementById('share-iframe-text').value = iframeCode;
+
+            // Kotlin WebView integration code
+            const kotlinCode = `// Kotlin WebView Integration for Android app\n` +
+                               `val webView = WebView(context).apply {\n` +
+                               `    settings.javaScriptEnabled = true\n` +
+                               `    settings.domStorageEnabled = true\n` +
+                               `    loadUrl("${baseShareUrl}&hide_tabs=true")\n` +
+                               `}`;
+            document.getElementById('share-kotlin-text').value = kotlinCode;
+
+            // Show output container
+            document.getElementById('share-link-output').style.display = 'block';
+        });
+    }
+
+    // Simulator view mode switches
+    const btnCloseup = document.getElementById('btn-sim-mode-closeup');
+    const btnDome = document.getElementById('btn-sim-mode-dome');
+    const chkGrid = document.getElementById('chk-sim-grid');
+
+    if (btnCloseup) {
+        btnCloseup.addEventListener('click', () => {
+            simViewMode = 'closeup';
+            btnCloseup.classList.add('active');
+            if (btnDome) btnDome.classList.remove('active');
+            updateViews();
+        });
+    }
+
+    if (btnDome) {
+        btnDome.addEventListener('click', () => {
+            simViewMode = 'dome';
+            btnDome.classList.add('active');
+            if (btnCloseup) btnCloseup.classList.remove('active');
+            updateViews();
+        });
+    }
+
+    if (chkGrid) {
+        showSimGrid = chkGrid.checked;
+        chkGrid.addEventListener('change', (e) => {
+            showSimGrid = e.target.checked;
+            updateViews();
+        });
+    }
+
+    // Simulator playback controls
+    const simRestartBtn = document.getElementById('sim-restart-btn');
+    if (simRestartBtn) {
+        simRestartBtn.addEventListener('click', () => {
+            if (cachedContactTimes && cachedContactTimes.length > 0) {
+                const startBefore = new Date(cachedContactTimes[0].date.getTime() - 5 * 60000);
+                setSliderToDate(startBefore);
+            } else {
+                timeSliderVal = 0;
+                sliders.forEach(s => { if (s) s.value = 0; });
+                updateSliderGradient();
+                updateTimeFromSlider();
+            }
+        });
+    }
+
+    const simPrevBtn = document.getElementById('sim-prev-btn');
+    if (simPrevBtn) {
+        simPrevBtn.addEventListener('click', () => {
+            if (isAnimating) stopAnimation();
+            timeSliderVal = Math.max(0, timeSliderVal - 2.0);
+            sliders.forEach(s => { if (s) s.value = timeSliderVal; });
+            updateSliderGradient();
+            updateTimeFromSlider();
+        });
+    }
+
+    const simNextBtn = document.getElementById('sim-next-btn');
+    if (simNextBtn) {
+        simNextBtn.addEventListener('click', () => {
+            if (isAnimating) stopAnimation();
+            timeSliderVal = Math.min(100, timeSliderVal + 2.0);
+            sliders.forEach(s => { if (s) s.value = timeSliderVal; });
+            updateSliderGradient();
+            updateTimeFromSlider();
+        });
+    }
+
+    const simLoopBtn = document.getElementById('sim-loop-btn');
+    if (simLoopBtn) {
+        simLoopBtn.classList.toggle('active', isLooping);
+        simLoopBtn.addEventListener('click', () => {
+            isLooping = !isLooping;
+            const loopBtns = [document.getElementById('loop-btn'), document.getElementById('sim-loop-btn')];
+            loopBtns.forEach(btn => { if (btn) btn.classList.toggle('active', isLooping); });
+        });
+    }
 }
 
 // 2D Map Setup
@@ -644,6 +872,7 @@ function init2DMap() {
         dynamicObserverMarker.setLatLng(pos);
         document.getElementById('obs-lat').value = pos.lat.toFixed(4);
         document.getElementById('obs-lon').value = pos.lng.toFixed(4);
+        updateContactTimings();
         updateViews();
     });
 
@@ -653,6 +882,7 @@ function init2DMap() {
         observerMarker.setLatLng(pos);
         document.getElementById('obs-lat').value = pos.lat.toFixed(4);
         document.getElementById('obs-lon').value = pos.lng.toFixed(4);
+        updateContactTimings();
         updateViews();
     });
 
@@ -663,6 +893,7 @@ function init2DMap() {
         dynamicObserverMarker.setLatLng(e.latlng);
         document.getElementById('obs-lat').value = e.latlng.lat.toFixed(4);
         document.getElementById('obs-lon').value = e.latlng.lng.toFixed(4);
+        updateContactTimings();
         updateViews();
     });
 
@@ -672,6 +903,7 @@ function init2DMap() {
         dynamicObserverMarker.setLatLng(e.latlng);
         document.getElementById('obs-lat').value = e.latlng.lat.toFixed(4);
         document.getElementById('obs-lon').value = e.latlng.lng.toFixed(4);
+        updateContactTimings();
         updateViews();
     });
 
@@ -692,12 +924,12 @@ function init2DMap() {
 }
 
 function updateHoverTooltip(mapInstance, tooltipId, event, isStatic) {
-    if (!currentEvent || currentEvent.type !== 'solar') {
+    if (!currentEvent) {
         hideHoverTooltip(tooltipId);
         return;
     }
     const lat = event.latlng.lat;
-    const lon = event.latlng.lng;
+    const lon = ((event.latlng.lng % 360) + 540) % 360 - 180;
     
     // Bounds check to avoid calculation overflows
     if (lat < -90 || lat > 90) {
@@ -707,56 +939,121 @@ function updateHoverTooltip(mapInstance, tooltipId, event, isStatic) {
 
     let obscuration = 0;
     let magnitude = 0;
+    let typeDisplay = '';
 
-    if (isStatic) {
-        // Use the pre-computed penumbra magnitude grid for instant lookup across all shaded regions
-        const grid = mapInstance._penumbraGrid;
-        if (grid) {
-            // Normalize longitude to [-180, 180]
-            let nLon = ((lon % 360) + 540) % 360 - 180;
-            // Map lat/lon to grid coordinates
-            const gx = ((nLon + 180) / 360) * grid.width;
-            const gy = ((lat + 90) / 180) * grid.height;
-            // Bilinear interpolation for smooth values
-            const x0 = Math.floor(gx);
-            const y0 = Math.floor(gy);
-            const x1 = Math.min(x0 + 1, grid.width - 1);
-            const y1 = Math.min(y0 + 1, grid.height - 1);
-            const fx = gx - x0;
-            const fy = gy - y0;
-            const v00 = grid.data[y0 * grid.width + (x0 % grid.width)] || 0;
-            const v10 = grid.data[y0 * grid.width + (x1 % grid.width)] || 0;
-            const v01 = grid.data[y1 * grid.width + (x0 % grid.width)] || 0;
-            const v11 = grid.data[y1 * grid.width + (x1 % grid.width)] || 0;
-            magnitude = v00 * (1-fx)*(1-fy) + v10 * fx*(1-fy) + v01 * (1-fx)*fy + v11 * fx*fy;
-            // Convert magnitude to approximate obscuration
-            // For partial eclipses: obscuration ≈ arccos(1-2m)/π - (1-2m)*sqrt(4m-4m²)/π  (where m = magnitude)
-            if (magnitude > 0.001) {
-                if (magnitude >= 1.0) {
-                    obscuration = 1.0;
-                } else {
-                    const m = magnitude;
-                    obscuration = (Math.acos(1 - 2*m) - (1 - 2*m) * Math.sqrt(4*m - 4*m*m)) / Math.PI;
+    if (currentEvent.type === 'solar') {
+        if (isStatic) {
+            // Use the pre-computed penumbra magnitude grid for instant lookup across all shaded regions
+            const grid = mapInstance._penumbraGrid;
+            if (grid) {
+                // Normalize longitude to [-180, 180]
+                let nLon = ((lon % 360) + 540) % 360 - 180;
+                // Map lat/lon to grid coordinates
+                const gx = ((nLon + 180) / 360) * grid.width;
+                const gy = ((lat + 90) / 180) * grid.height;
+                // Bilinear interpolation for smooth values
+                const x0 = Math.floor(gx);
+                const y0 = Math.floor(gy);
+                const x1 = Math.min(x0 + 1, grid.width - 1);
+                const y1 = Math.min(y0 + 1, grid.height - 1);
+                const fx = gx - x0;
+                const fy = gy - y0;
+                const v00 = grid.data[y0 * grid.width + (x0 % grid.width)] || 0;
+                const v10 = grid.data[y0 * grid.width + (x1 % grid.width)] || 0;
+                const v01 = grid.data[y1 * grid.width + (x0 % grid.width)] || 0;
+                const v11 = grid.data[y1 * grid.width + (x1 % grid.width)] || 0;
+                magnitude = v00 * (1-fx)*(1-fy) + v10 * fx*(1-fy) + v01 * (1-fx)*fy + v11 * fx*fy;
+                // Convert magnitude to approximate obscuration
+                if (magnitude > 0.001) {
+                    if (magnitude >= 1.0) {
+                        obscuration = 1.0;
+                    } else {
+                        const m = magnitude;
+                        obscuration = (Math.acos(1 - 2*m) - (1 - 2*m) * Math.sqrt(4*m - 4*m*m)) / Math.PI;
+                    }
                 }
             }
+        } else {
+            // Calculate instantaneous obscuration for active simulation time
+            const activeDate = getActiveTime();
+            const res = AstronomyHelper.calculateLocalSolarEclipse(activeDate, lat, lon);
+            if (res) {
+                obscuration = res.obscuration;
+                magnitude = res.magnitude;
+            }
         }
-    } else {
-        // Calculate instantaneous obscuration for active simulation time
-        const activeDate = getActiveTime();
-        const res = AstronomyHelper.calculateLocalSolarEclipse(activeDate, lat, lon);
-        if (res) {
-            obscuration = res.obscuration;
-            magnitude = res.magnitude;
+        if (obscuration > 0.001) {
+            typeDisplay = magnitude >= 1.0 ? 'Total' : 'Partial';
+        }
+    } else if (currentEvent.type === 'lunar') {
+        let penumbralMag = 0;
+        let umbralMag = 0;
+        let moonAlt = 0;
+        if (isStatic) {
+            const res = AstronomyHelper.calculateMaxLocalLunarEclipse(currentEvent.peakJD, lat, lon);
+            if (res) {
+                obscuration = res.obscuration;
+                typeDisplay = res.type;
+                penumbralMag = res.penumbralMagnitude;
+                umbralMag = res.umbralMagnitude;
+                // Get Moon altitude at peak time for static reference
+                const peakRes = AstronomyHelper.calculateLocalLunarEclipse(dateFromJD(currentEvent.peakJD), lat, lon);
+                if (peakRes) moonAlt = peakRes.moonAlt;
+            }
+        } else {
+            const activeDate = getActiveTime();
+            const res = AstronomyHelper.calculateLocalLunarEclipse(activeDate, lat, lon);
+            if (res && res.moonAlt > 0) {
+                obscuration = res.obscuration;
+                typeDisplay = res.type;
+                penumbralMag = res.penumbralMagnitude;
+                umbralMag = res.umbralMagnitude;
+                moonAlt = res.moonAlt;
+            }
+        }
+
+        if (obscuration > 0.001) {
+            const tooltip = document.getElementById(tooltipId);
+            if (tooltip) {
+                const lang = getCurrentLanguage();
+                const dict = (window.TRANSLATIONS && window.TRANSLATIONS[lang]) || {};
+                const typeTranslated = dict[typeDisplay] || typeDisplay;
+                const obsLabel = dict['stats_label_obs'] || 'Obscuration';
+                const typeLabel = dict['stats_label_type'] || 'Type';
+
+                tooltip.innerHTML = `
+                    <div style="font-weight:700; margin-bottom: 2px;">Exact Location Info</div>
+                    <div><strong>${typeLabel}:</strong> ${typeTranslated}</div>
+                    <div><strong>${obsLabel}:</strong> ${(obscuration * 100).toFixed(1)}%</div>
+                    <div><strong>Penumbral Mag:</strong> ${penumbralMag.toFixed(3)}</div>
+                    <div><strong>Umbral Mag:</strong> ${umbralMag.toFixed(3)}</div>
+                    <div><strong>Moon Alt:</strong> ${moonAlt.toFixed(1)}&deg;</div>
+                    <div style="font-size: 9px; color: rgba(255,255,255,0.4); margin-top: 4px; text-transform: uppercase;">Lat: ${lat.toFixed(2)}&deg; | Lon: ${lon.toFixed(2)}&deg;</div>
+                `;
+                const x = event.containerPoint.x + 15;
+                const y = event.containerPoint.y + 15;
+
+                tooltip.style.left = x + 'px';
+                tooltip.style.top = y + 'px';
+                tooltip.style.display = 'block';
+            }
+            return;
         }
     }
 
     if (obscuration > 0.001) {
         const tooltip = document.getElementById(tooltipId);
         if (tooltip) {
+            const lang = getCurrentLanguage();
+            const dict = (window.TRANSLATIONS && window.TRANSLATIONS[lang]) || {};
+            const typeTranslated = dict[typeDisplay] || typeDisplay;
+            const obsLabel = dict['stats_label_obs'] || 'Obscuration';
+            const typeLabel = dict['stats_label_type'] || 'Type';
+
             tooltip.innerHTML = `
                 <div style="font-weight:700; margin-bottom: 2px;">Exact Location Info</div>
-                <div><strong>Obscuration:</strong> ${(obscuration * 100).toFixed(1)}%</div>
-                <div><strong>Magnitude:</strong> ${magnitude.toFixed(3)}</div>
+                <div><strong>${typeLabel}:</strong> ${typeTranslated}</div>
+                <div><strong>${obsLabel}:</strong> ${(obscuration * 100).toFixed(1)}%</div>
                 <div style="font-size: 9px; color: rgba(255,255,255,0.4); margin-top: 4px; text-transform: uppercase;">Lat: ${lat.toFixed(2)}&deg; | Lon: ${lon.toFixed(2)}&deg;</div>
             `;
             // Coordinates relative to map container
@@ -829,10 +1126,57 @@ function initGlobeScene() {
     earthTexture.anisotropy = scene3D.renderer.capabilities.getMaxAnisotropy();
     scene3D.earthTexture = earthTexture;
 
-    // Earth Globe — flat lit (MeshBasicMaterial) for uniform contrast
+    // Custom Day/Night Shader Material
+    const dayNightShader = {
+        uniforms: {
+            dayTexture: { value: earthTexture },
+            sunDirection: { value: new THREE.Vector3(1, 0, 0) },
+            disableNight: { value: 0.0 },
+            disableNightEntirely: { value: 0.0 }
+        },
+        vertexShader: `
+            varying vec2 vUv;
+            varying vec3 vNormal;
+            void main() {
+                vUv = uv;
+                vNormal = normalize(normal);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            varying vec2 vUv;
+            varying vec3 vNormal;
+            uniform sampler2D dayTexture;
+            uniform vec3 sunDirection;
+            uniform float disableNight;
+            uniform float disableNightEntirely;
+
+            void main() {
+                vec4 dayColor = texture2D(dayTexture, vUv);
+                
+                // Night side styling: neutral dark gray shade (as requested) for standard night and eclipse-off
+                vec4 nightColor = vec4(dayColor.r * 0.38, dayColor.g * 0.38, dayColor.b * 0.40, dayColor.a);
+                
+                // Lunar Eclipse active night: slightly brighter dark purple shade background
+                vec4 lunarNightColor = vec4(dayColor.r * 0.44 + 0.08, dayColor.g * 0.38 + 0.04, dayColor.b * 0.55 + 0.14, dayColor.a);
+                
+                // Dot product of normal and sun direction (ranges from -1 to 1)
+                float dotNL = dot(normalize(vNormal), normalize(sunDirection));
+                
+                // Smooth transition at the terminator (dusks/twilights)
+                float intensity = smoothstep(-0.20, 0.20, dotNL);
+                
+                vec4 finalNight = mix(nightColor, lunarNightColor, disableNight);
+                gl_FragColor = mix(finalNight, dayColor, max(intensity, disableNightEntirely));
+            }
+        `
+    };
+
     const earthGeo = new THREE.SphereGeometry(2, 96, 96);
-    const earthMat = new THREE.MeshBasicMaterial({
-        map: earthTexture
+    const earthMat = new THREE.ShaderMaterial({
+        uniforms: dayNightShader.uniforms,
+        vertexShader: dayNightShader.vertexShader,
+        fragmentShader: dayNightShader.fragmentShader
     });
     scene3D.earth = new THREE.Mesh(earthGeo, earthMat);
     scene3D.scene.add(scene3D.earth);
@@ -999,21 +1343,47 @@ function renderBaseMap() {
 }
 
 function drawCanvasPolygon(ctx, rings, W, H) {
+    if (!rings || rings.length === 0) return;
+
+    // We will draw each ring by unrolling its coordinates (making it continuous)
+    // and drawing it three times with offsets (-W, 0, W) to handle antimeridian wrapping.
+    const offsets = [-W, 0, W];
+
     ctx.beginPath();
-    rings.forEach((ring, ringIdx) => {
-        if (ring.length < 3) return;
-        for (let i = 0; i < ring.length; i++) {
-            const [lon, lat] = ring[i];
-            const x = ((lon + 180) / 360) * W;
-            const y = ((90 - lat) / 180) * H;
-            if (i === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
+    offsets.forEach(offset => {
+        rings.forEach(ring => {
+            if (!ring || ring.length < 3) return;
+
+            // Unroll the ring to make it continuous
+            const unrolled = [];
+            for (let i = 0; i < ring.length; i++) {
+                const [lon, lat] = ring[i];
+                if (i === 0) {
+                    unrolled.push([lon, lat]);
+                } else {
+                    const prevLon = unrolled[i - 1][0];
+                    let diff = lon - prevLon;
+                    while (diff < -180) diff += 360;
+                    while (diff > 180) diff -= 360;
+                    unrolled.push([prevLon + diff, lat]);
+                }
             }
-        }
-        ctx.closePath();
+
+            // Draw the unrolled ring shifted by the current offset
+            for (let i = 0; i < unrolled.length; i++) {
+                const [lon, lat] = unrolled[i];
+                const x = ((lon + 180) / 360) * W + offset;
+                const y = ((90 - lat) / 180) * H;
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.closePath();
+        });
     });
+
     ctx.fill('evenodd');
     ctx.stroke();
 }
@@ -1029,6 +1399,49 @@ function latLonToGlobe(lat, lon, R = 2.01) {
         R * Math.sin(latRad),
         R * Math.cos(latRad) * Math.sin(lonRad)
     );
+}
+
+/**
+ * Maps lat/lon geodetic coordinates to the vertex coordinate system of the Three.js SphereGeometry
+ * to ensure perfect geographic tracking.
+ */
+function latLonToWorld(lat, lon, R = 1.0) {
+    const latRad = lat * Math.PI / 180;
+    const lonRad = lon * Math.PI / 180;
+    return new THREE.Vector3(
+        R * Math.cos(latRad) * Math.cos(lonRad),
+        R * Math.sin(latRad),
+        -R * Math.cos(latRad) * Math.sin(lonRad)
+    );
+}
+
+/**
+ * Calculates the 3D Sun direction vector relative to the Earth ECEF coordinates
+ * at a specific date using the Astronomy Engine.
+ */
+function calculateSunDirection(date) {
+    if (typeof Astronomy === 'undefined') {
+        return new THREE.Vector3(1, 0, 0);
+    }
+    const t = Astronomy.MakeTime(date);
+    const sun = Astronomy.GeoVector(Astronomy.Body.Sun, t, false);
+    if (!sun) return new THREE.Vector3(1, 0, 0);
+
+    const dist = Math.sqrt(sun.x * sun.x + sun.y * sun.y + sun.z * sun.z);
+    const sx = sun.x / dist, sy = sun.y / dist, sz = sun.z / dist;
+
+    const gmst = Astronomy.SiderealTime(t);
+    const theta = gmst * 15 * Math.PI / 180;
+    const cosTheta = Math.cos(theta), sinTheta = Math.sin(theta);
+
+    const ex = sx * cosTheta + sy * sinTheta;
+    const ey = -sx * sinTheta + sy * cosTheta;
+    const ez = sz;
+
+    const lat = Math.atan2(ez, Math.sqrt(ex * ex + ey * ey)) * 180 / Math.PI;
+    const lon = Math.atan2(ey, ex) * 180 / Math.PI;
+
+    return latLonToWorld(lat, lon, 1.0);
 }
 
 /**
@@ -1066,7 +1479,7 @@ function drawGlobeLayers() {
     drawTotalityRibbonOnCanvas(ctx, W, H);
 
     // 3. Draw contours
-    if (!isGlobeAnimating && globeSliderVal === 0) {
+    if (!isAnimating) {
         drawContoursOnCanvas(ctx, scene3D.staticContours, W, H);
     } else {
         drawContoursOnCanvas(ctx, scene3D.instantaneousContours, W, H);
@@ -1076,7 +1489,7 @@ function drawGlobeLayers() {
             const ev = currentEvent;
             const durationHours = 6;
             const startJD = ev.peakJD - durationHours / 48;
-            const fraction = globeSliderVal / 100;
+            const fraction = timeSliderVal / 100;
             const activeJD = startJD + fraction * (durationHours / 24);
             const activeDate = dateFromJD(activeJD);
             
@@ -1107,20 +1520,64 @@ function drawContoursOnCanvas(ctx, features, W, H) {
         0.75: { fillColor: 'rgba(210, 80, 100, 0.55)',  strokeColor: 'rgba(190, 55, 75, 0.75)' }   // >75% — deep rose
     };
 
-    // Sort features from outermost (lowest threshold) to innermost (highest) to layer properly
+    // Sort features from outermost (lowest threshold) to innermost (highest, with umbra at 1.0/1.2) to layer properly
     const sorted = [...features].sort((a, b) => {
-        const ma = a.properties ? (a.properties.magnitude || a.properties.threshold || 0) : 0;
-        const mb = b.properties ? (b.properties.magnitude || b.properties.threshold || 0) : 0;
-        return ma - mb;
+        const getWeight = (f) => {
+            if (!f.properties) return 0;
+            if (f.properties.isUmbra || f.properties.isLunarTotal) return 1.2;
+            if (f.properties.isLunarUmbral) return 1.0;
+            if (f.properties.isTransitPeak) return 0.9;
+            if (f.properties.isLunarPenumbralTotal) return 0.7;
+            if (f.properties.isTransitLimits) return 0.6;
+            if (f.properties.isLunarPenumbral) return 0.5;
+            return f.properties.magnitude || f.properties.threshold || 0.01;
+        };
+        return getWeight(a) - getWeight(b);
     });
 
     sorted.forEach(feature => {
-        const threshold = feature.properties ? feature.properties.magnitude || feature.properties.threshold : 0.01;
-        const style = styleMap[threshold] || styleMap[0.01];
+        if (feature.properties && feature.properties.isUmbra) {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+            ctx.strokeStyle = 'rgba(255, 59, 48, 0.9)';
+            ctx.lineWidth = 2.0;
+        } else if (feature.properties && feature.properties.isLunarTotal) {
+            const isInst = feature.properties.isInstantaneous;
+            ctx.fillStyle = isInst ? 'rgba(138, 26, 21, 0.52)' : 'rgba(138, 26, 21, 0.16)';
+            ctx.strokeStyle = isInst ? 'rgba(138, 26, 21, 0.72)' : 'rgba(138, 26, 21, 0.28)';
+            ctx.lineWidth = 1.0;
+        } else if (feature.properties && feature.properties.isLunarUmbral) {
+            const isInst = feature.properties.isInstantaneous;
+            ctx.fillStyle = isInst ? 'rgba(74, 20, 140, 0.40)' : 'rgba(74, 20, 140, 0.12)';
+            ctx.strokeStyle = isInst ? 'rgba(74, 20, 140, 0.60)' : 'rgba(74, 20, 140, 0.22)';
+            ctx.lineWidth = 1.0;
+        } else if (feature.properties && feature.properties.isTransitPeak) {
+            const isInst = feature.properties.isInstantaneous;
+            ctx.fillStyle = isInst ? 'rgba(255, 167, 38, 0.36)' : 'rgba(255, 167, 38, 0.12)';
+            ctx.strokeStyle = isInst ? 'rgba(255, 167, 38, 0.55)' : 'rgba(255, 167, 38, 0.22)';
+            ctx.lineWidth = 1.0;
+        } else if (feature.properties && feature.properties.isLunarPenumbralTotal) {
+            const isInst = feature.properties.isInstantaneous;
+            ctx.fillStyle = isInst ? 'rgba(123, 31, 162, 0.34)' : 'rgba(123, 31, 162, 0.10)';
+            ctx.strokeStyle = isInst ? 'rgba(123, 31, 162, 0.50)' : 'rgba(123, 31, 162, 0.18)';
+            ctx.lineWidth = 1.0;
+        } else if (feature.properties && feature.properties.isTransitLimits) {
+            const isInst = feature.properties.isInstantaneous;
+            ctx.fillStyle = isInst ? 'rgba(255, 224, 130, 0.22)' : 'rgba(255, 224, 130, 0.06)';
+            ctx.strokeStyle = isInst ? 'rgba(255, 224, 130, 0.35)' : 'rgba(255, 224, 130, 0.12)';
+            ctx.lineWidth = 1.0;
+        } else if (feature.properties && feature.properties.isLunarPenumbral) {
+            const isInst = feature.properties.isInstantaneous;
+            ctx.fillStyle = isInst ? 'rgba(186, 104, 200, 0.24)' : 'rgba(186, 104, 200, 0.08)';
+            ctx.strokeStyle = isInst ? 'rgba(186, 104, 200, 0.40)' : 'rgba(186, 104, 200, 0.15)';
+            ctx.lineWidth = 1.0;
+        } else {
+            const threshold = feature.properties ? feature.properties.magnitude || feature.properties.threshold : 0.01;
+            const style = styleMap[threshold] || styleMap[0.01];
 
-        ctx.fillStyle = style.fillColor;
-        ctx.strokeStyle = style.strokeColor;
-        ctx.lineWidth = 1.0;
+            ctx.fillStyle = style.fillColor;
+            ctx.strokeStyle = style.strokeColor;
+            ctx.lineWidth = 1.0;
+        }
 
         const type = feature.geometry.type;
         const coords = feature.geometry.coordinates;
@@ -1142,9 +1599,6 @@ function drawContoursOnCanvas(ctx, features, W, H) {
 function drawContourPolygon(ctx, rings, W, H) {
     if (!rings || rings.length === 0) return;
 
-    // To prevent antimeridian crossing cuts/fraying, draw the polygon path
-    // with three offset copies: shifted left by W, centered, and shifted right by W.
-    // This allows unrolled coordinates outside [-180, 180] to wrap seamlessly.
     const offsets = [-W, 0, W];
 
     ctx.beginPath();
@@ -1169,11 +1623,13 @@ function drawContourPolygon(ctx, rings, W, H) {
     ctx.stroke();
 }
 
+
+
 /**
  * Draw the totality path ribbon and centerline wrapping-safely onto the canvas.
  */
 function drawTotalityRibbonOnCanvas(ctx, W, H) {
-    if (!currentEventTrack || currentEventTrack.length === 0) return;
+    if (!currentEvent || currentEvent.type !== 'solar' || !currentEventTrack || currentEventTrack.length === 0) return;
 
     const central = currentEventTrack.filter(pt => pt.type === 'Total' || pt.type === 'Annular');
     if (central.length < 2) return;
@@ -1259,7 +1715,7 @@ function updateGlobeView() {
     const ev = currentEvent;
     const durationHours = 6;
     const startJD = ev.peakJD - durationHours / 48;
-    const fraction = globeSliderVal / 100;
+    const fraction = timeSliderVal / 100;
     const activeJD = startJD + fraction * (durationHours / 24);
     const activeDate = dateFromJD(activeJD);
 
@@ -1293,7 +1749,7 @@ function updateGlobeView() {
         }
 
         // Calculate dynamic shadow contours if animating
-        if (isGlobeAnimating || globeSliderVal > 0) {
+        if (isAnimating || timeSliderVal > 0) {
             const footprints = AstronomyHelper.calculateProjectedShadowFootprints(activeDate);
             const dynamicFeatures = [];
             if (footprints) {
@@ -1311,8 +1767,139 @@ function updateGlobeView() {
                         });
                     }
                 });
+
+                // Add umbra layer if present
+                if (footprints.umbra && footprints.umbra.coordinates && footprints.umbra.coordinates.length > 2) {
+                    const coords = footprints.umbra.coordinates;
+                    dynamicFeatures.push({
+                        type: "Feature",
+                        properties: { isUmbra: true, umbraType: footprints.umbra.type },
+                        geometry: {
+                            type: "Polygon",
+                            coordinates: [coords.map(pt => [pt[1], pt[0]])]
+                        }
+                    });
+                }
             }
             scene3D.instantaneousContours = dynamicFeatures;
+        }
+    } else if (ev.type === 'lunar') {
+        const valLat = document.getElementById('val-globe-lat');
+        const valLon = document.getElementById('val-globe-lon');
+        const valObs = document.getElementById('val-globe-obs');
+
+        const t = Astronomy.MakeTime(activeDate);
+        const sun = Astronomy.GeoVector(Astronomy.Body.Sun, t, false);
+        const local = AstronomyHelper.calculateLocalLunarEclipse(activeDate, observerLocation.lat, observerLocation.lon);
+
+        if (sun && local) {
+            const R_dist = Math.sqrt(sun.x*sun.x + sun.y*sun.y + sun.z*sun.z);
+            const subsolarLat = Math.asin(sun.z/R_dist) * 180 / Math.PI;
+            const gmst = Astronomy.SiderealTime(t);
+            let subsolarLon = Math.atan2(sun.y, sun.x) * 180 / Math.PI - gmst * 15;
+            while (subsolarLon < -180) subsolarLon += 360;
+            while (subsolarLon > 180) subsolarLon -= 360;
+
+            const antiLat = -subsolarLat;
+            let antiLon = subsolarLon + 180;
+            while (antiLon < -180) antiLon += 360;
+            while (antiLon > 180) antiLon -= 360;
+
+            if (valLat) valLat.innerText = antiLat.toFixed(2) + '°';
+            if (valLon) valLon.innerText = antiLon.toFixed(2) + '°';
+            if (valObs) valObs.innerText = (local.obscuration * 100).toFixed(1) + '%';
+        } else {
+            if (valLat) valLat.innerText = '--°';
+            if (valLon) valLon.innerText = '--°';
+            if (valObs) valObs.innerText = '--%';
+        }
+
+        // Calculate dynamic shadow contours if animating
+        if (isAnimating || timeSliderVal > 0) {
+            const footprints = AstronomyHelper.calculateLocalLunarEclipse(activeDate, 0, 0);
+            if (footprints && footprints.obscuration > 0) {
+                const coords = AstronomyHelper.calculateDayNightTerminator(activeDate);
+                if (coords) {
+                    scene3D.instantaneousContours = [{
+                        type: "Feature",
+                        properties: {
+                            isLunarTotal: footprints.type === 'Total' || footprints.umbralMagnitude >= 1.0,
+                            isLunarUmbral: footprints.type === 'Partial' || (footprints.umbralMagnitude > 0.0 && footprints.umbralMagnitude < 1.0),
+                            isLunarPenumbralTotal: footprints.penumbralMagnitude >= 1.0 && footprints.umbralMagnitude <= 0.0,
+                            isLunarPenumbral: footprints.penumbralMagnitude > 0.0 && footprints.penumbralMagnitude < 1.0 && footprints.umbralMagnitude <= 0.0,
+                            isInstantaneous: true
+                        },
+                        geometry: {
+                            type: "Polygon",
+                            coordinates: [coords.map(pt => [pt[1], pt[0]])]
+                        }
+                    }];
+                } else {
+                    scene3D.instantaneousContours = [];
+                }
+            } else {
+                scene3D.instantaneousContours = [];
+            }
+        }
+    } else if (ev.type === 'transit') {
+        if (isAnimating || timeSliderVal > 0) {
+            const peakDate = dateFromJD(ev.peakJD);
+            const startSearch = new Date(peakDate.getTime() - 12 * 60 * 60 * 1000);
+            const t = Astronomy.MakeTime(startSearch);
+            const body = ev.typeName.includes('Venus') ? Astronomy.Body.Venus : Astronomy.Body.Mercury;
+            let transit = null;
+            try {
+                transit = Astronomy.SearchTransit(body, t);
+            } catch (e) {}
+
+            if (transit) {
+                const tStart = new Date(transit.start.date);
+                const tFinish = new Date(transit.finish.date);
+                if (activeDate >= tStart && activeDate <= tFinish) {
+                    const coords = AstronomyHelper.calculateDaylightTerminator(activeDate);
+                    if (coords) {
+                        scene3D.instantaneousContours = [{
+                            type: "Feature",
+                            properties: {
+                                isTransitPeak: true,
+                                isInstantaneous: true
+                            },
+                            geometry: {
+                                type: "Polygon",
+                                coordinates: [coords.map(pt => [pt[1], pt[0]])]
+                            }
+                        }];
+                    } else {
+                        scene3D.instantaneousContours = [];
+                    }
+                } else {
+                    scene3D.instantaneousContours = [];
+                }
+            } else {
+                scene3D.instantaneousContours = [];
+            }
+        } else {
+            scene3D.instantaneousContours = [];
+        }
+    }
+
+    // Update Sun direction and disableNight uniforms for day/night shader
+    const sunDir = calculateSunDirection(activeDate);
+    if (scene3D.earth && scene3D.earth.material.uniforms) {
+        scene3D.earth.material.uniforms.sunDirection.value.copy(sunDir);
+        
+        let disableNightVal = 0.0;
+        if (ev.type === 'lunar') {
+            const local = AstronomyHelper.calculateLocalLunarEclipse(activeDate, 0, 0);
+            if (local && local.obscuration > 0.0001) {
+                disableNightVal = 1.0;
+            }
+        }
+        if (scene3D.earth.material.uniforms.disableNight) {
+            scene3D.earth.material.uniforms.disableNight.value = disableNightVal;
+        }
+        if (scene3D.earth.material.uniforms.disableNightEntirely) {
+            scene3D.earth.material.uniforms.disableNightEntirely.value = isAnimating ? 0.0 : 1.0;
         }
     }
 
@@ -1323,45 +1910,7 @@ function updateGlobeView() {
 /**
  * Toggle animation state
  */
-function toggleGlobeAnimation() {
-    if (isGlobeAnimating) {
-        stopGlobeAnimation();
-    } else {
-        startGlobeAnimation();
-    }
-}
-
-function startGlobeAnimation() {
-    isGlobeAnimating = true;
-    const playBtn = document.getElementById('globe-play-btn');
-    if (playBtn) {
-        playBtn.querySelector('.play-icon').style.display = 'none';
-        playBtn.querySelector('.pause-icon').style.display = 'block';
-    }
-
-    if (globeAnimInterval) clearInterval(globeAnimInterval);
-    globeAnimInterval = setInterval(() => {
-        globeSliderVal += 0.15 * globeSpeedMultiplier;
-        if (globeSliderVal >= 100) {
-            globeSliderVal = 0;
-        }
-        document.getElementById('globe-time-slider').value = globeSliderVal;
-        updateGlobeView();
-    }, 30);
-}
-
-function stopGlobeAnimation() {
-    isGlobeAnimating = false;
-    const playBtn = document.getElementById('globe-play-btn');
-    if (playBtn) {
-        playBtn.querySelector('.play-icon').style.display = 'block';
-        playBtn.querySelector('.pause-icon').style.display = 'none';
-    }
-    if (globeAnimInterval) {
-        clearInterval(globeAnimInterval);
-        globeAnimInterval = null;
-    }
-}
+// Obsolete Globe animations removed in favor of unified timeline.
 
 // Select Preset Event
 function selectEvent(ev) {
@@ -1369,24 +1918,25 @@ function selectEvent(ev) {
     stopAnimation();
 
     // Set side panel values
-    document.getElementById('val-name').innerText = ev.name;
-    document.getElementById('val-type').innerText = ev.typeName;
+    const lang = getCurrentLanguage();
+    const typeNameTranslated = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang][ev.typeName]) || ev.typeName;
+    const nameTranslated = translateEventName(ev.name, lang);
+    document.getElementById('val-name').innerText = nameTranslated;
+    document.getElementById('val-type').innerText = typeNameTranslated;
     
     const peakDate = dateFromJD(ev.peakJD);
     document.getElementById('val-peak-time').innerText = formatDate(peakDate) + " " + peakDate.toUTCString().split(" ")[4] + " UTC";
     document.getElementById('val-duration').innerText = ev.duration;
 
-    // Reset Sliders
+    // Reset Sliders — unified
     timeSliderVal = 0;
-    document.getElementById('time-slider').value = 0;
-    document.getElementById('sim-time-slider').value = 0;
+    const sliders = [
+        document.getElementById('time-slider'),
+        document.getElementById('sim-time-slider'),
+        document.getElementById('globe-time-slider')
+    ];
+    sliders.forEach(s => { if (s) s.value = 0; });
     updateSliderGradient();
-
-    // Reset Globe Slider & Animation
-    globeSliderVal = 0;
-    const globeTimeSlider = document.getElementById('globe-time-slider');
-    if (globeTimeSlider) globeTimeSlider.value = 0;
-    stopGlobeAnimation();
 
     // Reset shadow center marker so it will be recreated for the new event
     if (shadowCenterMarker && dynamicMap) {
@@ -1413,11 +1963,14 @@ function selectEvent(ev) {
         dynamicMap.setView([ev.lat, ev.lon], ev.type === 'solar' ? 3 : 2);
     }
 
-    // Load NASA photos
-    fetchNASAImages(ev);
+    // Update local contact timings for the new event
+    updateContactTimings();
 
     // Update time from slider (which will also call updateViews)
     updateTimeFromSlider();
+    
+    // Update legends dynamically
+    updateLegends();
 }
 
 // Get the Date object corresponding to the current slider position
@@ -1434,11 +1987,18 @@ function getActiveTime() {
 }
 
 function updateSliderGradient() {
-    const slider = document.getElementById('time-slider');
-    if (slider) {
-        const pct = ((slider.value - slider.min) / (slider.max - slider.min) * 100).toFixed(1) + '%';
-        slider.style.setProperty('--pct', pct);
-    }
+    const sliders = [
+        document.getElementById('time-slider'),
+        document.getElementById('sim-time-slider'),
+        document.getElementById('globe-time-slider')
+    ];
+    sliders.forEach(slider => {
+        if (slider) {
+            const pct = ((slider.value - slider.min) / (slider.max - slider.min) * 100).toFixed(1) + '%';
+            slider.style.setProperty('--pct', pct);
+            slider.style.background = `linear-gradient(to right, #125dff 0%, #125dff ${pct}, rgba(255,255,255,0.1) ${pct}, rgba(255,255,255,0.1) 100%)`;
+        }
+    });
 }
 
 function updateTimeFromSlider() {
@@ -1469,20 +2029,32 @@ function startAnimation() {
     
     updatePlayButtonsState();
 
+    passedBookmarkPcts.clear();
     animInterval = setInterval(() => {
+        if (bookmarkPauseActive) return; // paused at a bookmark, skip tick
+
+        const prevVal = timeSliderVal;
         timeSliderVal += 0.08 * simSpeedMultiplier;
         if (timeSliderVal > 100) {
             if (isLooping) {
                 timeSliderVal = 0;
+                passedBookmarkPcts.clear();
             } else {
                 timeSliderVal = 100;
                 stopAnimation();
             }
         }
         
-        const sliders = [document.getElementById('time-slider'), document.getElementById('sim-time-slider')];
-        sliders.forEach(s => s.value = timeSliderVal);
+        const sliders = [
+            document.getElementById('time-slider'), 
+            document.getElementById('sim-time-slider'),
+            document.getElementById('globe-time-slider')
+        ];
+        sliders.forEach(s => { if (s) s.value = timeSliderVal; });
         updateTimeFromSlider();
+
+        // Check if we just crossed a bookmark
+        checkBookmarkCrossing(prevVal, timeSliderVal);
     }, 50);
 }
 
@@ -1509,13 +2081,34 @@ function updatePlayButtonsState() {
             }
         }
     }
+
+    const globePlayBtn = document.getElementById('globe-play-btn');
+    if (globePlayBtn) {
+        const playIcon = globePlayBtn.querySelector('.play-icon');
+        const pauseIcon = globePlayBtn.querySelector('.pause-icon');
+        if (playIcon && pauseIcon) {
+            if (isAnimating) {
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+            } else {
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+            }
+        }
+    }
     
     const simPlayBtn = document.getElementById('sim-play-btn');
     if (simPlayBtn) {
-        if (isAnimating) {
-            simPlayBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
-        } else {
-            simPlayBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+        const playIcon = simPlayBtn.querySelector('.play-icon');
+        const pauseIcon = simPlayBtn.querySelector('.pause-icon');
+        if (playIcon && pauseIcon) {
+            if (isAnimating) {
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+            } else {
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+            }
         }
     }
 }
@@ -1532,6 +2125,281 @@ function updateViews() {
     updateGlobeView();
     // 3. Update Local Sky Canvas
     updateLocalSimulator(activeTime);
+
+    // 4. Highlight active phase in the contact list
+    highlightActivePhase(activeTime);
+}
+
+// Show/hide the event info box
+function showEventInfo(bookmark) {
+    activeBookmarkInfo = bookmark;
+    const infoSection = document.getElementById('sim-event-info-section');
+    const infoDesc = document.getElementById('sim-event-info-desc');
+    if (!infoSection || !infoDesc) return;
+    const html = getEventPhaseExplanation(bookmark);
+    if (html) {
+        infoDesc.innerHTML = html;
+        infoSection.style.display = 'block';
+    }
+}
+
+function hideEventInfo() {
+    activeBookmarkInfo = null;
+    const infoSection = document.getElementById('sim-event-info-section');
+    if (infoSection) infoSection.style.display = 'none';
+}
+
+// Show info box when slider is close to a bookmark, hide it otherwise
+function updateInfoForSliderVal(val) {
+    const bookmarks = getBookmarkPcts();
+    const threshold = 1.5;
+    let nearBookmark = null;
+
+    for (const b of bookmarks) {
+        if (Math.abs(val - b.pct) < threshold) {
+            nearBookmark = b;
+            break;
+        }
+    }
+
+    if (nearBookmark) {
+        showEventInfo(nearBookmark);
+    } else {
+        hideEventInfo();
+    }
+}
+
+// Get all bookmark percentage positions
+function getBookmarkPcts() {
+    if (!currentEvent || !cachedContactTimes || cachedContactTimes.length === 0) return [];
+    const rangeDays = (currentEvent.type === 'lunar' ? 4 : 3) / 24;
+    const bookmarks = [];
+
+    cachedContactTimes.forEach(c => {
+        const t = Astronomy.MakeTime(c.date);
+        const offsetDays = t.ut - currentEvent.peakJD;
+        let pct = 50 + 50 * (offsetDays / rangeDays);
+        if (pct >= 0 && pct <= 100) {
+            let label = c.defaultLabel.split(':')[0].split('(')[0].trim();
+            bookmarks.push({ pct, label, date: c.date });
+        }
+    });
+
+    const sunTimes = findSunriseSunsetTimes();
+    sunTimes.forEach(s => {
+        const t = Astronomy.MakeTime(s.date);
+        const offsetDays = t.ut - currentEvent.peakJD;
+        let pct = 50 + 50 * (offsetDays / rangeDays);
+        if (pct >= 0 && pct <= 100) {
+            bookmarks.push({ pct, label: s.label, date: s.date });
+        }
+    });
+
+    bookmarks.sort((a, b) => a.pct - b.pct);
+    return bookmarks;
+}
+
+// Recalculate trajectory paths for Sun/Shadow and Moon/Planet across the timeline
+function recalculateTrajectories() {
+    cachedSunTrajectory = [];
+    cachedMoonTrajectory = [];
+    if (!currentEvent) return;
+
+    const lat = observerLocation.lat;
+    const lon = observerLocation.lon;
+    const rangeDays = (currentEvent.type === 'lunar' ? 4 : 3) / 24;
+    const samples = 60; // 60 points for high-fidelity smooth paths
+
+    for (let i = 0; i <= samples; i++) {
+        const offsetDays = ((i - samples/2) / (samples/2)) * rangeDays;
+        const jd = currentEvent.peakJD + offsetDays;
+        const date = dateFromJD(jd);
+
+        if (currentEvent.type === 'solar') {
+            const local = AstronomyHelper.calculateLocalSolarEclipse(date, lat, lon);
+            if (local) {
+                // Project Sun (Physical topocentric coordinates)
+                const rSun = 170 * (90 - local.sunAlt) / 90;
+                const angleSun = (local.sunAz - 90) * Math.PI / 180;
+                const xSun = rSun * Math.cos(angleSun);
+                const ySun = rSun * Math.sin(angleSun);
+
+                // Project Moon (Physical topocentric coordinates)
+                const rMoonReal = 170 * (90 - local.moonAlt) / 90;
+                const angleMoon = (local.moonAz - 90) * Math.PI / 180;
+                const xMoonReal = rMoonReal * Math.cos(angleMoon);
+                const yMoonReal = rMoonReal * Math.sin(angleMoon);
+
+                cachedSunTrajectory.push({ x: xSun, y: ySun, alt: local.sunAlt });
+                cachedMoonTrajectory.push({ x: xMoonReal, y: yMoonReal, alt: local.moonAlt });
+            }
+        } else if (currentEvent.type === 'lunar') {
+            const local = AstronomyHelper.calculateLocalLunarEclipse(date, lat, lon);
+            if (local) {
+                // Project shadow center (antisolar point)
+                const shadowAlt = -local.sunAlt;
+                const shadowAz = (local.sunAz + 180) % 360;
+                const rShadow = 170 * (90 - shadowAlt) / 90;
+                const angleShadow = (shadowAz - 90) * Math.PI / 180;
+                const xShadow = rShadow * Math.cos(angleShadow);
+                const yShadow = rShadow * Math.sin(angleShadow);
+
+                // Project Moon (Physical topocentric coordinates)
+                const rMoonReal = 170 * (90 - local.moonAlt) / 90;
+                const angleMoon = (local.moonAz - 90) * Math.PI / 180;
+                const xMoonReal = rMoonReal * Math.cos(angleMoon);
+                const yMoonReal = rMoonReal * Math.sin(angleMoon);
+
+                cachedSunTrajectory.push({ x: xShadow, y: yShadow, alt: shadowAlt }); // Shadow path
+                cachedMoonTrajectory.push({ x: xMoonReal, y: yMoonReal, alt: local.moonAlt }); // Moon path
+            }
+        } else if (currentEvent.type === 'transit') {
+            const transitBody = currentEvent.typeName.includes('Venus') ? Astronomy.Body.Venus : Astronomy.Body.Mercury;
+            const local = AstronomyHelper.calculateTransit(date, transitBody, lat, lon);
+            if (local) {
+                // Project Sun (Physical topocentric coordinates)
+                const rSun = 170 * (90 - local.sunAlt) / 90;
+                const angleSun = (local.sunAz - 90) * Math.PI / 180;
+                const xSun = rSun * Math.cos(angleSun);
+                const ySun = rSun * Math.sin(angleSun);
+
+                // Project Planet (Physical topocentric coordinates)
+                const rPlanetReal = 170 * (90 - local.planetAlt) / 90;
+                const anglePlanet = (local.planetAz - 90) * Math.PI / 180;
+                const xPlanetReal = rPlanetReal * Math.cos(anglePlanet);
+                const yPlanetReal = rPlanetReal * Math.sin(anglePlanet);
+
+                cachedSunTrajectory.push({ x: xSun, y: ySun, alt: local.sunAlt });
+                cachedMoonTrajectory.push({ x: xPlanetReal, y: yPlanetReal, alt: local.planetAlt }); // Planet path
+            }
+        }
+    }
+}
+
+// Draw the cached trajectories on the simulator sky dome canvas
+function drawTrajectories(ctx, cx, cy) {
+    if (!cachedSunTrajectory || cachedSunTrajectory.length === 0) return;
+
+    // Draw Sun/Shadow trajectory (dashed orange/red line)
+    ctx.save();
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    
+    let first = true;
+    for (let pt of cachedSunTrajectory) {
+        const sx = cx + pt.x;
+        const sy = cy + pt.y;
+        if (first) {
+            ctx.moveTo(sx, sy);
+            first = false;
+        } else {
+            ctx.lineTo(sx, sy);
+        }
+    }
+    ctx.strokeStyle = currentEvent.type === 'lunar' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(245, 158, 11, 0.5)';
+    ctx.stroke();
+
+    // Draw Moon/Planet trajectory (dashed cyan line)
+    ctx.beginPath();
+    first = true;
+    for (let pt of cachedMoonTrajectory) {
+        const mx = cx + pt.x;
+        const my = cy + pt.y;
+        if (first) {
+            ctx.moveTo(mx, my);
+            first = false;
+        } else {
+            ctx.lineTo(mx, my);
+        }
+    }
+    ctx.strokeStyle = 'rgba(6, 182, 212, 0.6)';
+    ctx.stroke();
+    ctx.restore();
+}
+
+
+// Check if animation just crossed a bookmark; if so, pause briefly and show info
+function checkBookmarkCrossing(prevVal, newVal) {
+    if (currentTab !== 'simulator-view') return;
+    if (!isAnimating || bookmarkPauseActive) return;
+    const bookmarks = getBookmarkPcts();
+    const crossThreshold = 0.5;
+
+    for (const b of bookmarks) {
+        const key = b.pct.toFixed(2);
+        if (passedBookmarkPcts.has(key)) continue;
+
+        // Check if we just crossed this bookmark
+        if (prevVal < b.pct && newVal >= b.pct - crossThreshold) {
+            passedBookmarkPcts.add(key);
+
+            // Snap exactly to the bookmark position
+            timeSliderVal = b.pct;
+            const sliders = [
+                document.getElementById('time-slider'),
+                document.getElementById('sim-time-slider'),
+                document.getElementById('globe-time-slider')
+            ];
+            sliders.forEach(s => { if (s) s.value = b.pct; });
+            updateTimeFromSlider();
+
+            // Show info and pause for 1 second
+            showEventInfo(b);
+            bookmarkPauseActive = true;
+
+            if (activeInfoTimeout) clearTimeout(activeInfoTimeout);
+            activeInfoTimeout = setTimeout(() => {
+                bookmarkPauseActive = false;
+                // Hide info box ~1.5s after resuming
+                activeInfoTimeout = setTimeout(() => {
+                    hideEventInfo();
+                    activeInfoTimeout = null;
+                }, 1500);
+            }, 1000);
+
+            break; // only pause at one bookmark per tick
+        }
+    }
+}
+
+
+
+// Rich explanation text for both the closeup telescope view and sky dome horizon projection view
+function getEventPhaseExplanation(bookmark) {
+    if (!bookmark) return "";
+    const name = bookmark.label;
+    const type = currentEvent.type;
+    const lang = getCurrentLanguage();
+    const dict = (window.TRANSLATIONS && window.TRANSLATIONS[lang]) || {};
+
+    let key = "";
+    if (type === 'solar') {
+        if (name.includes('C1')) key = 'explain_solar_c1';
+        else if (name.includes('C2')) key = 'explain_solar_c2';
+        else if (name.includes('Peak') || name.includes('Maximum')) key = 'explain_solar_peak';
+        else if (name.includes('C3')) key = 'explain_solar_c3';
+        else if (name.includes('C4')) key = 'explain_solar_c4';
+    } else if (type === 'lunar') {
+        if (name.includes('P1')) key = 'explain_lunar_p1';
+        else if (name.includes('U1')) key = 'explain_lunar_u1';
+        else if (name.includes('U2')) key = 'explain_lunar_u2';
+        else if (name.includes('Peak') || name.includes('Maximum')) key = 'explain_lunar_peak';
+        else if (name.includes('U3')) key = 'explain_lunar_u3';
+        else if (name.includes('U4')) key = 'explain_lunar_u4';
+        else if (name.includes('P4')) key = 'explain_lunar_p4';
+    } else if (type === 'transit') {
+        if (name.includes('Ingress')) key = 'explain_transit_ingress';
+        else if (name.includes('Peak') || name.includes('Maximum')) key = 'explain_transit_peak';
+        else if (name.includes('Egress')) key = 'explain_transit_egress';
+    }
+
+    if (!key) {
+        if (name.includes('Sunrise')) key = 'explain_sunrise';
+        else if (name.includes('Sunset')) key = 'explain_sunset';
+    }
+
+    return dict[key] || "";
 }
 
 /// Helper functions for great-circle offsets and topocentric search
@@ -1761,21 +2629,32 @@ function updateMapOverlays(date) {
         dynamicMap.removeLayer(dynamicTerminatorLayer);
         dynamicTerminatorLayer = null;
     }
-    const dynamicTerminatorCoords = AstronomyHelper.calculateDayNightTerminator(date);
-    if (dynamicTerminatorCoords) {
-        const polygons = [];
-        [-720, -360, 0, 360, 720].forEach(offset => {
-            const shiftedCoords = dynamicTerminatorCoords.map(coord => [coord[0], coord[1] + offset]);
-            polygons.push(L.polygon(shiftedCoords, {
-                fillColor: '#000000',
-                fillOpacity: 0.28,
-                color: 'none',
-                stroke: false,
-                interactive: false,
-                pane: 'terminatorPane'
-            }));
-        });
-        dynamicTerminatorLayer = L.layerGroup(polygons).addTo(dynamicMap);
+
+    let drawTerminator = true;
+    if (currentEvent.type === 'lunar') {
+        const local = AstronomyHelper.calculateLocalLunarEclipse(date, 0, 0);
+        if (local && local.obscuration > 0.0001) {
+            drawTerminator = false;
+        }
+    }
+
+    if (drawTerminator) {
+        const dynamicTerminatorCoords = AstronomyHelper.calculateDayNightTerminator(date);
+        if (dynamicTerminatorCoords) {
+            const polygons = [];
+            [-720, -360, 0, 360, 720].forEach(offset => {
+                const shiftedCoords = dynamicTerminatorCoords.map(coord => [coord[0], coord[1] + offset]);
+                polygons.push(L.polygon(shiftedCoords, {
+                    fillColor: '#000000',
+                    fillOpacity: 0.28,
+                    color: 'none',
+                    stroke: false,
+                    interactive: false,
+                    pane: 'terminatorPane'
+                }));
+            });
+            dynamicTerminatorLayer = L.layerGroup(polygons).addTo(dynamicMap);
+        }
     }
 
     // Cache and draw the static centerline track, obscuration contours, and static terminator ONLY on selection change
@@ -1801,7 +2680,7 @@ function updateMapOverlays(date) {
             staticTerminatorLayer = null;
         }
 
-        // Draw solar-specific static track lines on map
+        // Draw static track lines or visibility regions on map
         if (currentEvent.type === 'solar') {
             // Calculate and cache full centerline track
             currentEventTrack = AstronomyHelper.calculateSolarEclipsePath(dateFromJD(currentEvent.peakJD));
@@ -1885,6 +2764,214 @@ function updateMapOverlays(date) {
             
             // Call the standalone penumbra isoline plugin to render the separate GeoJSON layer on static map
             appendPenumbraLayer(map, dateFromJD(currentEvent.peakJD));
+        } else if (currentEvent.type === 'lunar') {
+            const contacts = getLunarContacts(currentEvent.peakJD);
+            if (contacts) {
+                const polygons = [];
+                const globeFeatures = [];
+
+                // 1. Light/medium purple penumbral static visibility (sampled at p1, peak, p4)
+                [contacts.p1, contacts.peak, contacts.p4].forEach(d => {
+                    if (d) {
+                        const coords = AstronomyHelper.calculateDayNightTerminator(d);
+                        if (coords) {
+                            // Check if this moment represents Penumbral Totality or Partial Penumbra
+                            const local = AstronomyHelper.calculateLocalLunarEclipse(d, 0, 0);
+                            const isPenTot = local && local.penumbralMagnitude >= 1.0 && local.umbralMagnitude <= 0.0;
+                            const color = isPenTot ? '#7b1fa2' : '#ba68c8';
+                            const opacityMultiplier = isPenTot ? 1.4 : 1.0;
+                            const propName = isPenTot ? 'isLunarPenumbralTotal' : 'isLunarPenumbral';
+
+                            // Leaflet Polygons
+                            [-360, 0, 360].forEach(offset => {
+                                const shifted = coords.map(c => [c[0], c[1] + offset]);
+                                polygons.push(L.polygon(shifted, {
+                                    fillColor: color, // Partial Penumbra vs. Penumbral Totality
+                                    fillOpacity: 0.05 * opacityMultiplier,
+                                    color: color,
+                                    weight: 1,
+                                    opacity: 0.15 * opacityMultiplier,
+                                    interactive: false,
+                                    pane: 'pathPane'
+                                }));
+                            });
+
+                            // 3D Globe Feature
+                            globeFeatures.push({
+                                type: "Feature",
+                                properties: { [propName]: true },
+                                geometry: {
+                                    type: "Polygon",
+                                    coordinates: [coords.map(pt => [pt[1], pt[0]])]
+                                }
+                            });
+                        }
+                    }
+                });
+
+                // 2. Dark purple partial umbral static visibility
+                const partialUmbralDates = [];
+                if (contacts.u2) {
+                    // Total eclipse: partial phase occurs at u1 and u4
+                    if (contacts.u1) partialUmbralDates.push(contacts.u1, contacts.u4);
+                } else {
+                    // Partial eclipse: partial phase occurs at u1, peak, u4
+                    if (contacts.u1) partialUmbralDates.push(contacts.u1, contacts.peak, contacts.u4);
+                }
+
+                partialUmbralDates.forEach(d => {
+                    if (d) {
+                        const coords = AstronomyHelper.calculateDayNightTerminator(d);
+                        if (coords) {
+                            // Leaflet Polygons
+                            [-360, 0, 360].forEach(offset => {
+                                const shifted = coords.map(c => [c[0], c[1] + offset]);
+                                polygons.push(L.polygon(shifted, {
+                                    fillColor: '#4a148c', // Dark purple
+                                    fillOpacity: 0.08,
+                                    color: '#4a148c',
+                                    weight: 1,
+                                    opacity: 0.22,
+                                    interactive: false,
+                                    pane: 'pathPane'
+                                }));
+                            });
+
+                            // 3D Globe Feature
+                            globeFeatures.push({
+                                type: "Feature",
+                                properties: { isLunarUmbral: true },
+                                geometry: {
+                                    type: "Polygon",
+                                    coordinates: [coords.map(pt => [pt[1], pt[0]])]
+                                }
+                            });
+                        }
+                    }
+                });
+
+                // 3. Dark red total umbral static visibility (totality zone)
+                const totalDates = [];
+                if (contacts.u2) {
+                    // Total phase occurs at u2, peak, u3
+                    totalDates.push(contacts.u2, contacts.peak, contacts.u3);
+                }
+
+                totalDates.forEach(d => {
+                    if (d) {
+                        const coords = AstronomyHelper.calculateDayNightTerminator(d);
+                        if (coords) {
+                            // Leaflet Polygons
+                            [-360, 0, 360].forEach(offset => {
+                                const shifted = coords.map(c => [c[0], c[1] + offset]);
+                                polygons.push(L.polygon(shifted, {
+                                    fillColor: '#8a1a15', // Dark red
+                                    fillOpacity: 0.10,
+                                    color: '#8a1a15',
+                                    weight: 1,
+                                    opacity: 0.28,
+                                    interactive: false,
+                                    pane: 'pathPane'
+                                }));
+                            });
+
+                            // 3D Globe Feature
+                            globeFeatures.push({
+                                type: "Feature",
+                                properties: { isLunarTotal: true },
+                                geometry: {
+                                    type: "Polygon",
+                                    coordinates: [coords.map(pt => [pt[1], pt[0]])]
+                                }
+                            });
+                        }
+                    }
+                });
+
+                if (polygons.length > 0) {
+                    staticTerminatorLayer = L.layerGroup(polygons).addTo(map);
+                }
+                scene3D.staticContours = globeFeatures;
+            }
+        } else if (currentEvent.type === 'transit') {
+            const peakDate = dateFromJD(currentEvent.peakJD);
+            const startSearch = new Date(peakDate.getTime() - 12 * 60 * 60 * 1000);
+            const t = Astronomy.MakeTime(startSearch);
+            const body = currentEvent.typeName.includes('Venus') ? Astronomy.Body.Venus : Astronomy.Body.Mercury;
+            let transit = null;
+            try {
+                transit = Astronomy.SearchTransit(body, t);
+            } catch (e) {
+                console.error(e);
+            }
+
+            if (transit) {
+                const polygons = [];
+                const globeFeatures = [];
+
+                const tStart = new Date(transit.start.date);
+                const tPeak = new Date(transit.peak.date);
+                const tFinish = new Date(transit.finish.date);
+
+                // Draw ingress/egress sunset/sunrise limits (light yellow)
+                [tStart, tFinish].forEach(d => {
+                    const coords = AstronomyHelper.calculateDaylightTerminator(d);
+                    if (coords) {
+                        [-360, 0, 360].forEach(offset => {
+                            const shifted = coords.map(c => [c[0], c[1] + offset]);
+                            polygons.push(L.polygon(shifted, {
+                                fillColor: '#ffe082',
+                                fillOpacity: 0.04,
+                                color: '#ffe082',
+                                weight: 1,
+                                opacity: 0.15,
+                                interactive: false,
+                                pane: 'pathPane'
+                            }));
+                        });
+
+                        globeFeatures.push({
+                            type: "Feature",
+                            properties: { isTransitLimits: true },
+                            geometry: {
+                                type: "Polygon",
+                                coordinates: [coords.map(pt => [pt[1], pt[0]])]
+                            }
+                        });
+                    }
+                });
+
+                // Draw peak visibility limits (warm orange)
+                const coords = AstronomyHelper.calculateDaylightTerminator(tPeak);
+                if (coords) {
+                    [-360, 0, 360].forEach(offset => {
+                        const shifted = coords.map(c => [c[0], c[1] + offset]);
+                        polygons.push(L.polygon(shifted, {
+                            fillColor: '#ffa726',
+                            fillOpacity: 0.07,
+                            color: '#ffa726',
+                            weight: 1,
+                            opacity: 0.22,
+                            interactive: false,
+                            pane: 'pathPane'
+                        }));
+                    });
+
+                    globeFeatures.push({
+                        type: "Feature",
+                        properties: { isTransitPeak: true },
+                        geometry: {
+                            type: "Polygon",
+                            coordinates: [coords.map(pt => [pt[1], pt[0]])]
+                        }
+                    });
+                }
+
+                if (polygons.length > 0) {
+                    staticTerminatorLayer = L.layerGroup(polygons).addTo(map);
+                }
+                scene3D.staticContours = globeFeatures;
+            }
         }
 
         lastEventId = eventId;
@@ -2057,27 +3144,123 @@ function updateMapOverlays(date) {
             document.getElementById('val-obs-obscuration').innerText = (local.obscuration * 100).toFixed(2) + "%";
             document.getElementById('val-shadow-speed').innerText = shadow ? (3400 * Math.cos(shadow.lat * Math.PI / 180)).toFixed(0) + " km/h" : "-- km/h";
         }
-    } else {
-        // Non-solar: hide shadow center marker
+    } else if (currentEvent.type === 'lunar') {
+        // Draw dynamic propagating shadow
+        const local = AstronomyHelper.calculateLocalLunarEclipse(date, 0, 0);
+        if (local && local.obscuration > 0) {
+            const isTotal = local.type === 'Total' || local.umbralMagnitude >= 1.0;
+            const isPartial = local.type === 'Partial' || (local.umbralMagnitude > 0.0 && local.umbralMagnitude < 1.0);
+            const isPenumbralTotal = local.penumbralMagnitude >= 1.0 && local.umbralMagnitude <= 0.0;
+            const isPenumbralPartial = local.penumbralMagnitude > 0.0 && local.penumbralMagnitude < 1.0 && local.umbralMagnitude <= 0.0;
+            
+            if (isTotal || isPartial || isPenumbralTotal || isPenumbralPartial) {
+                const coords = AstronomyHelper.calculateDayNightTerminator(date);
+                if (coords) {
+                    let color = '#ba68c8'; // Default Partial Penumbra
+                    let fillOp = 0.20;
+                    let lineOp = 0.32;
+
+                    if (isTotal) {
+                        color = '#8a1a15'; // Totality with Umbra
+                        fillOp = 0.40;
+                        lineOp = 0.55;
+                    } else if (isPartial) {
+                        color = '#4a148c'; // Partial with Umbra
+                        fillOp = 0.35;
+                        lineOp = 0.50;
+                    } else if (isPenumbralTotal) {
+                        color = '#7b1fa2'; // Penumbral Totality
+                        fillOp = 0.28;
+                        lineOp = 0.44;
+                    }
+
+                    [-360, 0, 360].forEach(offset => {
+                        const shifted = coords.map(c => [c[0], c[1] + offset]);
+                        const poly = L.polygon(shifted, {
+                            fillColor: color,
+                            fillOpacity: fillOp,
+                            color: color,
+                            weight: 1.5,
+                            opacity: lineOp,
+                            interactive: false,
+                            pane: 'umbraPane'
+                        }).addTo(dynamicMap);
+                        dynamicMapOverlayLayers.push(poly);
+                    });
+                }
+            }
+        }
+
+        // Update local obscuration statistics for current time & observer
+        const localObs = AstronomyHelper.calculateLocalLunarEclipse(date, observerLocation.lat, observerLocation.lon);
+        if (localObs) {
+            document.getElementById('val-obs-obscuration').innerText = (localObs.obscuration * 100).toFixed(2) + "%";
+            document.getElementById('val-shadow-speed').innerText = "-- km/h";
+        }
+    } else if (currentEvent.type === 'transit') {
+        // Non-solar/lunar: hide shadow center marker
         if (shadowCenterMarker && dynamicMap.hasLayer(shadowCenterMarker)) {
             dynamicMap.removeLayer(shadowCenterMarker);
         }
-        if (currentEvent.type === 'lunar') {
-            document.getElementById('val-obs-obscuration').innerText = "--";
-            document.getElementById('val-shadow-speed').innerText = "--";
-        } else {
-            document.getElementById('val-obs-obscuration').innerText = "--";
-            document.getElementById('val-shadow-speed').innerText = "--";
+
+        // Draw dynamic propagating transit visibility (daytime hemisphere during transit)
+        const peakDate = dateFromJD(currentEvent.peakJD);
+        const startSearch = new Date(peakDate.getTime() - 12 * 60 * 60 * 1000);
+        const t = Astronomy.MakeTime(startSearch);
+        const body = currentEvent.typeName.includes('Venus') ? Astronomy.Body.Venus : Astronomy.Body.Mercury;
+        let transit = null;
+        try {
+            transit = Astronomy.SearchTransit(body, t);
+        } catch (e) {}
+
+        if (transit) {
+            const tStart = new Date(transit.start.date);
+            const tFinish = new Date(transit.finish.date);
+            if (date >= tStart && date <= tFinish) {
+                const coords = AstronomyHelper.calculateDaylightTerminator(date);
+                if (coords) {
+                    const color = '#ffa726'; // Warm gold/orange for transit visibility
+                    [-360, 0, 360].forEach(offset => {
+                        const shifted = coords.map(c => [c[0], c[1] + offset]);
+                        const poly = L.polygon(shifted, {
+                            fillColor: color,
+                            fillOpacity: 0.20,
+                            color: color,
+                            weight: 1.5,
+                            opacity: 0.35,
+                            interactive: false,
+                            pane: 'umbraPane'
+                        }).addTo(dynamicMap);
+                        dynamicMapOverlayLayers.push(poly);
+                    });
+                }
+            }
         }
+
+        // Update local transit circumstances statistics for current time & observer
+        const localObs = AstronomyHelper.calculateTransit(date, body, observerLocation.lat, observerLocation.lon);
+        if (localObs) {
+            let obscPct = 0;
+            if (localObs.isTransit) {
+                obscPct = (localObs.planetRadius * localObs.planetRadius) / (localObs.sunRadius * localObs.sunRadius) * 100;
+            }
+            document.getElementById('val-obs-obscuration').innerText = obscPct.toFixed(4) + "%";
+            document.getElementById('val-shadow-speed').innerText = "-- km/h";
+        }
+    } else {
+        // Fallback: hide shadow center marker
+        if (shadowCenterMarker && dynamicMap.hasLayer(shadowCenterMarker)) {
+            dynamicMap.removeLayer(shadowCenterMarker);
+        }
+        document.getElementById('val-obs-obscuration').innerText = "--";
+        document.getElementById('val-shadow-speed').innerText = "--";
     }
 }
 
 
 
 
-// Deprecated update3DOrbits (orrery moved to orrery-3d.js)
-
-// Local Sky Simulator Canvas rendering
+// Upgraded Local Sky Simulator View drawing
 function updateLocalSimulator(date) {
     const canvas = document.getElementById('simulator-canvas');
     if (!canvas) return;
@@ -2092,29 +3275,7 @@ function updateLocalSimulator(date) {
 
     if (currentEvent.type === 'solar') {
         const local = AstronomyHelper.calculateLocalSolarEclipse(date, observerLocation.lat, observerLocation.lon);
-        
         if (!local) return;
-
-        // Draw Sky Background gradient depending on Sun altitude and obscuration
-        const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
-        
-        // During totality, the sky goes pitch black
-        const obsc = local.obscuration;
-        const baseColor = `rgba(${Math.floor(13 * (1 - obsc))}, ${Math.floor(27 * (1 - obsc))}, ${Math.floor(66 * (1 - obsc))}, 1)`;
-        skyGrad.addColorStop(0, baseColor);
-        skyGrad.addColorStop(1, '#000000');
-        ctx.fillStyle = skyGrad;
-        ctx.fillRect(0, 0, W, H);
-
-        // Draw stars if sky is dark
-        if (obsc > 0.8) {
-            ctx.fillStyle = 'rgba(255,255,255,' + ((obsc - 0.8)/0.2) + ')';
-            for (let i = 0; i < 30; i++) {
-                const sx = (Math.sin(i * 1234.56) * 0.5 + 0.5) * W;
-                const sy = (Math.cos(i * 5678.90) * 0.5 + 0.5) * H;
-                ctx.fillRect(sx, sy, 1.5, 1.5);
-            }
-        }
 
         // Draw local altitude telemetry values
         document.getElementById('val-sun-alt').innerText = local.sunAlt.toFixed(2) + "°";
@@ -2122,271 +3283,1345 @@ function updateLocalSimulator(date) {
         document.getElementById('val-obscuration').innerText = (local.obscuration * 100).toFixed(2) + "%";
         document.getElementById('val-magnitude').innerText = local.magnitude.toFixed(3);
 
-        const scale = 220 / local.sunRadius; // Map Sun angular size to radius of ~110px
+        const obsc = local.obscuration;
+        const sunAlt = local.sunAlt;
+        const sunRadiusDeg = local.sunRadius;
+        const scale = 110 / sunRadiusDeg; // Map Sun angular size to radius of 110px
 
-        // Draw Solar Corona (totality halo)
-        if (obsc >= 0.98) {
-            const coronaGlow = ctx.createRadialGradient(cx, cy, 100, cx, cy, 180);
-            coronaGlow.addColorStop(0, 'rgba(255,255,255,0.85)');
-            coronaGlow.addColorStop(0.2, 'rgba(230,240,255,0.5)');
-            coronaGlow.addColorStop(1, 'rgba(255,255,255,0)');
-            
-            ctx.fillStyle = coronaGlow;
-            ctx.beginPath();
-            ctx.arc(cx, cy, 180, 0, 2*Math.PI);
-            ctx.fill();
+        // Smooth twilight curve using an S-curve profile
+        let twilight = 1.0;
+        if (sunAlt < -18) {
+            twilight = 0.0;
+        } else if (sunAlt < 8) {
+            const x = (sunAlt + 18) / 26; // 0 to 1
+            twilight = Math.sin(x * Math.PI / 2);
         }
+        const eclipseFactor = 1.0 - Math.pow(obsc, 3);
+        const lightFactor = twilight * eclipseFactor;
 
-        // Draw Sun (Glowing circle)
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = '#ffe600';
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(cx, cy, 110, 0, 2*Math.PI);
-        ctx.fill();
-        
-        // Reset shadows
-        ctx.shadowBlur = 0;
+        if (simViewMode === 'closeup') {
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+            const rZenith = Math.floor(1 + 26 * lightFactor);
+            const gZenith = Math.floor(3 + 88 * lightFactor);
+            const bZenith = Math.floor(10 + 189 * lightFactor);
 
-        // Draw Moon (Dark circle overlay)
-        // Convert J2000 relative separation coordinates to pixels
-        const separationPixels = local.separation * scale;
-        // Position offset
-        const dx = ((local.moonEq.ra - local.sunEq.ra) * 15) * Math.cos(local.sunEq.dec * Math.PI / 180) * scale;
-        const dy = -(local.moonEq.dec - local.sunEq.dec) * scale;
+            skyGrad.addColorStop(0, `rgb(${rZenith}, ${gZenith}, ${bZenith})`);
 
-        ctx.fillStyle = '#060814';
-        ctx.beginPath();
-        ctx.arc(cx + dx, cy + dy, local.moonRadius * scale, 0, 2*Math.PI);
-        ctx.fill();
+            // Sunset horizon glow: crimson/gold sunset gradient near the horizon
+            if (sunAlt > -10 && sunAlt < 12 && lightFactor > 0.05) {
+                const distToHorizon = Math.abs(sunAlt);
+                const glowStrength = Math.max(0, 1 - distToHorizon / 12) * (1 - obsc);
+                const rGlow = Math.floor(235 * glowStrength * lightFactor);
+                const gGlow = Math.floor(115 * glowStrength * lightFactor);
+                const bGlow = Math.floor(30 * glowStrength * lightFactor);
+                skyGrad.addColorStop(0.75, `rgb(${rZenith + rGlow}, ${gZenith + gGlow}, ${bZenith + bGlow})`);
+            } else {
+                skyGrad.addColorStop(0.75, `rgb(${Math.floor(rZenith * 0.85)}, ${Math.floor(gZenith * 0.9)}, ${Math.floor(bZenith * 0.95)})`);
+            }
 
-        // Draw diamond ring effect (C2/C3 flash)
-        if (obsc > 0.98 && obsc < 1.0) {
-            const angle = Math.atan2(dy, dx);
-            const diamondX = cx + 110 * Math.cos(angle);
-            const diamondY = cy + 110 * Math.sin(angle);
-            
-            ctx.shadowBlur = 30;
-            ctx.shadowColor = '#ffffff';
+            skyGrad.addColorStop(1, '#000000');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, W, H);
+
+            // Draw stars if sky is dark
+            if (lightFactor < 0.2) {
+                ctx.fillStyle = 'rgba(255,255,255,' + ((0.2 - lightFactor) / 0.2) + ')';
+                simStars.forEach(star => {
+                    const sx = cx + star.r * Math.cos(star.angle);
+                    const sy = cy + star.r * Math.sin(star.angle);
+                    ctx.fillRect(sx, sy, star.size, star.size);
+                });
+            }
+
+            // Draw Solar Corona (totality halo)
+            if (obsc >= 0.98) {
+                const coronaGlow = ctx.createRadialGradient(cx, cy, 100, cx, cy, 180);
+                coronaGlow.addColorStop(0, 'rgba(255,255,255,0.85)');
+                coronaGlow.addColorStop(0.2, 'rgba(230,240,255,0.5)');
+                coronaGlow.addColorStop(1, 'rgba(255,255,255,0)');
+                
+                ctx.fillStyle = coronaGlow;
+                ctx.beginPath();
+                ctx.arc(cx, cy, 180, 0, 2*Math.PI);
+                ctx.fill();
+            }
+
+            // Draw Sun (Glowing circle)
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#ffe600';
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
-            ctx.arc(diamondX, diamondY, 12, 0, 2*Math.PI);
+            ctx.arc(cx, cy, 110, 0, 2*Math.PI);
             ctx.fill();
-            
-            // Draw diamond rays
-            ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+            ctx.shadowBlur = 0;
+
+            // Draw Solar Flares (prominences) during totality
+            if (obsc >= 0.98) {
+                const flareAngles = [0.5, 1.8, 3.4, 4.7, 5.8];
+                flareAngles.forEach(a => {
+                    const cosA = Math.cos(a);
+                    const sinA = Math.sin(a);
+                    
+                    const xStart = cx + 110 * cosA;
+                    const yStart = cy + 110 * sinA;
+                    
+                    const peakDist = 110 + 12 + Math.sin(Date.now() / 150 + a * 10) * 4;
+                    const xPeak = cx + peakDist * Math.cos(a + 0.04);
+                    const yPeak = cy + peakDist * Math.sin(a + 0.04);
+                    
+                    const xEnd = cx + 110 * Math.cos(a + 0.08);
+                    const yEnd = cy + 110 * Math.sin(a + 0.08);
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(xStart, yStart);
+                    ctx.quadraticCurveTo(xPeak, yPeak, xEnd, yEnd);
+                    ctx.strokeStyle = '#ff3c00';
+                    ctx.lineWidth = 4;
+                    ctx.lineCap = 'round';
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(xStart, yStart);
+                    ctx.quadraticCurveTo(xPeak, yPeak, xEnd, yEnd);
+                    ctx.strokeStyle = '#ffcc00';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                });
+            }
+
+            // Draw Moon (Dark circle overlay)
+            const dx = ((local.moonEq.ra - local.sunEq.ra) * 15) * Math.cos(local.sunEq.dec * Math.PI / 180) * scale;
+            const dy = -(local.moonEq.dec - local.sunEq.dec) * scale;
+
+            ctx.fillStyle = '#060814';
+            ctx.beginPath();
+            ctx.arc(cx + dx, cy + dy, local.moonRadius * scale, 0, 2*Math.PI);
+            ctx.fill();
+
+            // Draw diamond ring effect (C2/C3 flash)
+            if (obsc > 0.98 && obsc < 1.0) {
+                const angle = Math.atan2(dy, dx);
+                const diamondX = cx + 110 * Math.cos(angle);
+                const diamondY = cy + 110 * Math.sin(angle);
+                
+                ctx.shadowBlur = 30;
+                ctx.shadowColor = '#ffffff';
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(diamondX, diamondY, 12, 0, 2*Math.PI);
+                ctx.fill();
+                
+                ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(diamondX - 30, diamondY);
+                ctx.lineTo(diamondX + 30, diamondY);
+                ctx.moveTo(diamondX, diamondY - 30);
+                ctx.lineTo(diamondX, diamondY + 30);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+
+            // Ground horizon clipping
+            const yHorizon = cy + sunAlt * scale;
+            if (yHorizon < H) {
+                const groundGrad = ctx.createLinearGradient(0, Math.max(0, yHorizon), 0, H);
+                groundGrad.addColorStop(0, '#0a1424');
+                groundGrad.addColorStop(1, '#03060c');
+                ctx.fillStyle = groundGrad;
+                ctx.fillRect(0, Math.max(0, yHorizon), W, H - Math.max(0, yHorizon));
+
+                ctx.strokeStyle = '#00f6ff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, yHorizon);
+                ctx.lineTo(W, yHorizon);
+                ctx.stroke();
+            }
+
+        } else if (simViewMode === 'dome') {
+            const R = 170; // dome radius
+            ctx.fillStyle = '#030712';
+            ctx.fillRect(0, 0, W, H);
+
+            // Draw dome sky circle
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, cy, R, 0, 2*Math.PI);
+            ctx.clip();
+
+            // Sky dome gradient fill
+            const skyGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+            const r = Math.floor(1 + 26 * lightFactor);
+            const g = Math.floor(3 + 88 * lightFactor);
+            const b = Math.floor(10 + 189 * lightFactor);
+            skyGrad.addColorStop(0, `rgb(${r}, ${g}, ${b})`);
+            skyGrad.addColorStop(1, `rgb(${Math.floor(r*0.7)}, ${Math.floor(g*0.7)}, ${Math.floor(b*0.7)})`);
+            ctx.fillStyle = skyGrad;
+            ctx.fill();
+
+            // Stars inside dome if dark
+            if (lightFactor < 0.2) {
+                ctx.fillStyle = 'rgba(255,255,255,' + ((0.2 - lightFactor) / 0.2) + ')';
+                simStars.forEach(star => {
+                    if (star.r < R) {
+                        const sx = cx + star.r * Math.cos(star.angle);
+                        const sy = cy + star.r * Math.sin(star.angle);
+                        ctx.fillRect(sx, sy, star.size, star.size);
+                    }
+                });
+            }
+
+            // Dome grid lines
+            if (showSimGrid) {
+                ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 1;
+                ctx.font = '9px Outfit, sans-serif';
+
+                ctx.beginPath();
+                ctx.arc(cx, cy, R * (60/90), 0, 2*Math.PI); // 30 deg alt
+                ctx.arc(cx, cy, R * (30/90), 0, 2*Math.PI); // 60 deg alt
+                ctx.stroke();
+
+                ctx.fillText("30°", cx + 3, cy - R * (60/90) + 9);
+                ctx.fillText("60°", cx + 3, cy - R * (30/90) + 9);
+
+                ctx.beginPath();
+                ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy);
+                ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R);
+                ctx.stroke();
+
+                ctx.fillText("Zenith", cx + 5, cy + 12);
+            }
+
+            // Project Sun using azimuthal coordinates
+            const rSun = R * (90 - local.sunAlt) / 90;
+            const angleSun = (local.sunAz - 90) * Math.PI / 180;
+            const xSun = cx + rSun * Math.cos(angleSun);
+            const ySun = cy + rSun * Math.sin(angleSun);
+
+            // Real Moon projection on the dome
+            const rMoonReal = R * (90 - local.moonAlt) / 90;
+            const angleMoon = (local.moonAz - 90) * Math.PI / 180;
+            const xMoonReal = cx + rMoonReal * Math.cos(angleMoon);
+            const yMoonReal = cy + rMoonReal * Math.sin(angleMoon);
+
+            const rSunBase = 8;
+            const rMoonBase = rSunBase * (local.moonRadius / local.sunRadius);
+            const R_vis = rSunBase + rMoonBase;
+            const R_phys = local.sunRadius + local.moonRadius;
+
+            const dx_real = xMoonReal - xSun;
+            const dy_real = yMoonReal - ySun;
+            const d_real = Math.sqrt(dx_real * dx_real + dy_real * dy_real);
+            const canvasScale = 170 / 90;
+            const visualScale = rSunBase / local.sunRadius;
+            const mult = visualScale / canvasScale;
+            const xMoon = xSun + dx_real * mult;
+            const yMoon = ySun + dy_real * mult;
+
+            const isTotal = currentEvent.typeName.toLowerCase().includes('total') || local.magnitude >= 1.0;
+
+            // Draw Solar Corona (totality halo) in dome view only for Total solar eclipses
+            if (isTotal && obsc >= 0.95) {
+                const coronaGlow = ctx.createRadialGradient(xSun, ySun, rSunBase, xSun, ySun, rSunBase * 1.8);
+                coronaGlow.addColorStop(0, 'rgba(255,255,255,0.85)');
+                coronaGlow.addColorStop(0.3, 'rgba(230,240,255,0.5)');
+                coronaGlow.addColorStop(1, 'rgba(255,255,255,0)');
+                
+                ctx.fillStyle = coronaGlow;
+                ctx.beginPath();
+                ctx.arc(xSun, ySun, rSunBase * 1.8, 0, 2*Math.PI);
+                ctx.fill();
+            }
+
+            // Draw trajectories
+            drawTrajectories(ctx, cx, cy);
+
+            // Draw Sun inside sky dome if above horizon
+            if (local.sunAlt >= 0) {
+                ctx.shadowBlur = 6;
+                ctx.shadowColor = '#ffe600';
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(xSun, ySun, rSunBase, 0, 2*Math.PI);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            // Draw Moon inside sky dome if above horizon and visually overlapping the Sun (realistic new moon)
+            if (local.moonAlt >= 0) {
+                const d_vis = Math.sqrt((xMoon - xSun)*(xMoon - xSun) + (yMoon - ySun)*(yMoon - ySun));
+                if (d_vis < rSunBase + rMoonBase) {
+                    ctx.fillStyle = '#0a0d1d';
+                    ctx.beginPath();
+                    ctx.arc(xMoon, yMoon, rMoonBase, 0, 2*Math.PI);
+                    ctx.fill();
+                }
+            }
+
+            ctx.restore(); // end dome clip
+
+            // Horizon ring boundary
+            ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(diamondX - 30, diamondY);
-            ctx.lineTo(diamondX + 30, diamondY);
-            ctx.moveTo(diamondX, diamondY - 30);
-            ctx.lineTo(diamondX, diamondY + 30);
+            ctx.arc(cx, cy, R, 0, 2*Math.PI);
             ctx.stroke();
-            ctx.shadowBlur = 0;
-        }
 
+            // Draw Cardinal text labels
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.font = 'bold 12px Outfit, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText("N", cx, cy - R - 8);
+            ctx.fillText("S", cx, cy + R + 18);
+            ctx.fillText("E", cx + R + 12, cy + 4);
+            ctx.fillText("W", cx - R - 12, cy + 4);
+        }
     } else if (currentEvent.type === 'lunar') {
-        const local = AstronomyHelper.calculateLocalLunarEclipse(date);
+        const local = AstronomyHelper.calculateLocalLunarEclipse(date, observerLocation.lat, observerLocation.lon);
         if (!local) return;
 
-        // Deep Space background
-        ctx.fillStyle = '#010410';
-        ctx.fillRect(0, 0, W, H);
-
+        // Draw local altitude telemetry values
         document.getElementById('val-sun-alt').innerText = "--";
         document.getElementById('val-sun-az').innerText = "--";
         document.getElementById('val-obscuration').innerText = (local.obscuration * 100).toFixed(2) + "%";
         document.getElementById('val-magnitude').innerText = local.type;
 
+        const moonAlt = local.moonAlt;
+        const moonAz = local.moonAz;
         const scale = 110 / local.moonRadius; // scale Moon radius to ~50px
 
-        const dx = local.dx * scale;
-        const dy = -local.dy * scale;
+        // Calculate light factor based on Sun altitude for twilight during lunar events
+        const sunAlt = local.sunAlt;
+        let twilight = 1.0;
+        if (sunAlt < -18) {
+            twilight = 0.0;
+        } else if (sunAlt < 8) {
+            const x = (sunAlt + 18) / 26; // 0 to 1
+            twilight = Math.sin(x * Math.PI / 2);
+        }
+        const lightFactor = twilight;
 
-        // Draw Earth Penumbra (Light shadow)
-        ctx.fillStyle = 'rgba(255,255,255,0.06)';
-        ctx.beginPath();
-        ctx.arc(cx, cy, local.penumbraRadius * scale, 0, 2*Math.PI);
-        ctx.fill();
+        if (simViewMode === 'closeup') {
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+            const rZenith = Math.floor(1 + 26 * lightFactor);
+            const gZenith = Math.floor(3 + 88 * lightFactor);
+            const bZenith = Math.floor(10 + 189 * lightFactor);
 
-        // Draw Earth Umbra (Deep shadow with reddish blood moon border glow)
-        ctx.fillStyle = 'rgba(10,2,2,0.95)';
-        ctx.strokeStyle = 'rgba(220,53,69,0.3)';
-        ctx.lineWidth = 5;
-        ctx.beginPath();
-        ctx.arc(cx, cy, local.umbraRadius * scale, 0, 2*Math.PI);
-        ctx.fill();
-        ctx.stroke();
+            skyGrad.addColorStop(0, `rgb(${rZenith}, ${gZenith}, ${bZenith})`);
 
-        // Draw Moon
-        // Base moon color
-        ctx.fillStyle = '#c4c4c4';
-        ctx.beginPath();
-        const moonRadius = local.moonRadius * scale;
-        ctx.arc(cx + dx, cy + dy, moonRadius, 0, 2*Math.PI);
-        ctx.fill();
+            // Sunset horizon glow
+            if (sunAlt > -10 && sunAlt < 12 && lightFactor > 0.05) {
+                const distToHorizon = Math.abs(sunAlt);
+                const glowStrength = Math.max(0, 1 - distToHorizon / 12);
+                const rGlow = Math.floor(235 * glowStrength * lightFactor);
+                const gGlow = Math.floor(115 * glowStrength * lightFactor);
+                const bGlow = Math.floor(30 * glowStrength * lightFactor);
+                skyGrad.addColorStop(0.75, `rgb(${rZenith + rGlow}, ${gZenith + gGlow}, ${bZenith + bGlow})`);
+            } else {
+                skyGrad.addColorStop(0.75, `rgb(${Math.floor(rZenith * 0.85)}, ${Math.floor(gZenith * 0.9)}, ${Math.floor(bZenith * 0.95)})`);
+            }
 
-        // Overlay Earth shadow on the Moon (color calculation)
-        const distToCenter = Math.sqrt(dx*dx + dy*dy);
-        const rUmbra = local.umbraRadius * scale;
+            skyGrad.addColorStop(1, '#000000');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, W, H);
 
-        if (distToCenter < rUmbra + moonRadius) {
-            // Moon overlaps with umbral shadow
-            ctx.save();
-            // Clip to Moon disk
+            // Stars
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            simStars.forEach(star => {
+                const sx = cx + star.r * Math.cos(star.angle);
+                const sy = cy + star.r * Math.sin(star.angle);
+                ctx.fillRect(sx, sy, star.size, star.size);
+            });
+
+            const dx = local.dx * scale;
+            const dy = -local.dy * scale;
+
+            const sxCenter = cx - dx;
+            const syCenter = cy - dy;
+            const rp = local.penumbraRadius * scale;
+            const ru = local.umbraRadius * scale;
+
+            // Draw Earth Penumbra Guide Ring centered on Earth shadow
+            ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+            ctx.setLineDash([4, 4]);
+            ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.arc(cx + dx, cy + dy, moonRadius, 0, 2*Math.PI);
+            ctx.arc(sxCenter, syCenter, rp, 0, 2*Math.PI);
+            ctx.stroke();
+
+            // Draw Earth Umbra Guide Ring centered on Earth shadow
+            ctx.strokeStyle = 'rgba(220, 53, 69, 0.35)';
+            ctx.beginPath();
+            ctx.arc(sxCenter, syCenter, ru, 0, 2*Math.PI);
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset line dash
+
+            // Draw labels for the shadow guide rings
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.font = '9px Outfit, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText("Penumbra", sxCenter, syCenter - rp - 4);
+            ctx.fillStyle = 'rgba(220, 53, 69, 0.5)';
+            ctx.fillText("Umbra", sxCenter, syCenter - ru - 4);
+
+            // Draw Moon FIXED in the center with advanced structures
+            const mx = cx;
+            const my = cy;
+            const moonRadius = local.moonRadius * scale;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(mx, my, moonRadius, 0, 2*Math.PI);
             ctx.clip();
 
-            // Draw Red Umbra color (Blood moon)
-            ctx.fillStyle = 'rgba(175, 40, 20, 0.75)';
-            ctx.beginPath();
-            ctx.arc(cx, cy, rUmbra, 0, 2*Math.PI);
+            // Moon surface base
+            ctx.fillStyle = '#d5d8dc';
             ctx.fill();
-            
-            // Draw darkest center
-            ctx.fillStyle = 'rgba(20, 5, 2, 0.85)';
+
+            // 1. Draw detailed maria (dark basaltic plains) with differing shapes and opacities
+            const maria = [
+                { x: mx - moonRadius * 0.35, y: my - moonRadius * 0.25, r: moonRadius * 0.28, o: 0.35 }, // Oceanus Procellarum
+                { x: mx - moonRadius * 0.15, y: my - moonRadius * 0.45, r: moonRadius * 0.22, o: 0.32 }, // Mare Imbrium
+                { x: mx + moonRadius * 0.30, y: my - moonRadius * 0.20, r: moonRadius * 0.20, o: 0.30 }, // Mare Serenitatis
+                { x: mx + moonRadius * 0.40, y: my + moonRadius * 0.05, r: moonRadius * 0.18, o: 0.33 }, // Mare Tranquillitatis
+                { x: mx + moonRadius * 0.25, y: my + moonRadius * 0.30, r: moonRadius * 0.15, o: 0.28 }, // Mare Fecunditatis
+                { x: mx - moonRadius * 0.40, y: my + moonRadius * 0.20, r: moonRadius * 0.25, o: 0.30 }, // Mare Humorum
+                { x: mx - moonRadius * 0.05, y: my - moonRadius * 0.10, r: moonRadius * 0.15, o: 0.25 }  // Sinus Aestuum
+            ];
+            maria.forEach(m => {
+                ctx.fillStyle = `rgba(95, 105, 115, ${m.o})`;
+                ctx.beginPath();
+                ctx.arc(m.x, m.y, m.r, 0, 2*Math.PI);
+                ctx.fill();
+            });
+
+            // 2. Draw crater structures (rims and shadows for realistic 3D appearance)
+            const craters = [
+                { x: mx + moonRadius * 0.15, y: my + moonRadius * 0.65, r: moonRadius * 0.05 },  // Tycho
+                { x: mx - moonRadius * 0.35, y: my + moonRadius * 0.05, r: moonRadius * 0.045 }, // Copernicus
+                { x: mx - moonRadius * 0.55, y: my + moonRadius * 0.15, r: moonRadius * 0.03 },  // Kepler
+                { x: mx - moonRadius * 0.10, y: my - moonRadius * 0.65, r: moonRadius * 0.04 },  // Plato
+                { x: mx + moonRadius * 0.50, y: my - moonRadius * 0.35, r: moonRadius * 0.035 }  // Langrenus
+            ];
+
+            craters.forEach(c => {
+                // Shadow side of crater (dark crescent)
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.45)';
+                ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, c.r, Math.PI * 0.75, Math.PI * 1.75);
+                ctx.stroke();
+
+                // Highlight side of crater (light crescent)
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, c.r, Math.PI * 1.75, Math.PI * 0.75);
+                ctx.stroke();
+
+                // Dark floor
+                ctx.fillStyle = 'rgba(110, 110, 115, 0.35)';
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, c.r - 1, 0, 2*Math.PI);
+                ctx.fill();
+
+                // Central peak (bright spot)
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, moonRadius * 0.008, 0, 2*Math.PI);
+                ctx.fill();
+            });
+
+            // 3. Draw Tycho ray systems
+            const tycho = craters[0];
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+            ctx.lineWidth = 0.8;
+            for (let angle = 0; angle < 2 * Math.PI; angle += Math.PI / 12) {
+                ctx.beginPath();
+                ctx.moveTo(tycho.x, tycho.y);
+                ctx.lineTo(tycho.x + moonRadius * 0.85 * Math.cos(angle), tycho.y + moonRadius * 0.85 * Math.sin(angle));
+                ctx.stroke();
+            }
+
+            // 4. Draw Copernicus ray systems
+            const copernicus = craters[1];
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+            ctx.lineWidth = 0.7;
+            for (let angle = 0; angle < 2 * Math.PI; angle += Math.PI / 8) {
+                ctx.beginPath();
+                ctx.moveTo(copernicus.x, copernicus.y);
+                ctx.lineTo(copernicus.x + moonRadius * 0.35 * Math.cos(angle), copernicus.y + moonRadius * 0.35 * Math.sin(angle));
+                ctx.stroke();
+            }
+
+            // 5. Apply subtle spherical shading overlay to make the flat circle look like a 3D sphere
+            const sphereShade = ctx.createRadialGradient(
+                mx - moonRadius * 0.2, my - moonRadius * 0.2, 0,
+                mx, my, moonRadius
+            );
+            sphereShade.addColorStop(0, 'rgba(255, 255, 255, 0.15)'); // Highlight
+            sphereShade.addColorStop(0.60, 'rgba(0, 0, 0, 0.0)');     // Neutral
+            sphereShade.addColorStop(1, 'rgba(0, 0, 0, 0.35)');        // Spherical edge shadow
+            ctx.fillStyle = sphereShade;
             ctx.beginPath();
-            ctx.arc(cx, cy, rUmbra * 0.8, 0, 2*Math.PI);
+            ctx.arc(mx, my, moonRadius, 0, 2*Math.PI);
             ctx.fill();
 
             ctx.restore();
+
+            // Overlay Earth shadow on Moon using smooth radial gradient centered at sxCenter, syCenter
+            const distToCenter = Math.sqrt(dx*dx + dy*dy);
+            if (distToCenter < rp + moonRadius) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(mx, my, moonRadius, 0, 2*Math.PI);
+                ctx.clip();
+
+                const shadowGrad = ctx.createRadialGradient(sxCenter, syCenter, 0, sxCenter, syCenter, rp);
+                
+                const isTotal = local.type === 'Total';
+                if (isTotal) {
+                    // Totality: deep, physically blended copper-blood red coloration
+                    shadowGrad.addColorStop(0, 'rgba(90, 10, 5, 0.95)');                 // Dark brick-red center
+                    shadowGrad.addColorStop(ru * 0.65 / rp, 'rgba(110, 20, 12, 0.90)');  // Mid deep red
+                    shadowGrad.addColorStop(ru / rp, 'rgba(130, 25, 15, 0.85)');         // Outer brick red
+                    shadowGrad.addColorStop((ru + (rp - ru)*0.1) / rp, 'rgba(90, 40, 30, 0.75)'); // Copper transition
+                    shadowGrad.addColorStop((ru + (rp - ru)*0.35) / rp, 'rgba(60, 50, 52, 0.60)'); // Dark brown-grey
+                    shadowGrad.addColorStop((ru + (rp - ru)*0.7) / rp, 'rgba(80, 80, 85, 0.35)'); // Grey penumbra
+                } else {
+                    // Penumbral/Partial: grey penumbra and dark umbra
+                    shadowGrad.addColorStop(0, 'rgba(12, 12, 14, 0.96)');
+                    shadowGrad.addColorStop(ru * 0.75 / rp, 'rgba(20, 20, 22, 0.92)');
+                    shadowGrad.addColorStop(ru / rp, 'rgba(30, 30, 32, 0.85)');
+                    shadowGrad.addColorStop((ru + (rp - ru)*0.2) / rp, 'rgba(50, 50, 55, 0.65)');
+                    shadowGrad.addColorStop((ru + (rp - ru)*0.6) / rp, 'rgba(90, 90, 95, 0.40)');
+                }
+                shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+                ctx.fillStyle = shadowGrad;
+                ctx.beginPath();
+                ctx.arc(sxCenter, syCenter, rp, 0, 2*Math.PI);
+                ctx.fill();
+
+                ctx.restore();
+            }
+
+            // Ground horizon clipping (using antisolar shadow center)
+            const yHorizon = cy + (-local.sunAlt) * scale;
+            if (yHorizon < H) {
+                const groundGrad = ctx.createLinearGradient(0, Math.max(0, yHorizon), 0, H);
+                groundGrad.addColorStop(0, '#0a1424');
+                groundGrad.addColorStop(1, '#03060c');
+                ctx.fillStyle = groundGrad;
+                ctx.fillRect(0, Math.max(0, yHorizon), W, H - Math.max(0, yHorizon));
+
+                ctx.strokeStyle = '#00f6ff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, yHorizon);
+                ctx.lineTo(W, yHorizon);
+                ctx.stroke();
+            }
+
+        } else if (simViewMode === 'dome') {
+            const R = 170; // dome radius
+            ctx.fillStyle = '#030712';
+            ctx.fillRect(0, 0, W, H);
+
+            // Draw sky dome circle
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, cy, R, 0, 2*Math.PI);
+            ctx.clip();
+
+            // Deep nightsky dome gradient fill
+            const skyGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+            skyGrad.addColorStop(0, '#010410');
+            skyGrad.addColorStop(1, '#000105');
+            ctx.fillStyle = skyGrad;
+            ctx.fill();
+
+            // Draw stars inside dome
+            ctx.fillStyle = 'rgba(255,255,255,0.85)';
+            simStars.forEach(star => {
+                if (star.r < R) {
+                    const sx = cx + star.r * Math.cos(star.angle);
+                    const sy = cy + star.r * Math.sin(star.angle);
+                    ctx.fillRect(sx, sy, star.size, star.size);
+                }
+            });
+
+            // Project antisolar Earth shadow point
+            const shadowAlt = -local.sunAlt;
+            const shadowAz = (local.sunAz + 180) % 360;
+            const rShadow = R * (90 - shadowAlt) / 90;
+            const angleShadow = (shadowAz - 90) * Math.PI / 180;
+            const xShadow = cx + rShadow * Math.cos(angleShadow);
+            const yShadow = cy + rShadow * Math.sin(angleShadow);
+
+            const rMoonBase = 10;
+            const rPenumbraBase = rMoonBase * (local.penumbraRadius / local.moonRadius);
+            const rUmbraBase = rMoonBase * (local.umbraRadius / local.moonRadius);
+
+            if (showSimGrid) {
+                ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 1;
+                ctx.font = '9px Outfit, sans-serif';
+
+                ctx.beginPath();
+                ctx.arc(cx, cy, R * (60/90), 0, 2*Math.PI);
+                ctx.arc(cx, cy, R * (30/90), 0, 2*Math.PI);
+                ctx.stroke();
+
+                ctx.fillText("30°", cx + 3, cy - R * (60/90) + 9);
+                ctx.fillText("60°", cx + 3, cy - R * (30/90) + 9);
+
+                ctx.beginPath();
+                ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy);
+                ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R);
+                ctx.stroke();
+
+                ctx.fillText("Zenith", cx + 5, cy + 12);
+
+                // Draw Earth Umbra & Penumbra outline in the dome
+                if (shadowAlt >= -10) {
+                    // Penumbra
+                    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.arc(xShadow, yShadow, rPenumbraBase, 0, 2*Math.PI);
+                    ctx.stroke();
+
+                    // Umbra
+                    ctx.strokeStyle = 'rgba(220,53,69,0.25)';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(xShadow, yShadow, rUmbraBase, 0, 2*Math.PI);
+                    ctx.stroke();
+                }
+            }
+
+            // Draw trajectories
+            drawTrajectories(ctx, cx, cy);
+
+            // Real Moon projection on the dome
+            const rMoonReal = R * (90 - local.moonAlt) / 90;
+            const angleMoon = (local.moonAz - 90) * Math.PI / 180;
+            const xMoonReal = cx + rMoonReal * Math.cos(angleMoon);
+            const yMoonReal = cy + rMoonReal * Math.sin(angleMoon);
+
+            const xMoon = xMoonReal;
+            const yMoon = yMoonReal;
+
+            const canvasScale = 170 / 90;
+            const visualScale = rMoonBase / local.moonRadius;
+            const mult = visualScale / canvasScale;
+            const xShadowDraw = xMoon + (xShadow - xMoon) * mult;
+            const yShadowDraw = yMoon + (yShadow - yMoon) * mult;
+
+            // Draw Moon if above horizon
+            if (moonAlt >= 0) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(xMoon, yMoon, rMoonBase, 0, 2*Math.PI);
+                ctx.clip();
+
+                // Moon base color: pure white (as requested when eclipse not begun)
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+
+                // Maria basins: light grey markings
+                ctx.fillStyle = 'rgba(165, 175, 185, 0.45)';
+                ctx.beginPath();
+                ctx.arc(xMoon - rMoonBase * 0.3, yMoon - rMoonBase * 0.2, rMoonBase * 0.35, 0, 2*Math.PI);
+                ctx.arc(xMoon + rMoonBase * 0.2, yMoon - rMoonBase * 0.3, rMoonBase * 0.25, 0, 2*Math.PI);
+                ctx.fill();
+
+                // Earth shadow overlay on the dome Moon
+                const d_vis = Math.sqrt((xMoon - xShadowDraw)*(xMoon - xShadowDraw) + (yMoon - yShadowDraw)*(yMoon - yShadowDraw));
+                if (d_vis < rPenumbraBase + rMoonBase) {
+                    const miniShadowGrad = ctx.createRadialGradient(xShadowDraw, yShadowDraw, 0, xShadowDraw, yShadowDraw, rPenumbraBase);
+                    
+                    const isTotal = local.type === 'Total';
+                    if (isTotal) {
+                        // Totality: deep, blended brick-red coloration
+                        miniShadowGrad.addColorStop(0, 'rgba(90, 10, 5, 0.95)');                 // Dark brick-red center
+                        miniShadowGrad.addColorStop(rUmbraBase * 0.65 / rPenumbraBase, 'rgba(110, 20, 12, 0.90)');  // Mid deep red
+                        miniShadowGrad.addColorStop(rUmbraBase / rPenumbraBase, 'rgba(130, 25, 15, 0.85)');         // Outer brick red
+                        miniShadowGrad.addColorStop((rUmbraBase + (rPenumbraBase - rUmbraBase)*0.1) / rPenumbraBase, 'rgba(90, 40, 30, 0.70)'); // Copper transition
+                        miniShadowGrad.addColorStop((rUmbraBase + (rPenumbraBase - rUmbraBase)*0.35) / rPenumbraBase, 'rgba(60, 50, 52, 0.60)'); // Dark brown-grey
+                        miniShadowGrad.addColorStop((rUmbraBase + (rPenumbraBase - rUmbraBase)*0.7) / rPenumbraBase, 'rgba(80, 80, 85, 0.35)'); // Grey penumbra
+                    } else {
+                        // Penumbral/Partial: grey penumbra (gets dark) and dark umbra
+                        miniShadowGrad.addColorStop(0, 'rgba(12, 12, 14, 0.96)');                                // Dark umbra core
+                        miniShadowGrad.addColorStop(rUmbraBase * 0.75 / rPenumbraBase, 'rgba(20, 20, 22, 0.92)');  // Inner umbra
+                        miniShadowGrad.addColorStop(rUmbraBase / rPenumbraBase, 'rgba(30, 30, 32, 0.85)');         // Umbra edge
+                        miniShadowGrad.addColorStop((rUmbraBase + (rPenumbraBase - rUmbraBase)*0.2) / rPenumbraBase, 'rgba(60, 60, 65, 0.65)');  // Darker penumbra
+                        miniShadowGrad.addColorStop((rUmbraBase + (rPenumbraBase - rUmbraBase)*0.6) / rPenumbraBase, 'rgba(110, 110, 115, 0.40)'); // Soft grey penumbra
+                    }
+                    miniShadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+                    ctx.fillStyle = miniShadowGrad;
+                    ctx.beginPath();
+                    ctx.arc(xShadowDraw, yShadowDraw, rPenumbraBase, 0, 2*Math.PI);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            }
+
+            ctx.restore(); // end dome clip
+
+            // Dome boundary ring
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(cx, cy, R, 0, 2*Math.PI);
+            ctx.stroke();
+
+            // Label Cardinal Directions
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.font = 'bold 12px Outfit, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText("N", cx, cy - R - 8);
+            ctx.fillText("S", cx, cy + R + 18);
+            ctx.fillText("E", cx + R + 12, cy + 4);
+            ctx.fillText("W", cx - R - 12, cy + 4);
         }
-
     } else if (currentEvent.type === 'transit') {
-        // Planetary Transit
-        const transitBody = Astronomy.Body.Mercury; // Venus would use Venus
+        const transitBody = currentEvent.typeName.includes('Venus') ? Astronomy.Body.Venus : Astronomy.Body.Mercury;
         const local = AstronomyHelper.calculateTransit(date, transitBody, observerLocation.lat, observerLocation.lon);
-
         if (!local) return;
 
-        // Sky Background
-        ctx.fillStyle = '#060a1d';
-        ctx.fillRect(0, 0, W, H);
-
+        // Draw local altitude telemetry values
         document.getElementById('val-sun-alt').innerText = local.sunAlt.toFixed(2) + "°";
         document.getElementById('val-sun-az').innerText = local.sunAz.toFixed(2) + "°";
         document.getElementById('val-obscuration').innerText = "0.01% (Tiny)";
         document.getElementById('val-magnitude').innerText = "Transit Active: " + (local.isTransit ? "YES" : "NO");
 
-        const scale = 160 / local.sunRadius; // Map Sun angular size to radius of ~110px
+        const sunAlt = local.sunAlt;
+        const scale = 140 / local.sunRadius; // Map Sun angular size to radius of 140px
 
-        // Draw Sun
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = '#ffcc00';
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(cx, cy, 140, 0, 2*Math.PI);
-        ctx.fill();
-        ctx.shadowBlur = 0;
+        let lightFactor = 1.0;
+        if (sunAlt < -18) {
+            lightFactor = 0.0;
+        } else if (sunAlt < 0) {
+            lightFactor = (sunAlt + 18) / 18;
+        }
 
-        // Draw planet as a tiny black dot crossing the Sun
-        const dx = local.dx * scale;
-        const dy = -local.dy * scale;
+        if (simViewMode === 'closeup') {
+            // Sky Background
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+            const r = Math.floor(1 + 26 * lightFactor);
+            const g = Math.floor(3 + 88 * lightFactor);
+            const b = Math.floor(10 + 189 * lightFactor);
+            skyGrad.addColorStop(0, `rgb(${r}, ${g}, ${b})`);
+            skyGrad.addColorStop(1, '#000000');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, W, H);
 
-        ctx.fillStyle = '#000000';
-        ctx.beginPath();
-        // Radii drawn slightly larger for visibility
-        ctx.arc(cx + dx, cy + dy, 4.5, 0, 2*Math.PI);
-        ctx.fill();
-    }
-}
+            // Draw Sun
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#ffcc00';
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 140, 0, 2*Math.PI);
+            ctx.fill();
+            ctx.shadowBlur = 0;
 
-// Fetch Real Historical Eclipse/Transit images from NASA APIs using API key
-function fetchNASAImages(ev) {
-    const gallery = document.getElementById('nasa-gallery');
-    gallery.innerHTML = '<div class="gallery-placeholder">Fetching images from NASA Archives...</div>';
-    
-    const apiKey = 'JQkcP2cMpBoTd2WWMrCrnJ8PN5m99E3N7HZ2gGsk';
-    
-    // Extract date from event
-    const peakDate = dateFromJD(ev.peakJD);
-    const dateString = peakDate.toISOString().split('T')[0]; // YYYY-MM-DD
-    
-    const today = new Date();
-    const isFuture = peakDate.getTime() > today.getTime();
-    
-    if (isFuture) {
-        // Skip APOD query for future events to avoid console 400 errors
-        triggerNASAArchiveSearch(ev, gallery);
-    } else {
-        // Query APOD for the specific date of the eclipse using the API key
-        fetch(`https://api.nasa.gov/planetary/apod?api_key=${apiKey}&date=${dateString}`)
-            .then(res => {
-                if (!res.ok) throw new Error("APOD not available for this exact date");
-                return res.json();
-            })
-            .then(data => {
-                if (data.media_type === 'image') {
-                    gallery.innerHTML = '';
-                    const card = document.createElement('div');
-                    card.className = 'nasa-apod-card';
-                    card.innerHTML = `
-                        <img src="${data.url}" alt="${data.title}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="nasa-card-placeholder" style="display: none; height: 140px; justify-content: center; align-items: center; background: linear-gradient(135deg, rgba(2,16,52,0.6), rgba(6,12,32,0.8)); color: rgba(255,255,255,0.4); font-size: 11px; flex-direction: column;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 24px; height: 24px; margin-bottom: 6px;">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                            </svg>
-                            <span>Photograph Offline</span>
-                        </div>
-                        <div class="info">
-                            <div class="title" title="${data.title}">${data.title}</div>
-                            <div class="date">NASA APOD • ${data.date}</div>
-                        </div>
-                    `;
-                    gallery.appendChild(card);
-                } else {
-                    throw new Error("APOD is not an image");
-                }
-            })
-            .catch(err => {
-                triggerNASAArchiveSearch(ev, gallery);
-            });
-    }
-}
+            // Draw planet as a tiny black dot crossing the Sun (scaled dynamically to sun size)
+            const dx = local.dx * scale;
+            const dy = -local.dy * scale;
+            const rPlanetPix = Math.max(1.0, 140 * (local.planetRadius / local.sunRadius));
 
-function triggerNASAArchiveSearch(ev, gallery) {
-    const query = ev.type === 'transit' ? 'transit of mercury' : 'solar eclipse';
-    fetch(`https://images-api.nasa.gov/search?q=${query}&media_type=image`)
-        .then(res => res.json())
-        .then(data => {
-            const items = data.collection.items;
-            if (items && items.length > 0) {
-                gallery.innerHTML = '';
-                let count = 0;
-                for (let i = 0; i < items.length && count < 2; i++) {
-                    const item = items[i];
-                    if (item.links && item.links[0]) {
-                        const imgUrl = item.links[0].href;
-                        const title = item.data[0].title;
-                        const dateStr = new Date(item.data[0].date_created).toLocaleDateString();
-                        
-                        const card = document.createElement('div');
-                        card.className = 'nasa-apod-card';
-                        card.innerHTML = `
-                            <img src="${imgUrl}" alt="${title}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="nasa-card-placeholder" style="display: none; height: 140px; justify-content: center; align-items: center; background: linear-gradient(135deg, rgba(2,16,52,0.6), rgba(6,12,32,0.8)); color: rgba(255,255,255,0.4); font-size: 11px; flex-direction: column;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 24px; height: 24px; margin-bottom: 6px;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                                </svg>
-                                <span>Photograph Offline</span>
-                            </div>
-                            <div class="info">
-                                <div class="title" title="${title}">${title}</div>
-                                <div class="date">NASA Archive • ${dateStr}</div>
-                            </div>
-                        `;
-                        gallery.appendChild(card);
-                        count++;
-                    }
-                }
-            } else {
-                gallery.innerHTML = '<div class="gallery-placeholder">No matching NASA photographs found.</div>';
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(cx + dx, cy + dy, rPlanetPix, 0, 2*Math.PI);
+            ctx.fill();
+
+            // Ground/Horizon clipping line
+            const yHorizon = cy + sunAlt * scale;
+            if (yHorizon < H) {
+                const groundGrad = ctx.createLinearGradient(0, Math.max(0, yHorizon), 0, H);
+                groundGrad.addColorStop(0, '#0a1424');
+                groundGrad.addColorStop(1, '#03060c');
+                ctx.fillStyle = groundGrad;
+                ctx.fillRect(0, Math.max(0, yHorizon), W, H - Math.max(0, yHorizon));
+
+                ctx.strokeStyle = '#00f6ff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, yHorizon);
+                ctx.lineTo(W, yHorizon);
+                ctx.stroke();
             }
-        })
-        .catch(() => {
-            gallery.innerHTML = '<div class="gallery-placeholder">Unable to load NASA gallery.</div>';
+
+        } else if (simViewMode === 'dome') {
+            const R = 170; // dome radius
+            ctx.fillStyle = '#030712';
+            ctx.fillRect(0, 0, W, H);
+
+            // Draw sky dome circle
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, cy, R, 0, 2*Math.PI);
+            ctx.clip();
+
+            // Sky dome gradient fill
+            const skyGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+            const r = Math.floor(1 + 26 * lightFactor);
+            const g = Math.floor(3 + 88 * lightFactor);
+            const b = Math.floor(10 + 189 * lightFactor);
+            skyGrad.addColorStop(0, `rgb(${r}, ${g}, ${b})`);
+            skyGrad.addColorStop(1, `rgb(${Math.floor(r*0.7)}, ${Math.floor(g*0.7)}, ${Math.floor(b*0.7)})`);
+            ctx.fillStyle = skyGrad;
+            ctx.fill();
+
+            // Draw stars inside dome if dark
+            if (lightFactor < 0.2) {
+                ctx.fillStyle = 'rgba(255,255,255,' + ((0.2 - lightFactor) / 0.2) + ')';
+                simStars.forEach(star => {
+                    if (star.r < R) {
+                        const sx = cx + star.r * Math.cos(star.angle);
+                        const sy = cy + star.r * Math.sin(star.angle);
+                        ctx.fillRect(sx, sy, star.size, star.size);
+                    }
+                });
+            }
+
+            // Grid layout
+            if (showSimGrid) {
+                ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 1;
+                ctx.font = '9px Outfit, sans-serif';
+
+                ctx.beginPath();
+                ctx.arc(cx, cy, R * (60/90), 0, 2*Math.PI);
+                ctx.arc(cx, cy, R * (30/90), 0, 2*Math.PI);
+                ctx.stroke();
+
+                ctx.fillText("30°", cx + 3, cy - R * (60/90) + 9);
+                ctx.fillText("60°", cx + 3, cy - R * (30/90) + 9);
+
+                ctx.beginPath();
+                ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy);
+                ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R);
+                ctx.stroke();
+
+                ctx.fillText("Zenith", cx + 5, cy + 12);
+            }
+
+            // Project Sun & Planet
+            const rSun = R * (90 - local.sunAlt) / 90;
+            const angleSun = (local.sunAz - 90) * Math.PI / 180;
+            const xSun = cx + rSun * Math.cos(angleSun);
+            const ySun = cy + rSun * Math.sin(angleSun);
+
+            // Real Planet projection
+            const rPlanetReal = R * (90 - local.planetAlt) / 90;
+            const anglePlanet = (local.planetAz - 90) * Math.PI / 180;
+            const xPlanetReal = cx + rPlanetReal * Math.cos(anglePlanet);
+            const yPlanetReal = cy + rPlanetReal * Math.sin(anglePlanet);
+
+            const dx_real = xPlanetReal - xSun;
+            const dy_real = yPlanetReal - ySun;
+
+            const rSunBase = 12;
+            const rPlanetBase = rSunBase * (local.planetRadius / local.sunRadius);
+
+            const canvasScale = 170 / 90;
+            const visualScale = rSunBase / local.sunRadius;
+            const mult = visualScale / canvasScale;
+            const px = xSun + dx_real * mult;
+            const py = ySun + dy_real * mult;
+
+            // Draw trajectories
+            drawTrajectories(ctx, cx, cy);
+
+            // Draw Sun inside sky dome if above horizon
+            if (local.sunAlt >= 0) {
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#ffe600';
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(xSun, ySun, rSunBase, 0, 2*Math.PI);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Draw planet inside/near Sun circle (realistic transit projection)
+                const d_vis = Math.sqrt((px - xSun)*(px - xSun) + (py - ySun)*(py - ySun));
+                if (d_vis < rSunBase + rPlanetBase + 2) {
+                    ctx.fillStyle = '#000000';
+                    ctx.beginPath();
+                    ctx.arc(px, py, rPlanetBase, 0, 2*Math.PI);
+                    ctx.fill();
+                }
+            }
+
+            ctx.restore(); // end dome clip
+
+            // Dome horizon boundary ring
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(cx, cy, R, 0, 2*Math.PI);
+            ctx.stroke();
+
+            // Label Cardinals
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.font = 'bold 12px Outfit, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText("N", cx, cy - R - 8);
+            ctx.fillText("S", cx, cy + R + 18);
+            ctx.fillText("E", cx + R + 12, cy + 4);
+            ctx.fillText("W", cx - R - 12, cy + 4);
+        }
+    }
+}
+
+// Calculate and render dynamic contact timings
+function updateContactTimings() {
+    if (!currentEvent) return;
+    
+    const listContainer = document.getElementById('contact-timings-list');
+    if (!listContainer) return;
+    listContainer.innerHTML = '';
+    cachedContactTimes = null;
+
+    const lat = observerLocation.lat;
+    const lon = observerLocation.lon;
+    const peakDate = dateFromJD(currentEvent.peakJD);
+
+    const lang = getCurrentLanguage();
+    const belowHorizonText = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang]['below_horizon']) || ' (Below Horizon)';
+    const notVisibleText = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang]['not_visible_here']) || 'Not visible at this location';
+
+    let contacts = [];
+
+    if (currentEvent.type === 'solar') {
+        const startSearch = new Date(peakDate.getTime() - 12 * 60 * 60 * 1000);
+        const t = Astronomy.MakeTime(startSearch);
+        const obs = new Astronomy.Observer(lat, lon, 0);
+        
+        let localEclipse = null;
+        try {
+            localEclipse = Astronomy.SearchLocalSolarEclipse(t, obs);
+        } catch (e) {
+            console.error("Astronomy Engine search error:", e);
+        }
+
+        let isVisible = false;
+        if (localEclipse) {
+            const foundDate = new Date(localEclipse.peak.time.date);
+            const diffHours = Math.abs(foundDate.getTime() - peakDate.getTime()) / (60 * 60 * 1000);
+            if (diffHours < 24) {
+                isVisible = true;
+            }
+        }
+
+        if (isVisible && localEclipse) {
+            const getAlt = (d) => {
+                try {
+                    const tVal = Astronomy.MakeTime(d);
+                    const sunEq = Astronomy.Equator(Astronomy.Body.Sun, tVal, obs, true, true);
+                    const sunHor = Astronomy.Horizon(tVal, obs, sunEq.ra, sunEq.dec, 'normal');
+                    return sunHor.altitude;
+                } catch (e) {
+                    return 0;
+                }
+            };
+
+            const tC1 = new Date(localEclipse.partial_begin.time.date);
+            contacts.push({ labelKey: 'c1_label', defaultLabel: 'C1 (Partial Starts):', date: tC1, visible: getAlt(tC1) >= 0 });
+
+            if (localEclipse.total_begin) {
+                const tC2 = new Date(localEclipse.total_begin.time.date);
+                contacts.push({ labelKey: 'c2_label', defaultLabel: 'C2 (Totality Starts):', date: tC2, visible: getAlt(tC2) >= 0 });
+            } else if (localEclipse.annular_begin) {
+                const tC2 = new Date(localEclipse.annular_begin.time.date);
+                contacts.push({ labelKey: 'c2_label', defaultLabel: 'C2 (Annularity Starts):', date: tC2, visible: getAlt(tC2) >= 0 });
+            }
+
+            const tMax = new Date(localEclipse.peak.time.date);
+            contacts.push({ labelKey: 'peak_label', defaultLabel: 'Peak (Maximum):', date: tMax, visible: getAlt(tMax) >= 0 });
+
+            if (localEclipse.total_end) {
+                const tC3 = new Date(localEclipse.total_end.time.date);
+                contacts.push({ labelKey: 'c3_label', defaultLabel: 'C3 (Totality Ends):', date: tC3, visible: getAlt(tC3) >= 0 });
+            } else if (localEclipse.annular_end) {
+                const tC3 = new Date(localEclipse.annular_end.time.date);
+                contacts.push({ labelKey: 'c3_label', defaultLabel: 'C3 (Annularity Ends):', date: tC3, visible: getAlt(tC3) >= 0 });
+            }
+
+            const tC4 = new Date(localEclipse.partial_end.time.date);
+            contacts.push({ labelKey: 'c4_label', defaultLabel: 'C4 (Partial Ends):', date: tC4, visible: getAlt(tC4) >= 0 });
+        }
+    } else if (currentEvent.type === 'lunar') {
+        const startSearch = new Date(peakDate.getTime() - 12 * 60 * 60 * 1000);
+        const t = Astronomy.MakeTime(startSearch);
+        const obs = new Astronomy.Observer(lat, lon, 0);
+        
+        let eclipse = null;
+        try {
+            eclipse = Astronomy.SearchLunarEclipse(t);
+        } catch (e) {
+            console.error(e);
+        }
+
+        let isVisible = false;
+        if (eclipse) {
+            const foundDate = new Date(eclipse.peak.date);
+            const diffHours = Math.abs(foundDate.getTime() - peakDate.getTime()) / (60 * 60 * 1000);
+            if (diffHours < 24) {
+                isVisible = true;
+            }
+        }
+
+        if (isVisible && eclipse) {
+            const getAlt = (d) => {
+                try {
+                    const tVal = Astronomy.MakeTime(d);
+                    const moonEq = Astronomy.Equator(Astronomy.Body.Moon, tVal, obs, true, true);
+                    const moonHor = Astronomy.Horizon(tVal, obs, moonEq.ra, moonEq.dec, 'normal');
+                    return moonHor.altitude;
+                } catch (e) {
+                    return 0;
+                }
+            };
+
+            const tPeak = new Date(eclipse.peak.date);
+            const tP1 = new Date(tPeak.getTime() - eclipse.sd_penum * 60000);
+            contacts.push({ labelKey: 'p1_label', defaultLabel: 'P1 (Penumbral Starts):', date: tP1, visible: getAlt(tP1) >= 0 });
+
+            if (eclipse.sd_partial > 0) {
+                const tU1 = new Date(tPeak.getTime() - eclipse.sd_partial * 60000);
+                contacts.push({ labelKey: 'u1_label', defaultLabel: 'U1 (Partial Starts):', date: tU1, visible: getAlt(tU1) >= 0 });
+            }
+
+            if (eclipse.sd_total > 0) {
+                const tU2 = new Date(tPeak.getTime() - eclipse.sd_total * 60000);
+                contacts.push({ labelKey: 'u2_label', defaultLabel: 'U2 (Totality Starts):', date: tU2, visible: getAlt(tU2) >= 0 });
+            }
+
+            contacts.push({ labelKey: 'peak_label', defaultLabel: 'Peak (Maximum):', date: tPeak, visible: getAlt(tPeak) >= 0 });
+
+            if (eclipse.sd_total > 0) {
+                const tU3 = new Date(tPeak.getTime() + eclipse.sd_total * 60000);
+                contacts.push({ labelKey: 'u3_label', defaultLabel: 'U3 (Totality Ends):', date: tU3, visible: getAlt(tU3) >= 0 });
+            }
+
+            if (eclipse.sd_partial > 0) {
+                const tU4 = new Date(tPeak.getTime() + eclipse.sd_partial * 60000);
+                contacts.push({ labelKey: 'u4_label', defaultLabel: 'U4 (Partial Ends):', date: tU4, visible: getAlt(tU4) >= 0 });
+            }
+
+            const tP4 = new Date(tPeak.getTime() + eclipse.sd_penum * 60000);
+            contacts.push({ labelKey: 'p4_label', defaultLabel: 'P4 (Penumbral Ends):', date: tP4, visible: getAlt(tP4) >= 0 });
+        }
+    } else if (currentEvent.type === 'transit') {
+        const startSearch = new Date(peakDate.getTime() - 12 * 60 * 60 * 1000);
+        const t = Astronomy.MakeTime(startSearch);
+        const obs = new Astronomy.Observer(lat, lon, 0);
+        const body = currentEvent.typeName.includes('Venus') ? Astronomy.Body.Venus : Astronomy.Body.Mercury;
+        
+        let transit = null;
+        try {
+            transit = Astronomy.SearchTransit(body, t);
+        } catch (e) {
+            console.error(e);
+        }
+
+        let isVisible = false;
+        if (transit) {
+            const foundDate = new Date(transit.peak.date);
+            const diffHours = Math.abs(foundDate.getTime() - peakDate.getTime()) / (60 * 60 * 1000);
+            if (diffHours < 24) {
+                isVisible = true;
+            }
+        }
+
+        if (isVisible && transit) {
+            const getAlt = (d) => {
+                try {
+                    const tVal = Astronomy.MakeTime(d);
+                    const sunEq = Astronomy.Equator(Astronomy.Body.Sun, tVal, obs, true, true);
+                    const sunHor = Astronomy.Horizon(tVal, obs, sunEq.ra, sunEq.dec, 'normal');
+                    return sunHor.altitude;
+                } catch (e) {
+                    return 0;
+                }
+            };
+
+            const tStart = new Date(transit.start.date);
+            contacts.push({ labelKey: 'ingress_label', defaultLabel: 'Ingress Starts:', date: tStart, visible: getAlt(tStart) >= 0 });
+
+            const tPeak = new Date(transit.peak.date);
+            contacts.push({ labelKey: 'peak_label', defaultLabel: 'Peak (Maximum):', date: tPeak, visible: getAlt(tPeak) >= 0 });
+
+            const tFinish = new Date(transit.finish.date);
+            contacts.push({ labelKey: 'egress_label', defaultLabel: 'Egress Ends:', date: tFinish, visible: getAlt(tFinish) >= 0 });
+        }
+    }
+
+    if (contacts.length === 0) {
+        listContainer.innerHTML = `<div class="timing-row" style="justify-content: center; color: rgba(255,255,255,0.4);">${notVisibleText}</div>`;
+        const container = document.getElementById('sim-slider-bookmarks');
+        if (container) container.innerHTML = '';
+        return;
+    }
+
+    cachedContactTimes = contacts;
+    renderSliderBookmarks();
+    recalculateTrajectories();
+
+    // Start 5 minutes before the eclipse began in the selected area
+    if (!isAnimating && contacts.length > 0) {
+        const startBefore = new Date(contacts[0].date.getTime() - 5 * 60000);
+        setSliderToDate(startBefore);
+    }
+
+    contacts.forEach((c, idx) => {
+        const row = document.createElement('div');
+        row.className = 'timing-row';
+        row.id = `contact-row-${idx}`;
+
+        const labelText = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang][c.labelKey]) || c.defaultLabel;
+        const timeStr = c.date.toUTCString().split(" ")[4];
+        
+        let labelSpan = document.createElement('span');
+        labelSpan.innerText = labelText;
+
+        let timeSpan = document.createElement('span');
+        if (c.visible) {
+            timeSpan.innerText = timeStr;
+        } else {
+            timeSpan.innerText = timeStr + belowHorizonText;
+            timeSpan.style.color = 'rgba(255,255,255,0.4)';
+        }
+
+        row.appendChild(labelSpan);
+        row.appendChild(timeSpan);
+        listContainer.appendChild(row);
+    });
+}
+
+// Highlight the contact row corresponding to the most recently passed phase
+function highlightActivePhase(activeTime) {
+    if (!cachedContactTimes || cachedContactTimes.length === 0) return;
+
+    for (let i = 0; i < cachedContactTimes.length; i++) {
+        const el = document.getElementById(`contact-row-${i}`);
+        if (el) el.classList.remove('active-phase');
+    }
+
+    let activeIdx = -1;
+    for (let i = 0; i < cachedContactTimes.length; i++) {
+        if (activeTime >= cachedContactTimes[i].date) {
+            activeIdx = i;
+        }
+    }
+
+    if (activeIdx !== -1 && activeIdx < cachedContactTimes.length - 1) {
+        const el = document.getElementById(`contact-row-${activeIdx}`);
+        if (el) el.classList.add('active-phase');
+    }
+}
+
+// Generate static background stars for sky dome / closeup black sky
+function generateSimStars() {
+    simStars = [];
+    for (let i = 0; i < 80; i++) {
+        const r = Math.random();
+        const radius = Math.sqrt(r) * 170; // distribution within dome radius
+        const angle = Math.random() * 2 * Math.PI;
+        simStars.push({
+            r: radius,
+            angle: angle,
+            size: Math.random() * 1.5 + 0.5
         });
+    }
+}
+
+// Translate a Date object back to the time slider percentage and update displays
+function setSliderToDate(date) {
+    if (!currentEvent) return;
+    const t = Astronomy.MakeTime(date);
+    const targetJD = t.ut;
+    const rangeDays = (currentEvent.type === 'lunar' ? 4 : 3) / 24;
+    const offsetDays = targetJD - currentEvent.peakJD;
+    let val = 50 + 50 * (offsetDays / rangeDays);
+    val = Math.max(0, Math.min(100, val));
+    
+    timeSliderVal = val;
+    const sliders = [
+        document.getElementById('time-slider'),
+        document.getElementById('sim-time-slider'),
+        document.getElementById('globe-time-slider')
+    ];
+    sliders.forEach(s => { if (s) s.value = val; });
+    updateSliderGradient();
+    updateTimeFromSlider();
+}
+
+// Search for and return any sunrise or sunset times (Sun altitude zero-crossings) within the current event's time range
+function findSunriseSunsetTimes() {
+    if (!currentEvent) return [];
+    const times = [];
+    const lat = observerLocation.lat;
+    const lon = observerLocation.lon;
+    const obs = new Astronomy.Observer(lat, lon, 0);
+    const rangeDays = (currentEvent.type === 'lunar' ? 4 : 3) / 24;
+    
+    // Sample Sun altitudes across 36 discrete intervals in the timeline
+    const samples = 36;
+    let prevAlt = null;
+    let prevJD = null;
+
+    const getSunAlt = (jd) => {
+        try {
+            const t = Astronomy.MakeTime(jd);
+            const sunEq = Astronomy.Equator(Astronomy.Body.Sun, t, obs, true, true);
+            const sunHor = Astronomy.Horizon(t, obs, sunEq.ra, sunEq.dec, 'normal');
+            return sunHor.altitude;
+        } catch (e) {
+            return 0;
+        }
+    };
+
+    for (let i = 0; i <= samples; i++) {
+        const offsetDays = ((i - samples/2) / (samples/2)) * rangeDays;
+        const jd = currentEvent.peakJD + offsetDays;
+        const alt = getSunAlt(jd);
+
+        if (i > 0) {
+            // Check for horizon transition (zero-crossing)
+            if ((prevAlt > 0 && alt < 0) || (prevAlt < 0 && alt > 0)) {
+                const fraction = Math.abs(prevAlt) / (Math.abs(prevAlt) + Math.abs(alt));
+                const zeroJD = prevJD + fraction * (jd - prevJD);
+                const isSunset = prevAlt > 0;
+                times.push({
+                    type: isSunset ? 'sunset' : 'sunrise',
+                    label: isSunset ? 'Sunset' : 'Sunrise',
+                    date: dateFromJD(zeroJD)
+                });
+            }
+        }
+        prevAlt = alt;
+        prevJD = jd;
+    }
+    return times;
+}
+
+// Find key contact times for the selected lunar eclipse
+function getLunarContacts(peakJD) {
+    const peakDate = dateFromJD(peakJD);
+    const startSearch = new Date(peakDate.getTime() - 12 * 60 * 60 * 1000);
+    const t = Astronomy.MakeTime(startSearch);
+    try {
+        const eclipse = Astronomy.SearchLunarEclipse(t);
+        if (eclipse) {
+            const tPeak = new Date(eclipse.peak.date);
+            const tP1 = new Date(tPeak.getTime() - eclipse.sd_penum * 60000);
+            const tP4 = new Date(tPeak.getTime() + eclipse.sd_penum * 60000);
+            let tU1 = null, tU2 = null, tU3 = null, tU4 = null;
+            if (eclipse.sd_partial > 0) {
+                tU1 = new Date(tPeak.getTime() - eclipse.sd_partial * 60000);
+                tU4 = new Date(tPeak.getTime() + eclipse.sd_partial * 60000);
+            }
+            if (eclipse.sd_total > 0) {
+                tU2 = new Date(tPeak.getTime() - eclipse.sd_total * 60000);
+                tU3 = new Date(tPeak.getTime() + eclipse.sd_total * 60000);
+            }
+            return { p1: tP1, p4: tP4, u1: tU1, u2: tU2, u3: tU3, u4: tU4, peak: tPeak };
+        }
+    } catch (e) {
+        console.error("Lunar eclipse search error:", e);
+    }
+    return null;
+}
+
+// Generate and render clickable bookmark tick indicator dots over the simulator time slider
+function renderSliderBookmarks() {
+    const container = document.getElementById('sim-slider-bookmarks');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!currentEvent || !cachedContactTimes || cachedContactTimes.length === 0) return;
+
+    const rangeDays = (currentEvent.type === 'lunar' ? 4 : 3) / 24;
+    const bookmarks = [];
+
+    // 1. Add eclipse contact timings
+    cachedContactTimes.forEach(c => {
+        const t = Astronomy.MakeTime(c.date);
+        const offsetDays = t.ut - currentEvent.peakJD;
+        let pct = 50 + 50 * (offsetDays / rangeDays);
+        if (pct >= 0 && pct <= 100) {
+            let label = c.defaultLabel.split(':')[0].split('(')[0].trim();
+            bookmarks.push({
+                pct: pct,
+                label: label,
+                labelKey: c.labelKey,
+                date: c.date,
+                color: label.includes('Peak') ? '#ffcc00' : (label.includes('C2') || label.includes('C3') || label.includes('U2') || label.includes('U3') ? '#ff3c00' : '#00f6ff')
+            });
+        }
+    });
+
+    // 2. Add sunrise / sunset times occurring within timeline range
+    const sunTimes = findSunriseSunsetTimes();
+    sunTimes.forEach(s => {
+        const t = Astronomy.MakeTime(s.date);
+        const offsetDays = t.ut - currentEvent.peakJD;
+        let pct = 50 + 50 * (offsetDays / rangeDays);
+        if (pct >= 0 && pct <= 100) {
+            bookmarks.push({
+                pct: pct,
+                label: s.label,
+                labelKey: s.type,
+                date: s.date,
+                color: '#ff6a00' // Sunset/Sunrise orange
+            });
+        }
+    });
+
+    // Sort bookmarks chronologically by timeline percentage
+    bookmarks.sort((a, b) => a.pct - b.pct);
+
+    const lang = getCurrentLanguage();
+    const dict = (window.TRANSLATIONS && window.TRANSLATIONS[lang]) || {};
+
+    bookmarks.forEach(b => {
+        const dot = document.createElement('div');
+        dot.className = 'slider-bookmark-dot';
+        dot.style.left = `${b.pct}%`;
+        dot.style.background = b.color;
+        dot.style.boxShadow = `0 0 6px ${b.color}`;
+        
+        // Tooltip displaying description and time
+        const timeStr = b.date.toUTCString().split(' ')[4];
+        const displayLabel = dict[b.labelKey] || b.label;
+        dot.title = `${displayLabel} (${timeStr} UTC)`;
+        
+        // Snap timeline to this bookmark when clicked
+        dot.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (isAnimating) stopAnimation();
+            setSliderToDate(b.date);
+            showEventInfo(b);
+            if (activeInfoTimeout) clearTimeout(activeInfoTimeout);
+            activeInfoTimeout = setTimeout(() => {
+                hideEventInfo();
+                activeInfoTimeout = null;
+            }, 4000);
+        });
+
+        container.appendChild(dot);
+    });
 }
 
 // Android Code Integration Tab
@@ -2838,10 +5073,13 @@ function populateSidebarList() {
         if (currentEvent && currentEvent.id === ev.id) {
             card.classList.add('active');
         }
+        const lang = getCurrentLanguage();
+        const typeNameTranslated = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang][ev.typeName]) || ev.typeName;
+        const nameTranslated = translateEventName(ev.name, lang);
         card.innerHTML = `
-            <div class="title">${ev.name}</div>
+            <div class="title">${nameTranslated}</div>
             <div class="meta">
-                <span class="type ${ev.type}">${ev.typeName}</span>
+                <span class="type ${ev.type}">${typeNameTranslated}</span>
                 <span class="date">${ev.year <= 0 ? Math.abs(ev.year) + 1 + " BCE" : ev.year}</span>
             </div>
         `;
@@ -2882,12 +5120,16 @@ function renderCatalogTable() {
         const coordsText = ev.type === 'solar' ? `${ev.lat.toFixed(1)}°N, ${ev.lon.toFixed(1)}°E` : '--';
         const dateStr = dateFromJD(ev.peakJD);
         const timeVal = dateStr.toUTCString().split(" ")[4] || "";
+        const lang = getCurrentLanguage();
+        const typeNameTranslated = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang][ev.typeName]) || ev.typeName;
+        const nameTranslated = translateEventName(ev.name, lang);
+        const loadEventText = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang]['btn_load_event']) || 'Load Event';
         tr.innerHTML = `
-            <td><strong>${ev.name}</strong></td>
-            <td><span class="type ${ev.type}" style="text-transform: uppercase; font-size: 11px; font-weight: 700;">${ev.typeName}</span></td>
+            <td><strong>${nameTranslated}</strong></td>
+            <td><span class="type ${ev.type}" style="text-transform: uppercase; font-size: 11px; font-weight: 700;">${typeNameTranslated}</span></td>
             <td>${timeVal}</td>
             <td>${coordsText}</td>
-            <td><button class="btn btn-primary btn-sm btn-select-catalog-event" data-id="${ev.id}">Load Event</button></td>
+            <td><button class="btn btn-primary btn-sm btn-select-catalog-event" data-id="${ev.id}">${loadEventText}</button></td>
         `;
         
         tr.querySelector('.btn-select-catalog-event').addEventListener('click', () => {
@@ -2922,4 +5164,299 @@ function renderCatalogTable() {
         
         tableBody.appendChild(tr);
     });
+}
+
+// URL Query Parameters Parser
+function parseURLParameters() {
+    const params = new URLSearchParams(window.location.search);
+
+    // 1. Embed and Tab Selector modes
+    if (params.get('embed') === 'true') {
+        document.body.classList.add('embed-mode');
+        // Hide sidebar collapsed by default if embedded
+        const workspace = document.querySelector('.workspace');
+        if (workspace) {
+            workspace.classList.add('sidebar-collapsed', 'stats-collapsed');
+        }
+    }
+    if (params.get('hide_tabs') === 'true') {
+        document.body.classList.add('hide-tabs-mode');
+    }
+
+    // 2. Select default tab view
+    const view = params.get('view');
+    if (view) {
+        let tabBtn = null;
+        let subTabBtn = null;
+
+        if (view === 'static') {
+            tabBtn = document.querySelector('.tab-btn[data-tab="map-view"]');
+            subTabBtn = document.querySelector('.map-tab-toggle[data-target="static-map-wrapper"]');
+        } else if (view === 'dynamic') {
+            tabBtn = document.querySelector('.tab-btn[data-tab="map-view"]');
+            subTabBtn = document.querySelector('.map-tab-toggle[data-target="dynamic-map-wrapper"]');
+        } else if (view === 'globe') {
+            tabBtn = document.querySelector('.tab-btn[data-tab="space-view"]');
+        } else if (view === 'sim') {
+            tabBtn = document.querySelector('.tab-btn[data-tab="simulator-view"]');
+        }
+
+        if (tabBtn) tabBtn.click();
+        if (subTabBtn) subTabBtn.click();
+    }
+
+    // 3. Select event or handle custom coordinates/dates
+    const eventId = params.get('event');
+    const dateStr = params.get('date');
+    const lat = parseFloat(params.get('lat'));
+    const lon = parseFloat(params.get('lon'));
+
+    if (eventId && eventId !== 'custom') {
+        const ev = sidebarEvents.find(e => e.id === eventId);
+        if (ev) {
+            selectEvent(ev);
+        }
+    } else if (eventId === 'custom' || dateStr || !isNaN(lat) || !isNaN(lon)) {
+        // Handle custom coordinates / date
+        if (!isNaN(lat) && !isNaN(lon)) {
+            document.getElementById('obs-lat').value = lat;
+            document.getElementById('obs-lon').value = lon;
+            observerLocation = { lat, lon };
+        }
+        if (dateStr) {
+            document.getElementById('custom-date').value = dateStr.slice(0, 16); // format datetime-local expects: YYYY-MM-DDTHH:mm
+        }
+        
+        // Trigger calculation click
+        document.getElementById('btn-calculate-custom').click();
+    }
+
+    // 4. Set timeline time or slider percent
+    const timeParam = params.get('time');
+    if (timeParam) {
+        const val = parseFloat(timeParam);
+        if (!isNaN(val) && val >= 0 && val <= 100) {
+            timeSliderVal = val;
+            const sliders = [
+                document.getElementById('time-slider'),
+                document.getElementById('sim-time-slider'),
+                document.getElementById('globe-time-slider')
+            ];
+            sliders.forEach(slider => {
+                if (slider) {
+                    slider.value = val;
+                }
+            });
+            updateTimeFromSlider();
+        }
+    }
+
+    // 5. Autoplay configuration
+    if (params.get('autoplay') === 'true') {
+        const playBtn = document.getElementById('play-btn');
+        if (playBtn && !isAnimating) {
+            playBtn.click();
+        }
+    }
+}
+
+// ==========================================
+// Internationalization (i18n) Engine
+// ==========================================
+function getCurrentLanguage() {
+    // 1. Check URL parameters
+    const params = new URLSearchParams(window.location.search);
+    const urlLang = params.get('lang');
+    if (urlLang && window.TRANSLATIONS && window.TRANSLATIONS[urlLang]) {
+        return urlLang;
+    }
+    // 2. Check localStorage
+    const savedLang = localStorage.getItem('selected_language');
+    if (savedLang && window.TRANSLATIONS && window.TRANSLATIONS[savedLang]) {
+        return savedLang;
+    }
+    // 3. Default to English
+    return 'en';
+}
+
+function translateEventName(name, lang) {
+    if (lang === 'en' || !name) return name;
+    let translated = name;
+    const months = {
+        "January": "ጃንዋሪ", "February": "ፌብሩዋሪ", "March": "ማርች", "April": "ኤፕሪል",
+        "May": "ሜይ", "June": "ጁን", "July": "ጁላይ", "August": "ኦገስት",
+        "September": "ሴፕቴምበር", "October": "ኦክቶበር", "November": "ኖቬምበር", "December": "ዴሴምበር"
+    };
+    for (const [eng, amh] of Object.entries(months)) {
+        translated = translated.replace(new RegExp(eng, 'g'), amh);
+    }
+    return translated;
+}
+
+function applyTranslations(lang) {
+    if (!window.TRANSLATIONS || !window.TRANSLATIONS[lang]) return;
+    
+    // Save selection
+    localStorage.setItem('selected_language', lang);
+    
+    // Sync language select dropdown if it exists
+    const select = document.getElementById('language-select');
+    if (select) select.value = lang;
+    
+    const dict = window.TRANSLATIONS[lang];
+    
+    // Translate all elements with data-i18n
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const translation = dict[key];
+        if (translation) {
+            if (el.tagName === 'INPUT' && el.type === 'text') {
+                el.placeholder = translation;
+            } else if (el.tagName === 'SELECT') {
+                // translate select options if needed
+            } else {
+                el.textContent = translation;
+            }
+        }
+    });
+
+    // Translate dynamic properties in current state
+    if (currentEvent) {
+        document.getElementById('val-name').innerText = translateEventName(currentEvent.name, lang);
+        document.getElementById('val-type').innerText = dict[currentEvent.typeName] || currentEvent.typeName;
+    }
+
+    // Refresh dynamic parts
+    populateSidebarList();
+    renderSliderBookmarks();
+    if (activeBookmarkInfo) {
+        showEventInfo(activeBookmarkInfo);
+    }
+    if (document.getElementById('catalog-modal') && document.getElementById('catalog-modal').classList.contains('active')) {
+        renderCatalogTable();
+    }
+    updateLegends();
+}
+
+function updateLegends() {
+    if (!currentEvent) return;
+
+    const lang = getCurrentLanguage();
+    const dict = (window.TRANSLATIONS && window.TRANSLATIONS[lang]) || {};
+    
+    const isLunar = currentEvent.type === 'lunar';
+    
+    // Select all legend title and note elements
+    const titles = document.querySelectorAll('.legend-bar-title');
+    const notes = document.querySelectorAll('.legend-bar-note');
+    const strips = document.querySelectorAll('.legend-gradient-strip');
+    const labelContainers = document.querySelectorAll('.legend-gradient-labels');
+    const globeLegend = document.querySelector('.globe-legend');
+
+    if (isLunar) {
+        // Lunar texts
+        const titleText = dict['legend_title_lunar'] || "Portion of Moon covered by Earth's shadow (Lunar Eclipse coverage)";
+        const noteText = dict['legend_note_lunar'] || "Four coverage zones: Partial Penumbra, Penumbral Totality, Partial Umbra, and Totality.";
+        
+        titles.forEach(el => el.textContent = titleText);
+        notes.forEach(el => el.textContent = noteText);
+        
+        // Lunar gradient: No Eclipse (transparent) -> Partial Penumbra (light purple) -> Penumbral Totality (med purple) -> Partial Umbra (dark purple) -> Totality (dark red)
+        strips.forEach(el => {
+            el.style.background = 'linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(186, 104, 200, 0.45) 20%, rgba(123, 31, 162, 0.65) 45%, rgba(74, 20, 140, 0.85) 75%, #8a1a15 100%)';
+        });
+        
+        // Lunar labels
+        const lblNoEclipse = dict['lbl_no_eclipse'] || 'No Eclipse';
+        const lblPartPen = dict['lbl_partial_penumbra'] || 'Partial Penumbra';
+        const lblPenTot = dict['lbl_penumbral_totality'] || 'Penumbral Totality';
+        const lblPartUmb = dict['lbl_partial_umbra'] || 'Partial Umbra';
+        const lblTotUmb = dict['lbl_totality_umbra'] || 'Totality (Umbra)';
+        labelContainers.forEach(el => {
+            el.innerHTML = `
+                <span>${lblNoEclipse}</span>
+                <span>${lblPartPen}</span>
+                <span>${lblPenTot}</span>
+                <span>${lblPartUmb}</span>
+                <span>${lblTotUmb}</span>
+            `;
+        });
+
+        // Globe legend: Penumbral and Umbral details
+        if (globeLegend) {
+            globeLegend.innerHTML = `
+                <div class="legend-item"><span class="color-dot" style="background:rgba(186, 104, 200, 0.75);"></span>${lblPartPen}</div>
+                <div class="legend-item"><span class="color-dot" style="background:rgba(123, 31, 162, 0.85);"></span>${lblPenTot}</div>
+                <div class="legend-item"><span class="color-dot" style="background:rgba(74, 20, 140, 0.90);"></span>${lblPartUmb}</div>
+                <div class="legend-item"><span class="color-dot" style="background:#8a1a15;"></span>${lblTotUmb}</div>
+            `;
+        }
+    } else if (currentEvent.type === 'transit') {
+        // Transit texts
+        const titleText = dict['legend_title_transit'] || "Planetary Transit Visibility";
+        const noteText = dict['legend_note_transit'] || "Daytime regions where the planet can be seen crossing the Sun.";
+        
+        titles.forEach(el => el.textContent = titleText);
+        notes.forEach(el => el.textContent = noteText);
+
+        // Transit gradient: transparent (night/no transit) -> light yellow/gold (sunrise/sunset limits) -> warm orange (peak/fully visible)
+        strips.forEach(el => {
+            el.style.background = 'linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 224, 130, 0.35) 45%, rgba(255, 167, 38, 0.60) 100%)';
+        });
+
+        // Transit labels
+        const lblNoTransit = dict['lbl_no_transit'] || 'Not Visible';
+        const lblSunRiseSet = dict['lbl_sunrise_sunset'] || 'Sunrise / Sunset';
+        const lblFullVis = dict['lbl_fully_visible'] || 'Fully Visible';
+        labelContainers.forEach(el => {
+            el.innerHTML = `
+                <span>${lblNoTransit}</span>
+                <span>${lblSunRiseSet}</span>
+                <span>${lblFullVis}</span>
+            `;
+        });
+
+        // Globe legend
+        if (globeLegend) {
+            globeLegend.innerHTML = `
+                <div class="legend-item"><span class="color-dot" style="background:rgba(255, 224, 130, 0.8);"></span>${lblSunRiseSet}</div>
+                <div class="legend-item"><span class="color-dot" style="background:rgba(255, 167, 38, 0.9);"></span>${lblFullVis}</div>
+            `;
+        }
+    } else {
+        // Solar texts
+        const titleText = dict['legend_title'] || "Portion of Sun covered by the Moon (Eclipse obscuration)";
+        const noteText = dict['legend_note'] || "The dark areas symbolize night and twilight.";
+        
+        titles.forEach(el => el.textContent = titleText);
+        notes.forEach(el => el.textContent = noteText);
+
+        // Solar gradient
+        strips.forEach(el => {
+            el.style.background = 'linear-gradient(to right, #ffe082 0%, #ffa726 25%, #ff7043 50%, #e53935 75%, #000000 100%)';
+        });
+
+        // Solar labels
+        labelContainers.forEach(el => {
+            el.innerHTML = `
+                <span>0%</span>
+                <span>&gt;0%</span>
+                <span>25%</span>
+                <span>50%</span>
+                <span>75%</span>
+                <span>100%</span>
+            `;
+        });
+
+        // Globe legend
+        const lblObscuration = dict['lbl_obscuration_legend'] || 'Obscuration';
+        if (globeLegend) {
+            globeLegend.innerHTML = `
+                <div class="legend-item"><span class="color-dot" style="background:#ffe082;"></span>&gt;0% ${lblObscuration}</div>
+                <div class="legend-item"><span class="color-dot" style="background:#ffa726;"></span>25% ${lblObscuration}</div>
+                <div class="legend-item"><span class="color-dot" style="background:#ff7043;"></span>50% ${lblObscuration}</div>
+                <div class="legend-item"><span class="color-dot" style="background:#e53935;"></span>75%+ ${lblObscuration}</div>
+            `;
+        }
+    }
 }
