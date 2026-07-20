@@ -59,17 +59,25 @@ h1, h2, h3, h4, h5, h6 {
 
 .back-btn {
     pointer-events: auto;
-    display: inline-block;
-    color: rgba(222, 235, 255, 0.7);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(18, 93, 255, 0.2);
+    border: 1px solid rgba(18, 93, 255, 0.4);
+    color: #DEEBFF;
     text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
     margin-bottom: 12px;
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .back-btn:hover {
+    background: rgba(18, 93, 255, 0.4);
     color: #fff;
+    box-shadow: 0 0 12px rgba(18, 93, 255, 0.4);
 }
 
 #lang-toggle {

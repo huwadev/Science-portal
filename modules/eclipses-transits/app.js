@@ -178,6 +178,29 @@ function initUI() {
         });
     }
 
+    // Credits & Attributions Modal Listeners
+    const btnOpenCredits = document.getElementById('btn-open-credits');
+    const btnCloseCredits = document.getElementById('btn-close-credits');
+    const creditsModal = document.getElementById('credits-modal');
+
+    if (btnOpenCredits && creditsModal) {
+        btnOpenCredits.addEventListener('click', () => {
+            creditsModal.classList.add('active');
+        });
+    }
+    if (btnCloseCredits && creditsModal) {
+        btnCloseCredits.addEventListener('click', () => {
+            creditsModal.classList.remove('active');
+        });
+    }
+    if (creditsModal) {
+        creditsModal.addEventListener('click', (e) => {
+            if (e.target === creditsModal) {
+                creditsModal.classList.remove('active');
+            }
+        });
+    }
+
     // Populate the 100-year event list in the sidebar
     populateSidebarList();
 
@@ -589,7 +612,7 @@ function initUI() {
         });
     }
 
-    // Fullscreen Map controls
+    // Fullscreen Map, 3D Globe & Simulator controls
     const btnStaticFullscreen = document.getElementById('btn-static-fullscreen');
     if (btnStaticFullscreen) {
         btnStaticFullscreen.addEventListener('click', () => {
@@ -616,6 +639,45 @@ function initUI() {
                     dynamicMap.invalidateSize();
                     setTimeout(() => dynamicMap.invalidateSize(), 300);
                 }
+            }
+        });
+    }
+
+    const btnGlobeFullscreen = document.getElementById('btn-globe-fullscreen');
+    if (btnGlobeFullscreen) {
+        btnGlobeFullscreen.addEventListener('click', () => {
+            const wrapper = btnGlobeFullscreen.closest('.scene-3d-wrapper');
+            if (wrapper) {
+                const isFullscreen = wrapper.classList.toggle('fullscreen');
+                btnGlobeFullscreen.setAttribute('title', isFullscreen ? 'Exit Full Screen' : 'Toggle Full Screen Mode');
+                const container = document.getElementById('canvas-container-3d');
+                if (container && scene3D.renderer) {
+                    const w = container.clientWidth;
+                    const h = container.clientHeight;
+                    scene3D.camera.aspect = w / h;
+                    scene3D.camera.updateProjectionMatrix();
+                    scene3D.renderer.setSize(w, h);
+                    drawGlobeLayers();
+                    setTimeout(() => {
+                        scene3D.camera.aspect = container.clientWidth / container.clientHeight;
+                        scene3D.camera.updateProjectionMatrix();
+                        scene3D.renderer.setSize(container.clientWidth, container.clientHeight);
+                        drawGlobeLayers();
+                    }, 300);
+                }
+            }
+        });
+    }
+
+    const btnSimFullscreen = document.getElementById('btn-sim-fullscreen');
+    if (btnSimFullscreen) {
+        btnSimFullscreen.addEventListener('click', () => {
+            const wrapper = btnSimFullscreen.closest('.canvas-wrapper');
+            if (wrapper) {
+                const isFullscreen = wrapper.classList.toggle('fullscreen');
+                btnSimFullscreen.setAttribute('title', isFullscreen ? 'Exit Full Screen' : 'Toggle Full Screen Mode');
+                resizeSimulatorCanvas();
+                setTimeout(() => resizeSimulatorCanvas(), 300);
             }
         });
     }
@@ -1238,6 +1300,7 @@ function initGlobeScene() {
             scene3D.camera.updateProjectionMatrix();
             scene3D.renderer.setSize(w, h);
         }
+        resizeSimulatorCanvas();
     });
 
     // Animation Loop — no idle spin; globe only moves when user pans
@@ -1479,7 +1542,7 @@ function drawGlobeLayers() {
     drawTotalityRibbonOnCanvas(ctx, W, H);
 
     // 3. Draw contours
-    if (!isAnimating) {
+    if (!isAnimating && timeSliderVal === 0) {
         drawContoursOnCanvas(ctx, scene3D.staticContours, W, H);
     } else {
         drawContoursOnCanvas(ctx, scene3D.instantaneousContours, W, H);
@@ -1552,9 +1615,9 @@ function drawContoursOnCanvas(ctx, features, W, H) {
             ctx.lineWidth = 1.0;
         } else if (feature.properties && feature.properties.isTransitPeak) {
             const isInst = feature.properties.isInstantaneous;
-            ctx.fillStyle = isInst ? 'rgba(255, 167, 38, 0.36)' : 'rgba(255, 167, 38, 0.12)';
-            ctx.strokeStyle = isInst ? 'rgba(255, 167, 38, 0.55)' : 'rgba(255, 167, 38, 0.22)';
-            ctx.lineWidth = 1.0;
+            ctx.fillStyle = isInst ? 'rgba(245, 124, 0, 0.55)' : 'rgba(245, 124, 0, 0.22)';
+            ctx.strokeStyle = isInst ? 'rgba(245, 124, 0, 0.80)' : 'rgba(245, 124, 0, 0.40)';
+            ctx.lineWidth = 1.2;
         } else if (feature.properties && feature.properties.isLunarPenumbralTotal) {
             const isInst = feature.properties.isInstantaneous;
             ctx.fillStyle = isInst ? 'rgba(123, 31, 162, 0.34)' : 'rgba(123, 31, 162, 0.10)';
@@ -1562,8 +1625,8 @@ function drawContoursOnCanvas(ctx, features, W, H) {
             ctx.lineWidth = 1.0;
         } else if (feature.properties && feature.properties.isTransitLimits) {
             const isInst = feature.properties.isInstantaneous;
-            ctx.fillStyle = isInst ? 'rgba(255, 224, 130, 0.22)' : 'rgba(255, 224, 130, 0.06)';
-            ctx.strokeStyle = isInst ? 'rgba(255, 224, 130, 0.35)' : 'rgba(255, 224, 130, 0.12)';
+            ctx.fillStyle = isInst ? 'rgba(255, 183, 77, 0.38)' : 'rgba(255, 183, 77, 0.14)';
+            ctx.strokeStyle = isInst ? 'rgba(255, 183, 77, 0.60)' : 'rgba(255, 183, 77, 0.28)';
             ctx.lineWidth = 1.0;
         } else if (feature.properties && feature.properties.isLunarPenumbral) {
             const isInst = feature.properties.isInstantaneous;
@@ -1899,7 +1962,7 @@ function updateGlobeView() {
             scene3D.earth.material.uniforms.disableNight.value = disableNightVal;
         }
         if (scene3D.earth.material.uniforms.disableNightEntirely) {
-            scene3D.earth.material.uniforms.disableNightEntirely.value = isAnimating ? 0.0 : 1.0;
+            scene3D.earth.material.uniforms.disableNightEntirely.value = (isAnimating || timeSliderVal > 0) ? 0.0 : 1.0;
         }
     }
 
@@ -1919,17 +1982,17 @@ function selectEvent(ev) {
 
     // Set side panel values
     const lang = getCurrentLanguage();
-    const typeNameTranslated = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang][ev.typeName]) || ev.typeName;
-    const nameTranslated = translateEventName(ev.name, lang);
-    document.getElementById('val-name').innerText = nameTranslated;
-    document.getElementById('val-type').innerText = typeNameTranslated;
-    
     const peakDate = dateFromJD(ev.peakJD);
-    document.getElementById('val-peak-time').innerText = formatDate(peakDate) + " " + peakDate.toUTCString().split(" ")[4] + " UTC";
-    document.getElementById('val-duration').innerText = ev.duration;
+    const clockTime = peakDate.toUTCString().split(" ")[4] || "00:00:00";
+    
+    document.getElementById('val-name').innerText = formatDate(peakDate, lang);
+    document.getElementById('val-type').innerText = translateTypeName(ev.typeName, lang);
+    document.getElementById('val-peak-time').innerText = `${formatDate(peakDate, lang)} ${clockTime} UTC`;
+    document.getElementById('val-duration').innerText = translateDuration(ev.duration, lang);
 
-    // Reset Sliders — unified
+    // Reset Sliders & 3D Globe state to default static shade
     timeSliderVal = 0;
+    scene3D.instantaneousContours = [];
     const sliders = [
         document.getElementById('time-slider'),
         document.getElementById('sim-time-slider'),
@@ -2006,15 +2069,21 @@ function updateTimeFromSlider() {
     
     // Update displays
     let timeStr;
-    if (activeDate.getUTCFullYear() <= 0) {
+    const lang = getCurrentLanguage();
+    const clockTime = activeDate.toUTCString().split(" ")[4] || "00:00:00";
+    if (lang === 'am') {
+        timeStr = `${formatDate(activeDate, 'am')} ${clockTime} UTC`;
+    } else if (activeDate.getUTCFullYear() <= 0) {
         const bceYear = Math.abs(activeDate.getUTCFullYear()) + 1;
         const pts = activeDate.toUTCString().split(" ");
-        timeStr = `${pts[0] || ""} ${pts[1] || ""} ${pts[2] || ""} ${bceYear} BCE ${pts[4] || ""} UTC`;
+        timeStr = `${pts[0] || ""} ${pts[1] || ""} ${pts[2] || ""} ${bceYear} BCE ${clockTime} UTC`;
     } else {
         timeStr = activeDate.toUTCString().replace("GMT", "UTC");
     }
     document.getElementById('time-display').innerText = timeStr;
-    document.getElementById('sim-time-display').innerText = activeDate.toUTCString().split(" ")[4] + " UTC";
+    document.getElementById('sim-time-display').innerText = clockTime + " UTC";
+    const globeTimeDisp = document.getElementById('globe-time-display');
+    if (globeTimeDisp) globeTimeDisp.innerText = timeStr;
     
     // Sync slider gradient
     updateSliderGradient();
@@ -2913,18 +2982,18 @@ function updateMapOverlays(date) {
                 const tPeak = new Date(transit.peak.date);
                 const tFinish = new Date(transit.finish.date);
 
-                // Draw ingress/egress sunset/sunrise limits (light yellow)
+                // Draw ingress/egress sunset/sunrise limits (amber yellow)
                 [tStart, tFinish].forEach(d => {
                     const coords = AstronomyHelper.calculateDaylightTerminator(d);
                     if (coords) {
                         [-360, 0, 360].forEach(offset => {
                             const shifted = coords.map(c => [c[0], c[1] + offset]);
                             polygons.push(L.polygon(shifted, {
-                                fillColor: '#ffe082',
-                                fillOpacity: 0.04,
-                                color: '#ffe082',
-                                weight: 1,
-                                opacity: 0.15,
+                                fillColor: '#ffb74d',
+                                fillOpacity: 0.14,
+                                color: '#ffb74d',
+                                weight: 1.5,
+                                opacity: 0.35,
                                 interactive: false,
                                 pane: 'pathPane'
                             }));
@@ -2941,17 +3010,17 @@ function updateMapOverlays(date) {
                     }
                 });
 
-                // Draw peak visibility limits (warm orange)
+                // Draw peak visibility limits (vibrant deep orange)
                 const coords = AstronomyHelper.calculateDaylightTerminator(tPeak);
                 if (coords) {
                     [-360, 0, 360].forEach(offset => {
                         const shifted = coords.map(c => [c[0], c[1] + offset]);
                         polygons.push(L.polygon(shifted, {
-                            fillColor: '#ffa726',
-                            fillOpacity: 0.07,
-                            color: '#ffa726',
-                            weight: 1,
-                            opacity: 0.22,
+                            fillColor: '#f57c00',
+                            fillOpacity: 0.22,
+                            color: '#f57c00',
+                            weight: 2.0,
+                            opacity: 0.50,
                             interactive: false,
                             pane: 'pathPane'
                         }));
@@ -3219,15 +3288,15 @@ function updateMapOverlays(date) {
             if (date >= tStart && date <= tFinish) {
                 const coords = AstronomyHelper.calculateDaylightTerminator(date);
                 if (coords) {
-                    const color = '#ffa726'; // Warm gold/orange for transit visibility
+                    const color = '#f57c00'; // Vibrant deep orange for transit visibility
                     [-360, 0, 360].forEach(offset => {
                         const shifted = coords.map(c => [c[0], c[1] + offset]);
                         const poly = L.polygon(shifted, {
                             fillColor: color,
-                            fillOpacity: 0.20,
+                            fillOpacity: 0.35,
                             color: color,
-                            weight: 1.5,
-                            opacity: 0.35,
+                            weight: 2.0,
+                            opacity: 0.55,
                             interactive: false,
                             pane: 'umbraPane'
                         }).addTo(dynamicMap);
@@ -3259,6 +3328,20 @@ function updateMapOverlays(date) {
 
 
 
+
+function resizeSimulatorCanvas() {
+    const canvas = document.getElementById('simulator-canvas');
+    if (!canvas || !canvas.parentElement) return;
+    const parent = canvas.parentElement;
+    const w = parent.clientWidth;
+    const h = parent.clientHeight;
+    if (w > 0 && h > 0) {
+        canvas.width = w;
+        canvas.height = h;
+        const activeDate = getActiveTime();
+        updateLocalSimulator(activeDate);
+    }
+}
 
 // Upgraded Local Sky Simulator View drawing
 function updateLocalSimulator(date) {
@@ -4870,17 +4953,66 @@ function dateFromJD(jd) {
     return Astronomy.MakeTime(jd).date;
 }
 
-function formatDate(date) {
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+/**
+ * Converts a JavaScript Date object to the Ethiopian Calendar (Year, Month 1..13, Day)
+ * Based on the Julian Day Number (JDN) offset from the Ethiopian Epoch JDN 1723856.
+ */
+function gregorianToEthiopian(date) {
+    if (!date || isNaN(date.getTime())) {
+        return { year: 2016, month: 1, day: 1 };
+    }
     const year = date.getUTCFullYear();
-    const month = months[date.getUTCMonth()];
+    const month = date.getUTCMonth() + 1;
     const day = date.getUTCDate();
+
+    // Convert Gregorian date to Julian Day Number (JDN)
+    const a = Math.floor((14 - month) / 12);
+    const y = year + 4800 - a;
+    const m = month + 12 * a - 3;
+    const jdn = day + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
+
+    // Ethiopian Epoch JDN = 1723856
+    const ethEpoch = 1723856;
+    let r = (jdn - ethEpoch) % 1461;
+    if (r < 0) r += 1461;
+
+    const n = (r % 365) + 365 * Math.floor(r / 1460);
+    const ethYear = 4 * Math.floor((jdn - ethEpoch) / 1461) + Math.floor(r / 365) - Math.floor(r / 1460) + 1;
+    const ethMonth = Math.floor(n / 30) + 1;
+    const ethDay = (n % 30) + 1;
+
+    return { year: ethYear, month: ethMonth, day: ethDay };
+}
+
+const ETHIOPIAN_MONTHS_AMHARIC = [
+    "መስከረም", "ጥቅምት", "ህዳር", "ታህሳስ", "ጥር", "የካቲት",
+    "መጋቢት", "ሚያዝያ", "ግንቦት", "ሰኔ", "ሐምሌ", "ነሐሴ", "ጳጉሜ"
+];
+
+function formatDate(date, lang = getCurrentLanguage()) {
+    if (!date || isNaN(date.getTime())) return "";
     
-    if (year <= 0) {
-        const bceYear = Math.abs(year) + 1;
-        return `${month} ${day}, ${bceYear} BCE`;
+    if (lang === 'am') {
+        const eth = gregorianToEthiopian(date);
+        const monthName = ETHIOPIAN_MONTHS_AMHARIC[eth.month - 1] || "";
+        if (eth.year <= 0) {
+            const bceYear = Math.abs(eth.year) + 1;
+            return `${monthName} ${eth.day} ${bceYear} ዓ.ዓ`;
+        } else {
+            return `${monthName} ${eth.day} ${eth.year} ዓ.ም`;
+        }
     } else {
-        return `${month} ${day}, ${year}`;
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const year = date.getUTCFullYear();
+        const month = months[date.getUTCMonth()];
+        const day = date.getUTCDate();
+        
+        if (year <= 0) {
+            const bceYear = Math.abs(year) + 1;
+            return `${month} ${day}, ${bceYear} BCE`;
+        } else {
+            return `${month} ${day}, ${year}`;
+        }
     }
 }
 
@@ -4904,18 +5036,19 @@ function generateCenturyCatalog(centuryStartYear) {
         const eclipse = Astronomy.SearchGlobalSolarEclipse(t);
         if (!eclipse || eclipse.peak.ut > tEnd.ut) break;
         
+        const kindCap = eclipse.kind.charAt(0).toUpperCase() + eclipse.kind.slice(1).toLowerCase();
         catalog.push({
             id: `solar-${eclipse.peak.ut}`,
             name: formatDate(eclipse.peak.date),
             year: eclipse.peak.date.getUTCFullYear(),
             type: "solar",
-            typeName: `${eclipse.kind} Solar Eclipse`,
+            typeName: `${kindCap} Solar Eclipse`,
             peakTime: eclipse.peak.date.toISOString(),
             peakJD: eclipse.peak.ut,
-            duration: eclipse.kind === "Total" ? "Totality" : "Partial",
+            duration: kindCap === "Total" ? "Totality" : "Partial",
             lat: eclipse.latitude || 0,
             lon: eclipse.longitude || 0,
-            description: `A ${eclipse.kind.toLowerCase()} solar eclipse peaking at latitude ${eclipse.latitude?.toFixed(2)}°, longitude ${eclipse.longitude?.toFixed(2)}°.`
+            description: `A ${kindCap.toLowerCase()} solar eclipse peaking at latitude ${eclipse.latitude?.toFixed(2)}°, longitude ${eclipse.longitude?.toFixed(2)}°.`
         });
         t = eclipse.peak.AddDays(30);
     }
@@ -4927,18 +5060,20 @@ function generateCenturyCatalog(centuryStartYear) {
         const eclipse = Astronomy.SearchLunarEclipse(t);
         if (!eclipse || eclipse.peak.ut > tEnd.ut) break;
         
+        const kindStr = eclipse.kind.toString();
+        const kindCap = kindStr.charAt(0).toUpperCase() + kindStr.slice(1).toLowerCase();
         catalog.push({
             id: `lunar-${eclipse.peak.ut}`,
             name: formatDate(eclipse.peak.date),
             year: eclipse.peak.date.getUTCFullYear(),
             type: "lunar",
-            typeName: `${eclipse.kind} Lunar Eclipse`,
+            typeName: `${kindCap} Lunar Eclipse`,
             peakTime: eclipse.peak.date.toISOString(),
             peakJD: eclipse.peak.ut,
-            duration: eclipse.kind.toString(),
+            duration: kindCap,
             lat: 0,
             lon: 0,
-            description: `A ${eclipse.kind.toString().toLowerCase()} lunar eclipse.`
+            description: `A ${kindCap.toLowerCase()} lunar eclipse.`
         });
         t = eclipse.peak.AddDays(30);
     }
@@ -5074,13 +5209,23 @@ function populateSidebarList() {
             card.classList.add('active');
         }
         const lang = getCurrentLanguage();
-        const typeNameTranslated = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang][ev.typeName]) || ev.typeName;
-        const nameTranslated = translateEventName(ev.name, lang);
+        const typeNameTranslated = translateTypeName(ev.typeName, lang);
+        const evDate = dateFromJD(ev.peakJD);
+        const nameTranslated = formatDate(evDate, lang);
+        
+        let yearDisplay;
+        if (lang === 'am') {
+            const eth = gregorianToEthiopian(evDate);
+            yearDisplay = eth.year <= 0 ? (Math.abs(eth.year) + 1 + " ዓ.ዓ") : (eth.year + " ዓ.ም");
+        } else {
+            yearDisplay = ev.year <= 0 ? (Math.abs(ev.year) + 1 + " BCE") : ev.year;
+        }
+
         card.innerHTML = `
             <div class="title">${nameTranslated}</div>
             <div class="meta">
                 <span class="type ${ev.type}">${typeNameTranslated}</span>
-                <span class="date">${ev.year <= 0 ? Math.abs(ev.year) + 1 + " BCE" : ev.year}</span>
+                <span class="date">${yearDisplay}</span>
             </div>
         `;
         card.addEventListener('click', () => {
@@ -5121,12 +5266,12 @@ function renderCatalogTable() {
         const dateStr = dateFromJD(ev.peakJD);
         const timeVal = dateStr.toUTCString().split(" ")[4] || "";
         const lang = getCurrentLanguage();
-        const typeNameTranslated = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang][ev.typeName]) || ev.typeName;
-        const nameTranslated = translateEventName(ev.name, lang);
+        const typeNameTranslated = translateTypeName(ev.typeName, lang);
+        const nameTranslated = formatDate(dateStr, lang);
         const loadEventText = (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang]['btn_load_event']) || 'Load Event';
         tr.innerHTML = `
             <td><strong>${nameTranslated}</strong></td>
-            <td><span class="type ${ev.type}" style="text-transform: uppercase; font-size: 11px; font-weight: 700;">${typeNameTranslated}</span></td>
+            <td><span class="type ${ev.type}" style="font-size: 11px; font-weight: 700;">${typeNameTranslated}</span></td>
             <td>${timeVal}</td>
             <td>${coordsText}</td>
             <td><button class="btn btn-primary btn-sm btn-select-catalog-event" data-id="${ev.id}">${loadEventText}</button></td>
@@ -5279,6 +5424,25 @@ function getCurrentLanguage() {
     return 'en';
 }
 
+function translateTypeName(typeName, lang = getCurrentLanguage()) {
+    if (!typeName) return "";
+    if (lang === 'en') return typeName;
+    const dict = (window.TRANSLATIONS && window.TRANSLATIONS[lang]) || {};
+    return dict[typeName] || typeName;
+}
+
+function translateDuration(duration, lang = getCurrentLanguage()) {
+    if (!duration) return "--";
+    if (lang === 'en') return duration;
+    const dict = (window.TRANSLATIONS && window.TRANSLATIONS[lang]) || {};
+    if (dict[duration]) return dict[duration];
+    if (duration === 'Totality') return 'ሙሉ ጥላ';
+    if (duration === 'Partial') return 'ከፊል ጥላ';
+    if (duration === 'Penumbral') return 'ደብዛዛ ጥላ';
+    if (duration === 'Total') return 'ሙሉ ጥላ';
+    return duration;
+}
+
 function translateEventName(name, lang) {
     if (lang === 'en' || !name) return name;
     let translated = name;
@@ -5320,10 +5484,23 @@ function applyTranslations(lang) {
         }
     });
 
+    // Translate all elements with data-i18n-title
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        const translation = dict[key];
+        if (translation) {
+            el.setAttribute('title', translation);
+        }
+    });
+
     // Translate dynamic properties in current state
     if (currentEvent) {
-        document.getElementById('val-name').innerText = translateEventName(currentEvent.name, lang);
-        document.getElementById('val-type').innerText = dict[currentEvent.typeName] || currentEvent.typeName;
+        const peakDate = dateFromJD(currentEvent.peakJD);
+        const clockTime = peakDate.toUTCString().split(" ")[4] || "00:00:00";
+        document.getElementById('val-name').innerText = formatDate(peakDate, lang);
+        document.getElementById('val-type').innerText = translateTypeName(currentEvent.typeName, lang);
+        document.getElementById('val-peak-time').innerText = `${formatDate(peakDate, lang)} ${clockTime} UTC`;
+        document.getElementById('val-duration').innerText = translateDuration(currentEvent.duration, lang);
     }
 
     // Refresh dynamic parts
@@ -5399,9 +5576,9 @@ function updateLegends() {
         titles.forEach(el => el.textContent = titleText);
         notes.forEach(el => el.textContent = noteText);
 
-        // Transit gradient: transparent (night/no transit) -> light yellow/gold (sunrise/sunset limits) -> warm orange (peak/fully visible)
+        // Transit gradient: transparent (not visible) -> amber yellow (sunrise/sunset limits) -> vibrant deep orange (fully visible)
         strips.forEach(el => {
-            el.style.background = 'linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 224, 130, 0.35) 45%, rgba(255, 167, 38, 0.60) 100%)';
+            el.style.background = 'linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 183, 77, 0.75) 45%, #f57c00 100%)';
         });
 
         // Transit labels
@@ -5419,8 +5596,8 @@ function updateLegends() {
         // Globe legend
         if (globeLegend) {
             globeLegend.innerHTML = `
-                <div class="legend-item"><span class="color-dot" style="background:rgba(255, 224, 130, 0.8);"></span>${lblSunRiseSet}</div>
-                <div class="legend-item"><span class="color-dot" style="background:rgba(255, 167, 38, 0.9);"></span>${lblFullVis}</div>
+                <div class="legend-item"><span class="color-dot" style="background:#ffb74d;"></span>${lblSunRiseSet}</div>
+                <div class="legend-item"><span class="color-dot" style="background:#f57c00;"></span>${lblFullVis}</div>
             `;
         }
     } else {

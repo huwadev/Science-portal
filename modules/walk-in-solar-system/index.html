@@ -99,7 +99,7 @@
     position:absolute;top:14px;left:14px;z-index:1000;width:312px;max-width:calc(100vw - 28px);
     background:var(--panel);backdrop-filter:blur(16px);
     border:1px solid var(--stroke);border-radius:var(--radius);box-shadow:var(--shadow);
-    overflow:hidden;display:flex;flex-direction:column;max-height:calc(100vh - 28px);
+    overflow:hidden;display:flex;flex-direction:column;max-height:calc(100vh - 260px);
   }
   #legend .hd{
     display:flex;align-items:center;gap:12px;padding:15px 16px;cursor:pointer;
@@ -120,7 +120,7 @@
   #legend .ttl p{margin:2px 0 0;font-size:11px;color:var(--muted);}
   #legend .chev{color:var(--muted);transition:transform .25s ease;flex:none;}
   #legend.collapsed .chev{transform:rotate(-90deg);}
-  #legend .body{overflow-y:auto;}
+  #legend .body{overflow-y:auto;max-height:calc(100vh - 320px);}
   #legend.collapsed .body{display:none;}
 
   .seg{display:flex;gap:6px;padding:12px 14px 4px;}
@@ -897,8 +897,12 @@
   <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" width="20" height="20"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
 </button>
 
-<!-- Top info bar -->
+<!-- Top info bar with Return to Portal navigation -->
 <div id="topbar">
+  <a href="../../index.html" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;background:linear-gradient(135deg, rgba(90,166,255,0.25), rgba(90,166,255,0.1));border:1px solid rgba(90,166,255,0.45);color:#ffffff;font-size:12px;font-weight:700;text-decoration:none;transition:all 0.2s;box-shadow:0 0 10px rgba(90,166,255,0.2);" title="Return to ESSS Science Portal">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5aa6ff" stroke-width="2.8"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    <span>← Back to Portal</span>
+  </a>
   <div class="badge">
     <span class="sunchip"></span>
     <b id="scaleRatio">1 : 10,000,000</b>

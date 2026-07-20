@@ -31,7 +31,7 @@
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Noto Sans Ethiopic', 'Outfit', 'Inter', sans-serif;
     background-color: var(--color-cosmic-tertiary);
     background-image: radial-gradient(circle at 50% 50%, #031445 0%, #021034 100%);
     color: var(--color-neutral-base);
@@ -262,49 +262,63 @@ body {
 }
 
 .event-card {
-    padding: 10px 12px;
-    background: rgba(2, 16, 52, 0.3);
+    padding: 10px 14px;
+    background: rgba(2, 16, 52, 0.35);
     border: 1px solid var(--color-glass-border);
+    border-left: 3px solid transparent;
     border-radius: var(--border-radius-sm);
     cursor: pointer;
     transition: var(--transition-smooth);
+    margin-bottom: 6px;
 }
 
 .event-card:hover {
-    background: rgba(18, 93, 255, 0.05);
+    background: rgba(18, 93, 255, 0.08);
     border-color: var(--color-cosmic-base);
+    border-left-color: var(--color-cosmic-base);
+    transform: translateX(2px);
 }
 
 .event-card.active {
-    background: rgba(18, 93, 255, 0.12);
+    background: rgba(18, 93, 255, 0.16);
     border-color: var(--color-cosmic-base);
-    box-shadow: 0 0 10px rgba(18, 93, 255, 0.15);
+    border-left: 3px solid #60a5fa;
+    box-shadow: 0 0 12px rgba(18, 93, 255, 0.25);
 }
 
 .event-card .title {
     font-size: 13px;
     font-weight: 600;
-    color: var(--color-neutral-secondary);
-    margin-bottom: 4px;
+    color: #f8fafc;
+    margin-bottom: 6px;
+    line-height: 1.35;
+    font-family: 'Noto Sans Ethiopic', 'Outfit', sans-serif;
 }
 
 .event-card .meta {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     font-size: 11px;
 }
 
 .event-card .type {
-    text-transform: uppercase;
     font-weight: 700;
+    font-size: 10.5px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.02em;
+    font-family: 'Noto Sans Ethiopic', 'Outfit', sans-serif;
 }
 
-.event-card .type.solar { color: #ffc107; }
-.event-card .type.lunar { color: #e83e8c; }
-.event-card .type.transit { color: #17a2b8; }
+.event-card .type.solar { color: #ffe082; background: rgba(255, 193, 7, 0.15); border: 1px solid rgba(255, 193, 7, 0.25); }
+.event-card .type.lunar { color: #f472b6; background: rgba(232, 62, 140, 0.15); border: 1px solid rgba(232, 62, 140, 0.25); }
+.event-card .type.transit { color: #38bdf8; background: rgba(23, 162, 184, 0.15); border: 1px solid rgba(23, 162, 184, 0.25); }
 
 .event-card .date {
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.55);
+    font-weight: 500;
+    font-size: 11px;
 }
 
 /* Custom calculation inputs */
@@ -579,7 +593,10 @@ body {
 }
 
 /* Fullscreen Map Mode */
-.map-wrapper.fullscreen {
+/* Fullscreen Map, 3D Globe & Simulator Mode */
+.map-wrapper.fullscreen,
+.scene-3d-wrapper.fullscreen,
+.canvas-wrapper.fullscreen {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
@@ -590,12 +607,19 @@ body {
     border-radius: 0 !important;
     margin: 0 !important;
     border: none !important;
+    background: #000209 !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 .map-wrapper.fullscreen #map,
-.map-wrapper.fullscreen #dynamic-map {
+.map-wrapper.fullscreen #dynamic-map,
+.scene-3d-wrapper.fullscreen #canvas-container-3d,
+.canvas-wrapper.fullscreen .canvas-container {
     height: 100% !important;
     min-height: 100% !important;
+    width: 100% !important;
+    flex: 1 !important;
 }
 
 #map {
@@ -695,7 +719,9 @@ body {
 }
 
 /* Floating controls overlay in fullscreen mode */
-.map-wrapper.fullscreen .map-time-controls {
+.map-wrapper.fullscreen .map-time-controls,
+.scene-3d-wrapper.fullscreen .globe-time-controls,
+.canvas-wrapper.fullscreen .canvas-time-controls {
     position: absolute !important;
     bottom: 24px !important;
     left: 50% !important;
@@ -711,6 +737,29 @@ body {
     width: 650px !important;
     max-width: 90vw !important;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Floating overlay toolbar for simulator in fullscreen */
+.canvas-wrapper.fullscreen .canvas-toolbar {
+    position: absolute !important;
+    top: 24px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    right: auto !important;
+    z-index: 9999 !important;
+    background: rgba(2, 16, 52, 0.9) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 35px !important;
+    padding: 8px 24px !important;
+    width: auto !important;
+    max-width: 90vw !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 20px !important;
 }
 
 .time-slider {
