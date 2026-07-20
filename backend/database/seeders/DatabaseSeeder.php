@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         // Seed Super Admin
         User::updateOrCreate(
-            ['email' => 'superadmin@ethiosss.org'],
+            ['email' => 'science@ethiosss.org'],
             [
                 'name' => 'ESSS Superadmin',
                 'role' => 'superadmin',

@@ -64,7 +64,7 @@ class AdminAuthController extends Controller
 
         // Enforce account pre-registration by superadmin
         // Note: Default root account is seeded, others must exist
-        $isSeed = ($email === 'admin@ethiosss.org' || $email === 'superadmin@ethiosss.org');
+        $isSeed = ($email === 'science@ethiosss.org');
         
         $user = User::where('email', $email)->first();
         if (!$user && !$isSeed) {
@@ -81,12 +81,9 @@ class AdminAuthController extends Controller
         }
 
         // Setup role & permissions for superadmin / seed accounts
-        if ($email === 'superadmin@ethiosss.org') {
+        if ($email === 'science@ethiosss.org') {
             $user->role = 'superadmin';
             $user->permissions = ['dashboard', 'modules', 'users', 'logs'];
-        } elseif ($email === 'admin@ethiosss.org') {
-            $user->role = 'admin';
-            $user->permissions = ['dashboard', 'modules', 'users'];
         } else {
             if (!$user->exists) {
                 $user->role = 'admin';
