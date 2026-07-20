@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { 
-  FileClock, RefreshCw, ShieldAlert, Search, ChevronLeft, ChevronRight, Eye
+  FileClock, RefreshCw, ShieldAlert, Search, ChevronLeft, ChevronRight, Eye, X
 } from "lucide-react";
 
 interface AuditLogData {
