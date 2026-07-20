@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.107/Build/Cesium/Cesium.js"></script>
+</head>
+<body>
+<script>
+// Compare GeographicTilingScheme with WGS84 vs MOON ellipsoid
+const geoWGS84 = new Cesium.GeographicTilingScheme();
+const geoMoon = new Cesium.GeographicTilingScheme({ ellipsoid: Cesium.Ellipsoid.MOON });
+const level = 5;
+
+const positions = [
+    { name: "Mare Crisium", lat: 17.0, lon: 59.1 },
+    { name: "Langrenus", lat: -8.9, lon: 61.1 },
+    { name: "Copernicus", lat: 9.62, lon: -20.08 }
+];
+
+let html = "<h2>GeographicTilingScheme: WGS84 vs MOON</h2><table border='1' cellpadding='5'>";
+html += "<tr><th>Name</th><th>Lat</th><th>WGS84 x</th><th>WGS84 y</th><th>WGS84 reverseY</th><th>MOON x</th><th>MOON y</th><th>MOON reverseY</th><th>MATCH?</th></tr>";
+
+positions.forEach(pos => {
+    const carto = Cesium.Cartographic.fromDegrees(pos.lon, pos.lat);
+    const xyW = geoWGS84.positionToTileXY(carto, level);
+    const xyM = geoMoon.positionToTileXY(carto, level);
+    const numYW = geoWGS84.getNumberOfYTilesAtLevel(level);
+    const numYM = geoMoon.getNumberOfYTilesAtLevel(level);
+    const revYW = numYW - xyW.y - 1;
+    const revYM = numYM - xyM.y - 1;
+    const match = (xyW.x === xyM.x && xyW.y === xyM.y) ? "YES" : "NO - MISMATCH!";
+    html += "<tr><td>" + pos.name + "</td><td>" + pos.lat + "</td>";
+    html += "<td>" + xyW.x + "</td><td>" + xyW.y + "</td><td>" + revYW + "</td>";
+    html += "<td>" + xyM.x + "</td><td>" + xyM.y + "</td><td>" + revYM + "</td>";
+    html += "<td>" + match + "</td></tr>";
+});
+
+html += "</table>";
+
+// Also check: what do we get from a Cartesian3 on the Moon surface?
+html += "<h2>Cartesian3 → Cartographic with different ellipsoids</h2><table border='1' cellpadding='5'>";
+html += "<tr><th>Name</th><th>Input Lat/Lon</th><th>WGS84 Cart3 → Carto Lat</th><th>MOON Cart3 → Carto Lat</th></tr>";
+
+positions.forEach(pos => {
+    // Create a point on the MOON surface
+    const moonCart3 = Cesium.Cartesian3.fromDegrees(pos.lon, pos.lat, 0, Cesium.Ellipsoid.MOON);
+    // Unproject using WGS84
+    const cartoFromWGS84 = Cesium.Ellipsoid.WGS84.cartesianToCartographic(moonCart3);
+    // Unproject using MOON
+    const cartoFromMoon = Cesium.Ellipsoid.MOON.cartesianToCartographic(moonCart3);
+    
+    const latFromWGS84 = cartoFromWGS84 ? Cesium.Math.toDegrees(cartoFromWGS84.latitude).toFixed(4) : "FAILED";
+    const latFromMoon = cartoFromMoon ? Cesium.Math.toDegrees(cartoFromMoon.latitude).toFixed(4) : "FAILED";
+    
+    html += "<tr><td>" + pos.name + "</td><td>" + pos.lat + "°, " + pos.lon + "°</td>";
+    html += "<td>" + latFromWGS84 + "°</td><td>" + latFromMoon + "°</td></tr>";
+});
+
+html += "</table>";
+html += "<p><b>Key insight:</b> If a 3D point on the Moon's surface is unprojected using WGS84's ellipsoid, the resulting latitude will be WRONG because WGS84 is oblate (flattened at poles). This distortion is what causes the tile coordinate mismatch.</p>";
+
+document.body.innerHTML = html;
+</script>
+</body>
+</html>

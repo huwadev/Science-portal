@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    if (window.self === window.top) {
+        window.location.replace('/');
+    }
+  </script>
+    <link rel="manifest" href="../../manifest.json">
+    <meta name="theme-color" content="#060814">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amateur Rocket Ballistics Engine | ESSS</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo="> <!-- Prevents favicon 404 -->
+    <link rel="stylesheet" href="../../style.css"> <!-- Import global base styles -->
+    <link rel="stylesheet" href="style.css"> <!-- Module-specific styles -->
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js -->
+</head>
+<body class="module-body">
+    <!-- Starry Background -->
+    <div class="stargazer-bg">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="lab-header glass-panel">
+        <a href="../../index.html" class="btn btn-secondary back-btn">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Portal
+        </a>
+        <div class="lab-title-group">
+            <h1>Amateur Rocket Ballistics Engine</h1>
+            <span class="badge complexity-high">High Complexity</span>
+        </div>
+        <button id="audio-toggle" class="btn btn-icon" title="Toggle Sonification">
+            <img src="speaker-icon.svg" alt="Toggle Audio" width="20" height="20">
+        </button>
+    </header>
+
+    <!-- Main Workspace: 3 Column Layout -->
+    <main class="lab-workspace">
+        
+        <!-- Column 1: Rocket Designer & Configuration -->
+        <section class="pane designer-pane glass-panel">
+            <div class="pane-header">
+                <h2>Rocket Designer</h2>
+                <div class="stability-badge-wrapper">
+                    <span id="stability-badge" class="stability-tag stable">Stability: 1.5 Calibers</span>
+                </div>
+            </div>
+
+            <div class="pane-body">
+                <!-- SVG Live Rocket Drawing -->
+                <div class="schematic-container">
+                    <svg id="rocket-svg" viewBox="0 0 160 500" width="100%" height="100%">
+                        <!-- Grids for background aesthetic -->
+                        <defs>
+                            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(120, 160, 255, 0.05)" stroke-width="1"/>
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+                        
+                        <!-- SVG Elements will be updated/drawn dynamically by JS -->
+                        <g id="rocket-group"></g>
+                    </svg>
+                </div>
+
+                <!-- Configuration Accordions -->
+                <div class="accordion-container">
+                    <!-- Section 1: Nose Cone -->
+                    <details open>
+                        <summary>Nose Cone</summary>
+                        <div class="details-content">
+                            <div class="slider-group">
+                                <label>Length (cm) <span id="lbl-nose-length" class="val">20.0</span></label>
+                                <input type="range" id="nose-length" min="10" max="50" step="0.5" value="20">
+                            </div>
+                            <div class="slider-group">
+                                <label>Mass (g) <span id="lbl-nose-mass" class="val">80.0</span></label>
+                                <input type="range" id="nose-mass" min="10" max="500" step="5" value="80">
+                            </div>
+                        </div>
+                    </details>
+
+                    <!-- Section 2: Body Tube -->
+                    <details>
+                        <summary>Body Tube</summary>
+                        <div class="details-content">
+                            <div class="slider-group">
+                                <label>Length (cm) <span id="lbl-tube-length" class="val">80.0</span></label>
+                                <input type="range" id="tube-length" min="30" max="200" step="1" value="80">
+                            </div>
+                            <div class="slider-group">
+                                <label>Diameter / Caliber (mm) <span id="lbl-tube-diameter" class="val">54.0</span></label>
+                                <input type="range" id="tube-diameter" min="20" max="150" step="1" value="54">
+                            </div>
+                            <div class="slider-group">
+                                <label>Mass (g) <span id="lbl-tube-mass" class="val">300.0</span></label>
+                                <input type="range" id="tube-mass" min="50" max="2000" step="10" value="300">
+                            </div>
+                        </div>
+                    </details>
+
+                    <!-- Section 3: Fins -->
+                    <details>
+                        <summary>Fins (Trapezoidal)</summary>
+                        <div class="details-content">
+                            <div class="slider-group select-group">
+                                <label>Fin Count</label>
+                                <select id="fin-count">
+                                    <option value="3" selected>3 Fins</option>
+                                    <option value="4">4 Fins</option>
+                                </select>
+                            </div>
+                            <div class="slider-group">
+                                <label>Span / Height (cm) <span id="lbl-fin-span" class="val">8.0</span></label>
+                                <input type="range" id="fin-span" min="3" max="20" step="0.5" value="8">
+                            </div>
+                            <div class="slider-group">
+                                <label>Root Chord (cm) <span id="lbl-fin-root" class="val">12.0</span></label>
+                                <input type="range" id="fin-root" min="5" max="30" step="0.5" value="12">
+                            </div>
+                            <div class="slider-group">
+                                <label>Tip Chord (cm) <span id="lbl-fin-tip" class="val">4.0</span></label>
+                                <input type="range" id="fin-tip" min="1" max="20" step="0.5" value="4">
+                            </div>
+                            <div class="slider-group">
+                                <label>Sweep (cm) <span id="lbl-fin-sweep" class="val">5.0</span></label>
+                                <input type="range" id="fin-sweep" min="0" max="15" step="0.5" value="5">
+                            </div>
+                            <div class="slider-group">
+                                <label>Mass (g) <span id="lbl-fin-mass" class="val">40.0</span></label>
+                                <input type="range" id="fin-mass" min="10" max="300" step="5" value="40">
+                            </div>
+                        </div>
+                    </details>
+
+                    <!-- Section 4: Recovery (Parachutes) -->
+                    <details>
+                        <summary>Recovery Systems</summary>
+                        <div class="details-content">
+                            <div class="slider-group">
+                                <label>Drogue Diameter (cm) <span id="lbl-drogue-dia" class="val">30.0</span></label>
+                                <input type="range" id="drogue-dia" min="10" max="60" step="1" value="30">
+                            </div>
+                            <div class="slider-group">
+                                <label>Main Diameter (cm) <span id="lbl-main-dia" class="val">100.0</span></label>
+                                <input type="range" id="main-dia" min="30" max="300" step="5" value="100">
+                            </div>
+                            <div class="slider-group">
+                                <label>Main Deploy Alt (m) <span id="lbl-main-deploy-alt" class="val">300.0</span></label>
+                                <input type="range" id="main-deploy-alt" min="50" max="1000" step="25" value="300">
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- Column 2: Flight Simulation Viewer & Environment -->
+        <section class="pane sim-pane glass-panel">
+            <div class="pane-header">
+                <h2>Flight Simulation</h2>
+                <div class="status-indicator">
+                    <span id="flight-status-dot" class="pulse-dot idle"></span> <span id="flight-status-lbl">Idle</span>
+                </div>
+            </div>
+            
+            <div class="canvas-container">
+                <!-- 2D Canvas Visualizer -->
+                <canvas id="simCanvas" width="400" height="500"></canvas>
+            </div>
+
+            <!-- Simulation Controls panel -->
+            <div class="controls-panel flex-column">
+                <div class="environment-grid">
+                    <div class="slider-group">
+                        <label>Wind Speed (m/s) <span id="lbl-wind-speed" class="val">3.0</span></label>
+                        <input type="range" id="wind-speed" min="0" max="20" step="0.5" value="3">
+                    </div>
+                    <div class="slider-group">
+                        <label>Rail Angle (deg) <span id="lbl-rail-angle" class="val">5.0</span></label>
+                        <input type="range" id="rail-angle" min="0" max="20" step="0.5" value="5">
+                    </div>
+                </div>
+                
+                <div class="button-row">
+                    <button id="btn-launch" class="btn btn-primary action-btn">LAUNCH ROCKET</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Column 3: Telemetry, Presets, and Plots -->
+        <section class="pane analysis-pane glass-panel">
+            <div class="pane-header">
+                <h2>Flight Telemetry & Presets</h2>
+                <div class="preset-selector-wrapper">
+                    <select id="rocket-preset">
+                        <option value="estes-alpha" selected>Estes Alpha (Model)</option>
+                        <option value="hp-level2">AeroTech J350 (Lvl 2)</option>
+                        <option value="esss-hybrid">ESSS Hybrid (Student Initiative)</option>
+                        <option value="custom">Custom Configuration</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="pane-body">
+                <!-- Telemetry Stats Panel -->
+                <div class="telemetry-grid">
+                    <div class="telemetry-box">
+                        <span class="t-label">Apogee (Max Alt)</span>
+                        <span class="t-value" id="t-apogee">-- <small>m</small></span>
+                    </div>
+                    <div class="telemetry-box">
+                        <span class="t-label">Max Velocity</span>
+                        <span class="t-value" id="t-max-v">-- <small>m/s</small></span>
+                    </div>
+                    <div class="telemetry-box">
+                        <span class="t-label">Max Acceleration</span>
+                        <span class="t-value" id="t-max-a">-- <small>G</small></span>
+                    </div>
+                    <div class="telemetry-box">
+                        <span class="t-label">Flight Time</span>
+                        <span class="t-value" id="t-flight-time">-- <small>s</small></span>
+                    </div>
+                    <div class="telemetry-box">
+                        <span class="t-label">Burnout Altitude</span>
+                        <span class="t-value" id="t-burnout-alt">-- <small>m</small></span>
+                    </div>
+                    <div class="telemetry-box">
+                        <span class="t-label">Wind Drift / Error</span>
+                        <span class="t-value" id="t-drift">-- <small>m</small></span>
+                    </div>
+                </div>
+
+                <!-- Custom Motor Configuration accordion (only active when Custom Preset selected) -->
+                <div class="motor-accordion" id="motor-config-wrapper" style="display: none;">
+                    <h3>Custom Motor Configuration</h3>
+                    <div class="motor-grid">
+                        <div class="slider-group">
+                            <label>Avg Thrust (N) <span id="lbl-motor-thrust" class="val">80.0</span></label>
+                            <input type="range" id="motor-thrust" min="5" max="3000" step="5" value="80">
+                        </div>
+                        <div class="slider-group">
+                            <label>Burn Time (s) <span id="lbl-motor-burntime" class="val">2.0</span></label>
+                            <input type="range" id="motor-burntime" min="0.5" max="10" step="0.1" value="2">
+                        </div>
+                        <div class="slider-group">
+                            <label>Propellant Mass (g) <span id="lbl-motor-propellant" class="val">100.0</span></label>
+                            <input type="range" id="motor-propellant" min="5" max="1500" step="5" value="100">
+                        </div>
+                        <div class="slider-group">
+                            <label>Motor Dry Mass (g) <span id="lbl-motor-drymass" class="val">80.0</span></label>
+                            <input type="range" id="motor-drymass" min="5" max="1500" step="5" value="80">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graph Area -->
+                <div class="graph-selector-tabs">
+                    <button class="tab-btn active" data-graph="altitude">Altitude</button>
+                    <button class="tab-btn" data-graph="velocity">Velocity</button>
+                    <button class="tab-btn" data-graph="acceleration">Acceleration</button>
+                    <button class="tab-btn" data-graph="mass">Mass</button>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="telemetryChart"></canvas>
+                </div>
+
+                <!-- Educational Info -->
+                <div class="edu-card">
+                    <h3>Rocket Flight Physics</h3>
+                    <p>A rocket's stability is governed by the relative positions of its **Center of Gravity (CG)** and **Center of Pressure (CP)**. For stable flight, the CP must be *behind* the CG. If the CP drifts forward of the CG, the aerodynamic forces will rotate the rocket around its center of mass, causing it to tumble. Barrowman's Equations calculate this CP by summing the normal force slopes of the nose cone and fins based on their surface areas and geometry. High winds cause stable rockets to *weathercock* (rotate into the wind), bending their trajectory horizontally.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="app.js"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swPath = window.location.pathname.includes('/modules/') ? '../../sw.js' : './sw.js';
+                navigator.serviceWorker.register(swPath)
+                    .then(reg => console.log('Service Worker registered successfully with scope:', reg.scope))
+                    .catch(err => console.error('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+
+</body>
+</html>

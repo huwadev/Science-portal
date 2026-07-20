@@ -1,0 +1,89 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: science_backend
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./backend:/var/www/html
+    environment:
+      - DB_CONNECTION=mongodb
+      - DB_HOST=mongodb
+      - DB_PORT=27017
+      - DB_DATABASE=science_db
+      - CACHE_STORE=redis
+      - SESSION_DRIVER=redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    command: >
+      sh -c "composer install --no-interaction &&
+             php artisan key:generate --force &&
+             php artisan db:seed --force &&
+             php artisan serve --host=0.0.0.0 --port=8000"
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - science-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_GOOGLE_CLIENT_ID=998473765583-ram81h9jtdk5cg2vt1lbv60msffdl5in.apps.googleusercontent.com
+    container_name: science_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=/api/v1
+      - BACKEND_API_URL=http://backend:8000/api/v1
+      - NODE_ENV=development
+    command: npm run dev
+    depends_on:
+      - backend
+    networks:
+      - science-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: science_nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - science-network
+
+  mongodb:
+    image: mongo:latest
+    container_name: science_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - science_mongo_data:/data/db
+    networks:
+      - science-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: science_redis
+    restart: unless-stopped
+    networks:
+      - science-network
+
+volumes:
+  science_mongo_data:
+
+networks:
+  science-network:
+    driver: bridge

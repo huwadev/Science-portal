@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    if (window.self === window.top) {
+        window.location.replace('/');
+    }
+  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Cosmic Distance Ladder | ESSS Simulator</title>
+    <meta name="description" content="Interactive journey through history to measure the scale of the universe.">
+    <link rel="manifest" href="../../manifest.json">
+    <meta name="theme-color" content="#060814">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code&display=swap" rel="stylesheet">
+    
+    <!-- MathJax for rendering equations -->
+    <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Three.js for 3D Viewport -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- OrbitControls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <!-- Chart.js for 2D Viewport -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Marked.js for Markdown Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <link rel="stylesheet" href="../../style.css"> <!-- Base styles -->
+    <link rel="stylesheet" href="style.css?v=4"> <!-- Module specific styles -->
+</head>
+<body class="cosmic-ladder-app">
+
+    <!-- Global Header -->
+    <header class="app-header">
+        <div class="header-brand">
+            <a href="../../index.html" class="back-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
+                Portal
+            </a>
+            <h1>The Cosmic Distance Ladder</h1>
+        </div>
+        <div class="header-status">
+            <span class="status-indicator active"></span>
+            <span class="status-text" id="header-rung-text">Rung 1: Earth</span>
+        </div>
+    </header>
+
+    <main class="ladder-container">
+        <!-- The Ladder Progress Bar (Far Left) -->
+        <aside class="ladder-progress" id="ladder-progress">
+            <!-- Dynamically generated rungs -->
+        </aside>
+
+        <!-- The Notebook (Left Panel) -->
+        <section class="notebook-panel glass-panel">
+            <div class="notebook-header">
+                <h2 id="notebook-title">Rung 1: Size of the Earth</h2>
+                <span class="scientist-tag" id="notebook-scientist">Eratosthenes (~240 BC)</span>
+            </div>
+            
+            <div class="notebook-content">
+                <!-- Theory & History -->
+                <div class="card history-card">
+                    <h3>Historical Context</h3>
+                    <p id="history-text">
+                        Eratosthenes heard that in the city of Syene, the sun shone directly down a well at noon on the summer solstice, casting no shadow. In his own city of Alexandria, a vertical rod cast a shadow.
+                    </p>
+                </div>
+
+                <!-- Theory & Equations -->
+                <div class="card equation-card">
+                    <h3>The Mathematics</h3>
+                    <div class="math-block" id="equation-display">
+                        $$ C = \frac{360^\circ}{\theta} \times s $$
+                    </div>
+                    <ul class="equation-legend" id="equation-legend">
+                        <li>$C$: Circumference of the Earth</li>
+                        <li>$\theta$: Shadow angle difference ($^\circ$)</li>
+                        <li>$s$: Distance between cities (km)</li>
+                    </ul>
+                </div>
+
+                <!-- Interactive Controls & Raw Data -->
+                <div class="card controls-card">
+                    <h3>Raw Data & Controls</h3>
+                    <p class="instruction" id="controls-instruction">Adjust the variables based on the Observatory simulation to match reality and calculate the result.</p>
+                    
+                    <div id="controls-container">
+                        <!-- Dynamic controls injected here -->
+                    </div>
+
+                    <div class="calculation-result">
+                        <span class="lbl" id="calc-lbl">Your Calculation ($C$):</span>
+                        <span class="val" id="user-calculation">0 km</span>
+                    </div>
+
+                    <button class="btn btn-primary btn-verify" id="btn-verify">Verify Calculation</button>
+                    <div class="verification-feedback" id="verification-feedback"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Observatory (Right Panel) -->
+        <section class="observatory-panel">
+            <div class="observatory-header">
+                <h3>The Observatory</h3>
+                <div class="view-toggles" id="view-toggles">
+                    <button class="toggle-btn active" data-view="3d" id="btn-view-3d">3D Model</button>
+                    <button class="toggle-btn" data-view="2d" id="btn-view-2d">Schematic</button>
+                    <button class="toggle-btn" data-view="wiki" id="btn-view-wiki">📖 Wiki</button>
+                </div>
+            </div>
+            
+            <div class="observatory-viewport" id="viewport-container">
+                <!-- Three.js Canvas -->
+                <canvas id="main-canvas"></canvas>
+                <!-- 2D Schematic Canvas -->
+                <canvas id="canvas-2d" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:#050b14; z-index:5;"></canvas>
+                
+                <button id="btn-close-2d" class="btn" style="display:none; position:absolute; top:20px; left:50%; transform:translateX(-50%); z-index:10; background:rgba(255,255,255,0.1); border:1px solid #fff; color:#fff;">Close 2D View</button>
+                
+                <!-- Floating Prompt -->
+                <div id="interaction-prompt" style="position:absolute; top:30%; left:50%; transform:translate(-50%, -50%); z-index:4; background:rgba(0,150,255,0.2); border:1px solid rgba(0,200,255,0.5); color:#fff; padding:10px 20px; border-radius:8px; pointer-events:none; font-family:'Outfit',sans-serif; text-align:center; box-shadow:0 0 20px rgba(0,200,255,0.2); animation: pulsePrompt 2s infinite;">
+                    Click the glowing markers on the globe to inspect the locations
+                </div>
+                
+                <style>
+                    @keyframes pulsePrompt {
+                        0% { opacity: 0.7; transform:translate(-50%, -50%) scale(1); }
+                        50% { opacity: 1; transform:translate(-50%, -50%) scale(1.05); }
+                        100% { opacity: 0.7; transform:translate(-50%, -50%) scale(1); }
+                    }
+                </style>
+                
+                <!-- Wiki Content Container -->
+                <div id="wiki-container" style="display:none;">
+                    <div class="wiki-content" id="wiki-content">
+                        <!-- Rendered markdown injected via JS -->
+                    </div>
+                </div>
+
+                <!-- Overlay telemetry -->
+                <div class="viewport-telemetry" id="viewport-telemetry">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="wiki-content.js?v=4"></script>
+    <script src="app.js?v=4"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swPath = window.location.pathname.includes('/modules/') ? '../../sw.js' : './sw.js';
+                navigator.serviceWorker.register(swPath)
+                    .then(reg => console.log('Service Worker registered successfully with scope:', reg.scope))
+                    .catch(err => console.error('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,421 @@
+/* modules/lunar-explorer/style.css */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #000;
+    color: #DEEBFF;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+}
+
+/* 3D Canvas Container */
+#canvas-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1; /* Below UI */
+}
+
+/* Hide extra Cesium widgets that we aren't using */
+.cesium-widget-credits {
+    display: none !important;
+}
+
+/* UI Overlay */
+#ui-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Let clicks pass through to canvas */
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Header */
+.module-header {
+    pointer-events: none;
+    padding: 24px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0));
+}
+
+.back-btn {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(18, 93, 255, 0.2);
+    border: 1px solid rgba(18, 93, 255, 0.4);
+    color: #DEEBFF;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+    background: rgba(18, 93, 255, 0.4);
+    color: #fff;
+    box-shadow: 0 0 12px rgba(18, 93, 255, 0.4);
+}
+
+#lang-toggle {
+    pointer-events: auto;
+}
+
+.module-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #fff, #99bfff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.module-header .subtitle {
+    font-size: 14px;
+    color: rgba(222, 235, 255, 0.6);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Glass Panels */
+.glass-panel {
+    background: rgba(10, 15, 30, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(222, 235, 255, 0.08);
+}
+
+/* Layer Controls */
+#layer-controls {
+    pointer-events: auto;
+    font-size: 13px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: rgba(222, 235, 255, 0.5);
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    z-index: 10;
+}
+
+.close-btn:hover {
+    color: #fff;
+    transform: scale(1.15);
+}
+
+/* Credits Panel */
+.credits-panel {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    font-size: 10px;
+    color: rgba(222, 235, 255, 0.6);
+    background: rgba(10, 10, 15, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    pointer-events: auto;
+    z-index: 20;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    letter-spacing: 0.3px;
+}
+
+.credits-panel a {
+    color: #60a5fa;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.credits-panel a:hover {
+    color: #93c5fd;
+    text-decoration: underline;
+}
+
+/* Scale Ruler */
+#scale-ruler {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    z-index: 20;
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    color: rgba(222, 235, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: auto;
+    text-shadow: 0px 2px 4px rgba(0,0,0,0.8);
+}
+
+.scale-text {
+    margin-bottom: 2px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.scale-bar-container {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 6px;
+    border-bottom: 2px solid rgba(222, 235, 255, 0.9);
+    border-left: 2px solid rgba(222, 235, 255, 0.9);
+    border-right: 2px solid rgba(222, 235, 255, 0.9);
+    width: 100px; /* Dynamic width set via JS */
+    transition: width 0.1s ease;
+    box-shadow: 0px 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Wiki Sidebar Styles */
+.wiki-sidebar {
+    position: absolute;
+    top: 70px;
+    left: 20px;
+    right: auto;
+    width: 360px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    border-radius: 16px;
+    z-index: 100;
+    transform: translateX(-120%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+    background: rgba(8, 12, 24, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(222, 235, 255, 0.08);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6), 0 0 1px rgba(222, 235, 255, 0.1);
+}
+
+.wiki-sidebar.active {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Wikipedia link button hover */
+.wiki-sidebar .glass-btn:hover {
+    background: rgba(0, 122, 255, 0.45) !important;
+    border-color: rgba(0, 122, 255, 0.6) !important;
+    box-shadow: 0 0 16px rgba(0, 122, 255, 0.2);
+}
+
+.wiki-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.wiki-sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,0.2);
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    .module-header {
+        padding: 16px;
+    }
+    
+    .module-header h1 {
+        font-size: 24px;
+    }
+    
+    .module-header .subtitle {
+        font-size: 11px;
+    }
+    
+    .wiki-sidebar {
+        top: 60px;
+        left: 10px;
+        right: 10px;
+        width: auto;
+        max-height: calc(100vh - 120px);
+    }
+    
+    #layer-controls {
+        top: 60px;
+        right: 10px;
+        min-width: 150px;
+    }
+    
+    #map-toolbar {
+        right: 10px;
+        padding: 4px;
+        border-radius: 8px;
+    }
+    
+    #search-overlay {
+        right: 55px;
+        width: calc(100% - 75px);
+        max-width: 250px;
+    }
+    
+    .credits-panel {
+        left: 10px;
+        bottom: 10px;
+        font-size: 9px;
+        max-width: calc(100% - 20px);
+        box-sizing: border-box;
+        padding: 4px 10px;
+        white-space: normal;
+        text-align: center;
+        line-height: 1.4;
+    }
+    
+    #scale-ruler {
+        bottom: 48px; /* Lift above credits panel */
+        right: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .module-header {
+        padding: 12px;
+    }
+    
+    .module-header h1 {
+        font-size: 20px;
+    }
+    
+    .module-header .subtitle {
+        display: none; /* Hide subtitle to save vertical space on narrow phones */
+    }
+    
+    .wiki-sidebar {
+        top: 50px;
+        left: 5px;
+        right: 5px;
+        max-height: calc(100vh - 100px);
+    }
+    
+    #layer-controls {
+        top: 50px;
+        right: 5px;
+        min-width: 140px;
+    }
+    
+    #search-overlay {
+        right: 50px;
+        width: calc(100% - 60px);
+        max-width: 240px;
+    }
+    
+    #scale-ruler {
+        bottom: 64px;
+        right: 5px;
+    }
+}
+
+#layer-controls::-webkit-scrollbar {
+    width: 4px;
+}
+
+#layer-controls::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+/* Toolbar Buttons */
+.toolbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: rgba(222, 235, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toolbar-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.toolbar-btn.active {
+    background: rgba(0, 122, 255, 0.3);
+    color: #60a5fa;
+    box-shadow: 0 0 8px rgba(0, 122, 255, 0.15);
+}
+
+/* Search Results */
+.search-item {
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: rgba(222, 235, 255, 0.85);
+    transition: background 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.search-item .search-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    opacity: 0.85;
+}
+
+.search-item .search-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#search-input:focus {
+    border-color: rgba(0, 122, 255, 0.5);
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.15);
+}
+
+#search-results::-webkit-scrollbar {
+    width: 4px;
+}
+
+#search-results::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    if (window.self === window.top) {
+        window.location.replace('/');
+    }
+  </script>
+    <link rel="manifest" href="../../manifest.json">
+    <meta name="theme-color" content="#060814">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exoplanet Transit Light Curve Lab | ESSS</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo="> <!-- Prevents favicon 404 -->
+    <link rel="stylesheet" href="../../style.css"> <!-- Import global base styles -->
+    <link rel="stylesheet" href="style.css"> <!-- Module-specific styles -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js -->
+</head>
+<body class="module-body">
+    <!-- Starry Background inherited from base or redefined -->
+    <div class="stargazer-bg">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="lab-header glass-panel">
+        <a href="../../index.html" class="btn btn-secondary back-btn">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Portal
+        </a>
+        <div class="lab-title-group">
+            <h1>Exoplanet Transit Lab</h1>
+            <span class="badge complexity-medium">Medium Complexity</span>
+        </div>
+        <button id="audio-toggle" class="btn btn-icon" title="Toggle Sonification">
+            <img src="speaker-icon.svg" alt="Toggle Audio" width="20" height="20">
+        </button>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="lab-workspace">
+        
+        <!-- Left Pane: Simulation -->
+        <section class="pane sim-pane glass-panel">
+            <div class="pane-header">
+                <h2>Transit Simulation</h2>
+                <div class="status-indicator">
+                    <span class="pulse-dot"></span> Live
+                </div>
+            </div>
+            <div class="canvas-container">
+                <canvas id="simCanvas" width="600" height="400"></canvas>
+            </div>
+            
+            <!-- Controls -->
+            <div class="controls-panel">
+                <div class="control-group">
+                    <label for="planet-radius">Planet Radius (R<sub>p</sub>)</label>
+                    <input type="range" id="planet-radius" min="0.05" max="0.5" step="0.01" value="0.2">
+                    <span id="radius-val" class="val-display">0.20 R<sub>s</sub></span>
+                </div>
+                <div class="control-group">
+                    <label for="orbital-speed">Orbital Speed</label>
+                    <input type="range" id="orbital-speed" min="0.5" max="3" step="0.1" value="1">
+                    <span id="speed-val" class="val-display">1.0x</span>
+                </div>
+                <div class="control-group">
+                    <label for="noise-level">Stellar Noise</label>
+                    <input type="range" id="noise-level" min="0" max="0.05" step="0.005" value="0.01">
+                    <span id="noise-val" class="val-display">1.0%</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Pane: Analysis -->
+        <section class="pane analysis-pane glass-panel">
+            <div class="pane-header">
+                <h2>Light Curve Analysis</h2>
+                <button id="reset-chart" class="btn btn-secondary btn-sm">Reset Data</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="lightCurveChart"></canvas>
+            </div>
+
+            <!-- Telemetry / Stats -->
+            <div class="telemetry-grid">
+                <div class="telemetry-box">
+                    <span class="t-label">Relative Flux</span>
+                    <span class="t-value" id="t-flux">1.000</span>
+                </div>
+                <div class="telemetry-box">
+                    <span class="t-label">Occultation Depth</span>
+                    <span class="t-value" id="t-depth">0.00%</span>
+                </div>
+                <div class="telemetry-box">
+                    <span class="t-label">Estimated Radius</span>
+                    <span class="t-value" id="t-est-radius">0.00</span>
+                </div>
+            </div>
+            
+            <div class="edu-card">
+                <h3>Transit Photometry Method</h3>
+                <p>When an exoplanet crosses in front of its host star from our line of sight, it blocks a fraction of the star's light. This method, called <strong>Transit Photometry</strong>, is how telescopes like Kepler and TESS discover most exoplanets. Astronomers observe thousands of stars simultaneously, collecting brightness data over time to form a <strong>Light Curve</strong>. By analyzing the U-shaped dip in the curve, they can deduce the <strong>Occultation Depth</strong>. The depth is proportional to the square of the radii ratio: <strong>Depth = (R<sub>p</sub> / R<sub>s</sub>)²</strong>. Because we usually know the star's size (from its spectrum), we can calculate the exact physical size of the alien world!</p>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="app.js"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swPath = window.location.pathname.includes('/modules/') ? '../../sw.js' : './sw.js';
+                navigator.serviceWorker.register(swPath)
+                    .then(reg => console.log('Service Worker registered successfully with scope:', reg.scope))
+                    .catch(err => console.error('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+
+</body>
+</html>

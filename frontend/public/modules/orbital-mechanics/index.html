@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    if (window.self === window.top) {
+        window.location.replace('/');
+    }
+  </script>
+    <link rel="manifest" href="../../manifest.json">
+    <meta name="theme-color" content="#060814">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Phase Orbital Mechanics Simulator | ESSS Science</title>
+    <meta name="description" content="Interactive orbital mechanics simulator with GMAT-inspired physics. Launch rockets, execute Hohmann transfers, and perform orbital rendezvous.">
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="module-body">
+
+    <!-- Animated Star Background -->
+    <div class="stargazer-bg">
+        <div class="star-layer star-layer-1"></div>
+        <div class="star-layer star-layer-2"></div>
+        <div class="star-layer star-layer-3"></div>
+    </div>
+
+    <!-- ================================================================
+         HEADER
+         ================================================================ -->
+    <header class="lab-header glass-panel">
+        <a href="../../index.html" class="back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Portal
+        </a>
+        <div class="lab-title-group">
+            <h1 class="lab-title">Orbital Mechanics</h1>
+            <span class="complexity-badge">Advanced</span>
+        </div>
+        <div class="header-controls-group">
+            <div class="mission-tabs">
+                <button id="btn-mission-launch" class="mission-tab active" data-phase="launch">
+                    <span class="tab-icon">🚀</span> Launch
+                </button>
+                <button id="btn-mission-hohmann" class="mission-tab" data-phase="hohmann">
+                    <span class="tab-icon">🔄</span> Transfer
+                </button>
+                <button id="btn-mission-rendezvous" class="mission-tab" data-phase="rendezvous">
+                    <span class="tab-icon">🛰</span> Rendezvous
+                </button>
+                <span class="tab-divider"></span>
+                <button id="btn-demo" class="mission-tab demo-tab" title="Watch a guided Crew Dragon demo mission">
+                    <span class="tab-icon">▶</span> Demo
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================================================================
+         MAIN WORKSPACE
+         ================================================================ -->
+    <main class="lab-workspace">
+
+        <!-- LEFT: 3D Simulation Viewport -->
+        <section class="sim-pane">
+            <div class="canvas-container">
+                <div id="webgl-container" class="webgl-wrapper">
+
+                    <!-- HUD Overlay (top) -->
+                    <div class="viewport-hud top-hud">
+                        <div class="hud-item">
+                            <span class="hud-label">MET</span>
+                            <span id="hud-time" class="hud-value">T+ 00:00:00</span>
+                        </div>
+                        <div class="hud-item">
+                            <span class="hud-label">ALT</span>
+                            <span id="hud-alt" class="hud-value">0.00 km</span>
+                        </div>
+                        <div class="hud-item">
+                            <span class="hud-label">VEL</span>
+                            <span id="hud-vel" class="hud-value">0 m/s</span>
+                        </div>
+                        <div class="hud-item">
+                            <span class="hud-label">DOWNRANGE</span>
+                            <span id="hud-downrange" class="hud-value">0.0 km</span>
+                        </div>
+                        <div class="hud-item">
+                            <span class="hud-label">DYN PRES</span>
+                            <span id="hud-dynpres" class="hud-value">0.00 kPa</span>
+                        </div>
+                    </div>
+
+                    <!-- Flight Director Overlay -->
+                    <div id="flight-director" class="flight-director-overlay">
+                        <div class="director-header">
+                            <span class="director-badge">FLIGHT DIRECTOR</span>
+                            <span id="mission-status" class="status-indicator status-preflight">PRE-FLIGHT</span>
+                        </div>
+                        <h3 id="director-title" class="director-step-title">1. Initiate Launch Sequence</h3>
+                        <p id="director-instruction" class="director-step-desc">Slide Throttle to 100% and press STAGE IGNITION.</p>
+                        <div class="director-progress-track">
+                            <div id="director-progress-fill" class="director-progress-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Navball + Autopilot -->
+                    <div class="navball-container">
+                        <canvas id="navball-canvas" width="130" height="130"></canvas>
+                        <div class="autopilot-group">
+                            <button id="ap-prograde" class="ap-btn" title="Prograde">PRO</button>
+                            <button id="ap-retrograde" class="ap-btn" title="Retrograde">RET</button>
+                            <button id="ap-target" class="ap-btn" title="Target">TGT</button>
+                            <button id="ap-manual" class="ap-btn active" title="Manual">MAN</button>
+                        </div>
+                    </div>
+
+                    <!-- Camera Mode Toggle -->
+                    <div class="cam-mode-group">
+                        <button id="btn-cam-track" class="cam-btn active" title="Auto-track rocket">🎯 TRACK</button>
+                        <button id="btn-cam-free" class="cam-btn" title="Free camera control">🖱 FREE</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls Dock (bottom bar) -->
+            <div class="controls-dock">
+                <div class="control-group">
+                    <label class="control-label">THROTTLE <span id="lbl-throttle" class="control-value">0%</span></label>
+                    <input id="slider-throttle" type="range" min="0" max="100" value="0" class="sim-slider slider-throttle">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">PITCH <span id="lbl-pitch" class="control-value">90.0&#176;</span></label>
+                    <input id="slider-pitch" type="range" min="0" max="90" value="90" step="0.5" class="sim-slider slider-pitch">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">TIME WARP <span id="lbl-warp" class="control-value">1x</span></label>
+                    <input id="slider-warp" type="range" min="1" max="1000" value="1" class="sim-slider slider-warp">
+                </div>
+                <div class="control-actions">
+                    <button id="btn-ignition" class="btn-ignition">🔥 STAGE IGNITION</button>
+                    <button id="btn-pause" class="btn-control">⏸ PAUSE</button>
+                    <button id="btn-reset" class="btn-control">↺ RESET</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT: Telemetry & Analysis -->
+        <section class="analysis-pane">
+            <div class="pane-header">
+                <h2 class="pane-title">Orbital Telemetry</h2>
+                <span class="pane-subtitle">Real-time orbital elements</span>
+            </div>
+
+            <div class="pane-scroll-content">
+                <!-- Orbital Elements Grid -->
+                <div class="telemetry-grid">
+                    <div class="tel-box">
+                        <span class="tel-label">APOAPSIS (Ap)</span>
+                        <span id="tel-ap" class="tel-value">-- km</span>
+                    </div>
+                    <div class="tel-box">
+                        <span class="tel-label">PERIAPSIS (Pe)</span>
+                        <span id="tel-pe" class="tel-value">-- km</span>
+                    </div>
+                    <div class="tel-box">
+                        <span class="tel-label">ECCENTRICITY</span>
+                        <span id="tel-ecc" class="tel-value">--</span>
+                    </div>
+                    <div class="tel-box">
+                        <span class="tel-label">INCLINATION</span>
+                        <span id="tel-inc" class="tel-value">--°</span>
+                    </div>
+                    <div class="tel-box">
+                        <span class="tel-label">ALTITUDE</span>
+                        <span id="tel-alt" class="tel-value">0.00 km</span>
+                    </div>
+                    <div class="tel-box">
+                        <span class="tel-label">VELOCITY</span>
+                        <span id="tel-vel" class="tel-value">0 m/s</span>
+                    </div>
+                </div>
+
+                <!-- Rendezvous Relative Telemetry (hidden unless rendezvous) -->
+                <div id="rendezvous-panel" class="rendezvous-panel" style="display: none;">
+                    <h3 class="subsection-title">Relative Navigation</h3>
+                    <div class="telemetry-grid tel-grid-2">
+                        <div class="tel-box">
+                            <span class="tel-label">DISTANCE</span>
+                            <span id="tel-rel-dist" class="tel-value">-- km</span>
+                        </div>
+                        <div class="tel-box">
+                            <span class="tel-label">REL. VELOCITY</span>
+                            <span id="tel-rel-vel" class="tel-value">-- m/s</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Propulsion Card -->
+                <div class="propulsion-card">
+                    <h3 class="subsection-title">Propulsion</h3>
+                    <div class="prop-row">
+                        <span class="prop-label">PROPELLANT</span>
+                        <span id="lbl-fuel-pct" class="prop-value">100.0%</span>
+                    </div>
+                    <div class="fuel-bar-track">
+                        <div id="fuel-bar-fill" class="fuel-bar-fill" style="width: 100%"></div>
+                    </div>
+                    <div class="prop-details">
+                        <div class="prop-detail">
+                            <span class="prop-label">THRUST</span>
+                            <span id="txt-thrust" class="prop-value">0 kN</span>
+                        </div>
+                        <div class="prop-detail">
+                            <span class="prop-label">Isp</span>
+                            <span id="txt-isp" class="prop-value">-- s</span>
+                        </div>
+                        <div class="prop-detail">
+                            <span class="prop-label">MASS</span>
+                            <span id="txt-mass" class="prop-value">-- kg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Telemetry Chart -->
+                <div class="chart-card">
+                    <h3 class="subsection-title">Altitude vs. Velocity</h3>
+                    <div class="chart-container">
+                        <canvas id="telemetry-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Educational Card -->
+                <div class="edu-card glass-panel">
+                    <h3 id="edu-title" class="edu-title">🎓 Orbital Mechanics</h3>
+                    <p id="edu-text" class="edu-text">
+                        A spacecraft in Low Earth Orbit travels at ~7.8 km/s. To reach orbit, a rocket must
+                        accelerate past the Kármán line (100 km) while building enough horizontal velocity
+                        to balance gravity — achieving orbital equilibrium. This simulator uses a 4th-order
+                        Runge-Kutta integrator with J2 oblateness perturbation derived from NASA's GMAT.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ================================================================
+         MISSION COMPLETE MODAL
+         ================================================================ -->
+    <div id="mission-complete-overlay" class="modal-overlay" style="display: none;">
+        <div id="mission-complete-card" class="modal-card glass-panel">
+            <div class="modal-icon">🏆</div>
+            <h2 id="mc-title" class="modal-title">Mission Success!</h2>
+            <p id="mc-desc" class="modal-desc">You have achieved the target orbit parameters.</p>
+            <div class="modal-actions">
+                <button id="btn-next-mission" class="btn btn-primary">Next Mission →</button>
+                <button id="btn-continue-fly" class="btn btn-secondary">Continue Flying</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         CRASH MODAL
+         ================================================================ -->
+    <div id="crash-overlay" class="modal-overlay" style="display: none;">
+        <div class="modal-card modal-crash glass-panel">
+            <div class="modal-icon">💥</div>
+            <h2 class="modal-title">Mission Failed</h2>
+            <p id="crash-desc" class="modal-desc">The spacecraft has been destroyed.</p>
+            <button id="btn-crash-reset" class="btn btn-primary">↺ Try Again</button>
+        </div>
+    </div>
+
+    <!-- Demo Running Indicator -->
+    <div id="demo-indicator" class="demo-indicator" style="display: none;">
+        <span class="demo-pulse"></span>
+        <span class="demo-label">CREW DRAGON DEMO</span>
+        <span id="demo-step" class="demo-step">Initializing...</span>
+        <button id="btn-stop-demo" class="btn-stop-demo">✕ Stop</button>
+    </div>
+
+    <script src="app.js"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swPath = window.location.pathname.includes('/modules/') ? '../../sw.js' : './sw.js';
+                navigator.serviceWorker.register(swPath)
+                    .then(reg => console.log('Service Worker registered successfully with scope:', reg.scope))
+                    .catch(err => console.error('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+
+</body>
+</html>

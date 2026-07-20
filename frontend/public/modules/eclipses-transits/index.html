@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    if (window.self === window.top) {
+        window.location.replace('/');
+    }
+  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eclipses & Transits Lab | ESSS Science Portal</title>
+    <meta name="description" content="Calculate and visualize solar and lunar eclipses and planetary transits in 2D and 3D with the ESSS Eclipses & Transits Lab.">
+    <link rel="icon" href="../../esss-badge.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Space Background -->
+    <div class="stars-bg"></div>
+
+    <!-- Navigation Header -->
+    <header class="esss-top-bar">
+        <div class="esss-topbar-wrapper">
+            <div class="esss-topbar-left">
+                <a href="../../index.html" class="esss-topbar-brand">
+                    <img src="../../esss-badge.png" alt="ESSS Badge" class="esss-topbar-logo">
+                </a>
+                <a href="../../index.html" class="esss-topbar-back">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Portal
+                </a>
+                <div class="esss-topbar-divider"></div>
+                <span class="esss-module-badge app-badge">APP</span>
+                <div class="esss-topbar-title-group">
+                    <h1 class="esss-topbar-title" data-i18n="header_title">Solar & Lunar Eclipse Predictor</h1>
+                    <p class="esss-topbar-subtitle" data-i18n="header_subtitle">Ethiopian Space Science Society</p>
+                </div>
+            </div>
+            <div class="esss-topbar-right">
+                <div class="language-selector-container">
+                    <select id="language-select" class="select-language" title="Select Language">
+                        <option value="en">English 🇬🇧</option>
+                        <option value="am">አማርኛ 🇪🇹</option>
+                    </select>
+                </div>
+                <button class="btn-header-ctrl" id="toggle-sidebar-btn" title="Toggle Left Sidebar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                </button>
+                <button class="btn-header-ctrl" id="toggle-stats-btn" title="Toggle Right Info Panel" data-i18n-title="title_toggle_right_panel">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+                </button>
+                <button class="btn-header-ctrl" id="btn-open-credits" title="References & Attributions" data-i18n-title="title_credits">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                </button>
+                <span class="esss-topbar-status"><span class="status-dot"></span> NASA ACTIVE</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <div class="workspace">
+        
+        <!-- Sidebar: Event Selector and Location Inputs -->
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-section">
+                <h2 data-i18n="sidebar_catalog_title">100-Year Event List (2000–2100)</h2>
+                <div class="sidebar-section-content">
+                    <div class="filter-group">
+                        <button class="filter-btn active" data-filter="all" data-i18n="filter_all">All</button>
+                        <button class="filter-btn" data-filter="solar" data-i18n="filter_solar">Solar</button>
+                        <button class="filter-btn" data-filter="lunar" data-i18n="filter_lunar">Lunar</button>
+                        <button class="filter-btn" data-filter="transit" data-i18n="filter_transit">Transit</button>
+                    </div>
+                    <div class="filter-group" style="margin-top: 8px;">
+                        <button class="filter-btn active" data-time-filter="upcoming" data-i18n="filter_upcoming">Upcoming</button>
+                        <button class="filter-btn" data-time-filter="past" data-i18n="filter_past">Past</button>
+                        <button class="filter-btn" data-time-filter="all" data-i18n="filter_all">All</button>
+                    </div>
+                    <div class="event-list" id="event-list">
+                        <!-- Dynamic Event List Injected via JS -->
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="btn-open-catalog" style="width: 100%; margin-top: 10px;" data-i18n="open_catalog_btn">Open NASA 5000-Year Catalog</button>
+                </div>
+            </div>
+            
+            <div class="sidebar-section collapsed">
+                <h2 data-i18n="custom_calc_title">Custom Calculation</h2>
+                <div class="sidebar-section-content">
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="custom-date" data-i18n="custom_date_label">Date & Time (UTC)</label>
+                            <input type="datetime-local" id="custom-date" step="60">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="btn-calculate-custom" style="margin-top: 10px; width: 100%;" data-i18n="calculate_btn">Calculate Circumstances</button>
+                </div>
+            </div>
+
+            <div class="sidebar-section collapsed">
+                <h2 data-i18n="observer_loc_title">Observer Location</h2>
+                <div class="sidebar-section-content">
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="obs-lat" data-i18n="lat_label">Latitude (°N)</label>
+                            <input type="number" id="obs-lat" value="9.0300" step="0.0001" min="-90" max="90">
+                        </div>
+                        <div class="input-group">
+                            <label for="obs-lon" data-i18n="lon_label">Longitude (°E)</label>
+                            <input type="number" id="obs-lon" value="38.7400" step="0.0001" min="-180" max="180">
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" id="use-gps-btn" style="margin-top: 10px; width: 100%;" data-i18n="use_current_loc">Use Current Location</button>
+                </div>
+            </div>
+
+            <div class="sidebar-section collapsed" id="sidebar-share-section">
+                <h2 data-i18n="share_embed_title">Share & Embed Map</h2>
+                <div class="sidebar-section-content">
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="share-view-type" data-i18n="view_mode_label">View Mode</label>
+                            <select id="share-view-type" style="width: 100%; padding: 6px; border-radius: 4px; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.15);">
+                                <option value="static" style="background: #0d1117;" data-i18n="option_static">Static Path & Contours</option>
+                                <option value="dynamic" style="background: #0d1117;" data-i18n="option_dynamic">Dynamic Shadow Simulation</option>
+                                <option value="globe" style="background: #0d1117;" data-i18n="option_globe">3D Globe View</option>
+                                <option value="sim" style="background: #0d1117;" data-i18n="option_sim">Local Sky Simulator</option>
+                            </select>
+                        </div>
+                        <div class="input-group" style="margin-top: 8px;">
+                            <label style="display: flex; align-items: center; color: rgba(255,255,255,0.85); font-size: 12px; cursor: pointer;">
+                                <input type="checkbox" id="share-embed-mode" checked style="margin-right: 6px;">
+                                <span data-i18n="embed_mode_checkbox">Embed Mode (Hide menus)</span>
+                            </label>
+                        </div>
+                        <div class="input-group" style="margin-top: 4px;">
+                            <label style="display: flex; align-items: center; color: rgba(255,255,255,0.85); font-size: 12px; cursor: pointer;">
+                                <input type="checkbox" id="share-autoplay" checked style="margin-right: 6px;">
+                                <span data-i18n="autoplay_checkbox">Autoplay simulation</span>
+                            </label>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="btn-generate-link" style="margin-top: 12px; width: 100%;" data-i18n="generate_assets_btn">Generate Share Assets</button>
+                    
+                    <div id="share-link-output" style="margin-top: 12px; display: none;">
+                        <label for="share-url-text" style="font-size: 11px; margin-top: 4px; display: block; color: rgba(255,255,255,0.7);" data-i18n="label_share_link">Web Share Link</label>
+                        <input type="text" id="share-url-text" readonly style="width: 100%; padding: 6px; font-size: 11px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #a5d6ff; margin-bottom: 8px;">
+                        
+                        <label for="share-iframe-text" style="font-size: 11px; display: block; color: rgba(255,255,255,0.7);" data-i18n="label_iframe_code">HTML IFrame Embed</label>
+                        <textarea id="share-iframe-text" readonly style="width: 100%; height: 50px; padding: 6px; font-size: 11px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #a5d6ff; resize: none; margin-bottom: 8px;"></textarea>
+                        
+                        <label for="share-kotlin-text" style="font-size: 11px; display: block; color: rgba(255,255,255,0.7);" data-i18n="label_kotlin_code">Kotlin Android WebView Code</label>
+                        <textarea id="share-kotlin-text" readonly style="width: 100%; height: 80px; padding: 6px; font-size: 11px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #a5d6ff; resize: none;"></textarea>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Display Panel -->
+        <main class="main-panel">
+            
+            <!-- Tabs Navigation -->
+            <nav class="view-tabs">
+                <button class="tab-btn active" data-tab="map-view" data-i18n="tab_2d_map">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    2D Track Map
+                </button>
+                <button class="tab-btn" data-tab="space-view" data-i18n="tab_3d_globe">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10zM2 12h20"/></svg>
+                    3D Globe View
+                </button>
+                <button class="tab-btn" data-tab="simulator-view" data-i18n="tab_sky_sim">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                    Local Sky Simulator
+                </button>
+            </nav>
+
+            <!-- Tab Contents -->
+            <div class="tab-contents">
+                
+                <!-- Tab 1: 2D Track Map -->
+                <div class="tab-pane active" id="map-view">
+                    <div class="pane-layout">
+                        <div class="maps-container">
+                            <!-- Map Tabs Bar -->
+                            <div class="map-tabs-bar">
+                                <button class="map-tab-toggle active" data-target="static-map-wrapper" data-i18n="option_static">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px; margin-right:6px; display:inline-block; vertical-align:middle;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                    Static Path & Contours
+                                </button>
+                                <button class="map-tab-toggle" data-target="dynamic-map-wrapper" data-i18n="option_dynamic">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px; margin-right:6px; display:inline-block; vertical-align:middle;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                    Dynamic Shadow Simulation
+                                </button>
+                            </div>
+
+                            <!-- Card 1: Static Eclipse Path -->
+                            <div class="map-wrapper glass-panel" id="static-map-wrapper">
+                                <div class="map-card-content">
+                                    <div id="map"></div>
+                                    <div class="map-hover-tooltip" id="static-map-hover-tooltip" style="display: none;"></div>
+                                    <div class="map-overlay-controls">
+                                        <button class="map-btn" id="btn-static-center" title="Center Map to Observer/Peak">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/></svg>
+                                        </button>
+                                        <button class="map-btn" id="btn-static-fullscreen" title="Toggle Full Screen Mode">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                                        </button>
+                                    </div>
+                                    <!-- Eclipse Obscuration Legend Bar -->
+                                    <div class="eclipse-legend-bar">
+                                        <div class="legend-bar-text">
+                                            <span class="legend-bar-title" data-i18n="legend_title">Portion of Sun covered by the Moon (Eclipse obscuration)</span>
+                                            <span class="legend-bar-note" data-i18n="legend_note">The dark areas symbolize night and twilight.</span>
+                                        </div>
+                                        <div class="legend-bar-gradient">
+                                            <div class="legend-gradient-strip"></div>
+                                            <div class="legend-gradient-labels">
+                                                <span>0%</span>
+                                                <span>&gt;0%</span>
+                                                <span>25%</span>
+                                                <span>50%</span>
+                                                <span>75%</span>
+                                                <span>100%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Card 2: Dynamic Shadow Simulation -->
+                            <div class="map-wrapper glass-panel collapsed" id="dynamic-map-wrapper">
+                                <div class="map-card-content">
+                                    <div id="dynamic-map"></div>
+                                    <div class="map-hover-tooltip" id="dynamic-map-hover-tooltip" style="display: none;"></div>
+
+                                    <div class="map-overlay-controls">
+                                        <button class="map-btn" id="btn-dynamic-center" title="Center Map to Shadow Center">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/></svg>
+                                        </button>
+                                        <button class="map-btn" id="btn-dynamic-fullscreen" title="Toggle Full Screen Mode">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                                        </button>
+                                    </div>
+
+                                    <!-- Eclipse Obscuration Legend Bar -->
+                                    <div class="eclipse-legend-bar">
+                                        <div class="legend-bar-text">
+                                            <span class="legend-bar-title" data-i18n="legend_title">Portion of Sun covered by the Moon (Eclipse obscuration)</span>
+                                            <span class="legend-bar-note" data-i18n="legend_note">The dark areas symbolize night and twilight.</span>
+                                        </div>
+                                        <div class="legend-bar-gradient">
+                                            <div class="legend-gradient-strip"></div>
+                                            <div class="legend-gradient-labels">
+                                                <span>0%</span>
+                                                <span>&gt;0%</span>
+                                                <span>25%</span>
+                                                <span>50%</span>
+                                                <span>75%</span>
+                                                <span>100%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="map-time-controls" id="dynamic-time-controls">
+                                        <!-- Control buttons group -->
+                                        <div class="ctrl-buttons-group">
+                                            <button class="btn-ctrl" id="restart-btn" title="Restart to Eclipse Start" data-i18n-title="title_restart">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                                            </button>
+                                            <button class="btn-ctrl" id="prev-btn" title="Step Backward" data-i18n-title="title_step_back">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+                                            </button>
+                                            <button class="btn-ctrl btn-ctrl-play" id="play-btn" title="Play/Pause Animation" data-i18n-title="title_play_pause">
+                                                <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                                <svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="display: none;"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg>
+                                            </button>
+                                            <button class="btn-ctrl" id="next-btn" title="Step Forward" data-i18n-title="title_step_fwd">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+                                            </button>
+                                            <button class="btn-ctrl" id="loop-btn" title="Toggle Loop Mode" data-i18n-title="title_loop">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                                            </button>
+                                        </div>
+
+                                        <!-- Time Slider -->
+                                        <div class="time-slider-wrapper">
+                                            <input type="range" class="time-slider" id="time-slider" min="0" max="100" value="0" step="0.1">
+                                        </div>
+
+                                        <!-- Speed Selector & Time Display -->
+                                        <div class="ctrl-metadata-group">
+                                            <select class="select-speed" id="speed-select" title="Simulation Speed" data-i18n-title="title_speed">
+                                                <option value="1">1x</option>
+                                                <option value="2">2x</option>
+                                                <option value="5" selected>5x</option>
+                                                <option value="10">10x</option>
+                                                <option value="25">25x</option>
+                                            </select>
+                                            <span class="time-display" id="time-display">00:00:00 UTC</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stats-panel glass-panel" id="map-stats">
+                            <div class="stats-section">
+                                <h3 data-i18n="stats_params_title">Eclipse Parameters</h3>
+                                <div class="stats-section-content">
+                                    <div class="telemetry-grid">
+                                        <div class="tel-card">
+                                            <span class="label" data-i18n="stats_label_name">Event Name</span>
+                                            <span class="value" id="val-name">August 12, 2026</span>
+                                        </div>
+                                        <div class="tel-card">
+                                            <span class="label" data-i18n="stats_label_type">Event Type</span>
+                                            <span class="value" id="val-type">Total Solar Eclipse</span>
+                                        </div>
+                                        <div class="tel-card">
+                                            <span class="label" data-i18n="stats_label_peak">Peak Date & Time</span>
+                                            <span class="value" id="val-peak-time">2026-08-12 17:46 UTC</span>
+                                        </div>
+                                        <div class="tel-card">
+                                            <span class="label" data-i18n="stats_label_obs">Obscuration at Observer</span>
+                                            <span class="value" id="val-obs-obscuration">0.00%</span>
+                                        </div>
+                                        <div class="tel-card">
+                                            <span class="label" data-i18n="stats_label_speed">Shadow Speed</span>
+                                            <span class="value" id="val-shadow-speed">-- km/h</span>
+                                        </div>
+                                        <div class="tel-card">
+                                            <span class="label" data-i18n="stats_label_duration">Totality/Max Duration</span>
+                                            <span class="value" id="val-duration">2m 18s</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- NASA Gallery Section Removed -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: 3D Globe View -->
+                <div class="tab-pane" id="space-view">
+                    <div class="pane-layout-3d">
+                        <div class="scene-3d-wrapper glass-panel">
+                            <div id="canvas-container-3d"></div>
+                            <div class="overlay-legend globe-legend">
+                                <div class="legend-item"><span class="color-dot" style="background:#ffe082;"></span>&gt;0% Obscuration</div>
+                                <div class="legend-item"><span class="color-dot" style="background:#ffa726;"></span>25% Obscuration</div>
+                                <div class="legend-item"><span class="color-dot" style="background:#ff7043;"></span>50% Obscuration</div>
+                                <div class="legend-item"><span class="color-dot" style="background:#e53935;"></span>75%+ Obscuration</div>
+                            </div>
+                            <div class="scene-controls-overlay">
+                                <button class="btn btn-secondary btn-sm" id="btn-globe-reset" data-i18n="btn_reset_view">Reset View</button>
+                                <button class="map-btn" id="btn-globe-fullscreen" title="Toggle Full Screen Mode" data-i18n-title="title_fullscreen">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                                </button>
+                            </div>
+
+                            <!-- Globe Playback Controls -->
+                            <div class="globe-time-controls" id="globe-time-controls">
+                                <div class="ctrl-buttons-group">
+                                    <button class="btn-ctrl" id="globe-restart-btn" title="Restart to Eclipse Start" data-i18n-title="title_restart">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                                    </button>
+                                    <button class="btn-ctrl" id="globe-prev-btn" title="Step Backward" data-i18n-title="title_step_back">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+                                    </button>
+                                    <button class="btn-ctrl btn-ctrl-play" id="globe-play-btn" title="Play/Pause Eclipse Animation" data-i18n-title="title_play_pause">
+                                        <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                        <svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="display: none;"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg>
+                                    </button>
+                                    <button class="btn-ctrl" id="globe-next-btn" title="Step Forward" data-i18n-title="title_step_fwd">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+                                    </button>
+                                </div>
+                                <div class="time-slider-wrapper">
+                                    <input type="range" class="time-slider" id="globe-time-slider" min="0" max="100" value="0" step="0.1">
+                                </div>
+                                <div class="ctrl-metadata-group">
+                                    <select class="select-speed" id="globe-speed-select" title="Simulation Speed" data-i18n-title="title_speed">
+                                        <option value="1">1x</option>
+                                        <option value="2">2x</option>
+                                        <option value="5" selected>5x</option>
+                                        <option value="10">10x</option>
+                                        <option value="25">25x</option>
+                                    </select>
+                                    <span class="time-display" id="globe-time-display">00:00:00 UTC</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-sidebar glass-panel">
+                            <div class="stats-section">
+                                <h3 data-i18n="globe_info_title">3D Eclipse Globe</h3>
+                                <div class="stats-section-content">
+                                    <p class="description" data-i18n="globe_info_desc">
+                                        View the eclipse shadow sweeping across the Earth in 3D. The static contours show the cumulative penumbral coverage, and the play button animates the shadow in real-time.
+                                    </p>
+                                    <div class="data-block" style="margin-top: 15px;">
+                                        <div class="stat-row">
+                                            <span data-i18n="globe_label_lat">Shadow Latitude:</span>
+                                            <span class="val" id="val-globe-lat">--°</span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span data-i18n="globe_label_lon">Shadow Longitude:</span>
+                                            <span class="val" id="val-globe-lon">--°</span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span data-i18n="globe_label_obs">Obscuration at Center:</span>
+                                            <span class="val" id="val-globe-obs">--%</span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span data-i18n="globe_label_time">Animation Time:</span>
+                                            <span class="val" id="val-globe-time">--:--:-- UTC</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Local Sky Simulator -->
+                <div class="tab-pane" id="simulator-view">
+                    <div class="pane-layout">
+                        <div class="canvas-wrapper glass-panel">
+                            <div class="canvas-toolbar">
+                                <div class="toolbar-group">
+                                    <span class="toolbar-label" data-i18n="sim_view_mode">View Mode:</span>
+                                    <div class="toggle-buttons">
+                                        <button class="toggle-btn active" id="btn-sim-mode-closeup" title="Telescopic Close-up View">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+                                            <span data-i18n="mode_closeup">Telescope</span>
+                                        </button>
+                                        <button class="toggle-btn" id="btn-sim-mode-dome" title="Sky Dome / Horizon View">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12C2 6.5 6.5 2 12 2s10 4.5 10 10"/><line x1="2" y1="12" x2="22" y2="12"/><circle cx="12" cy="12" r="3"/></svg>
+                                            <span data-i18n="mode_dome">Sky Dome</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="toolbar-group">
+                                    <label class="toolbar-checkbox-label">
+                                        <input type="checkbox" id="chk-sim-grid">
+                                        <span data-i18n="show_grid">Show Grid & Directions</span>
+                                    </label>
+                                    <button class="map-btn" id="btn-sim-fullscreen" title="Toggle Full Screen Mode" data-i18n-title="title_fullscreen" style="margin-left: 10px;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="canvas-container" style="flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; background: #000209; overflow: hidden; position: relative;">
+                                <canvas id="simulator-canvas" width="600" height="450"></canvas>
+                            </div>
+                            <div class="canvas-time-controls" id="sim-time-controls">
+                                <div class="ctrl-buttons-group">
+                                    <button class="btn-ctrl" id="sim-restart-btn" title="Restart to Eclipse Start" data-i18n-title="title_restart">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                                    </button>
+                                    <button class="btn-ctrl" id="sim-prev-btn" title="Step Backward" data-i18n-title="title_step_back">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+                                    </button>
+                                    <button class="btn-ctrl btn-ctrl-play" id="sim-play-btn" title="Play/Pause Animation" data-i18n-title="title_play_pause">
+                                        <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                        <svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="display: none;"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg>
+                                    </button>
+                                    <button class="btn-ctrl" id="sim-next-btn" title="Step Forward" data-i18n-title="title_step_fwd">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+                                    </button>
+                                    <button class="btn-ctrl" id="sim-loop-btn" title="Toggle Loop Mode" data-i18n-title="title_loop">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                                    </button>
+                                </div>
+                                <div class="time-slider-wrapper" style="position: relative; flex: 1; display: flex; align-items: center;">
+                                    <input type="range" class="time-slider" id="sim-time-slider" min="0" max="100" value="50" step="0.1" style="width: 100%;">
+                                    <div class="slider-bookmarks" id="sim-slider-bookmarks" style="position: absolute; left: 8px; right: 8px; top: 0; bottom: 0; pointer-events: none; z-index: 2;"></div>
+                                </div>
+                                <div class="ctrl-metadata-group">
+                                    <select class="select-speed" id="sim-speed-select" title="Simulation Speed" data-i18n-title="title_speed">
+                                        <option value="1">1x</option>
+                                        <option value="2">2x</option>
+                                        <option value="5" selected>5x</option>
+                                        <option value="10">10x</option>
+                                        <option value="25">25x</option>
+                                    </select>
+                                    <span class="time-display" id="sim-time-display">17:46:00 UTC</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-panel glass-panel">
+                            <div class="stats-section">
+                                <h3 data-i18n="sim_info_title">Local Sky Circumstances</h3>
+                                <div class="stats-section-content">
+                                    <p class="description" data-i18n="sim_info_desc">Simulated view of the celestial event from your observer location.</p>
+                                    <div class="data-block" style="margin-top: 15px;">
+                                        <div class="stat-row">
+                                            <span data-i18n="sim_label_alt">Sun Altitude:</span>
+                                            <span class="val" id="val-sun-alt">--°</span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span data-i18n="sim_label_az">Sun Azimuth:</span>
+                                            <span class="val" id="val-sun-az">--°</span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span data-i18n="sim_label_obs">Moon Obscuration:</span>
+                                            <span class="val" id="val-obscuration">0.00%</span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span data-i18n="sim_label_mag">Magnitude:</span>
+                                            <span class="val" id="val-magnitude">0.000</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stats-section" id="sim-event-info-section" style="margin-top: 20px; display: none;">
+                                <h3 data-i18n="sim_event_details">Event Details</h3>
+                                <div class="stats-section-content">
+                                    <div class="glass-panel" style="padding: 12px; border-radius: 6px; background: rgba(18, 93, 255, 0.08); border: 1px solid rgba(18, 93, 255, 0.2); box-shadow: 0 0 10px rgba(18, 93, 255, 0.1);">
+                                        <p id="sim-event-info-desc" style="font-size: 0.82rem; color: #e2e8f0; line-height: 1.4; margin: 0; font-family: 'Outfit', sans-serif;"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="stats-section" style="margin-top: 20px;">
+                                <h3 data-i18n="contact_timings_title">Contact Timings (UTC)</h3>
+                                <div class="stats-section-content">
+                                    <div class="contact-timings" id="contact-timings-list">
+                                        <!-- Dynamically generated list -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Leaflet Map Script -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Three.js and Controls (using r124 global scripts) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r124/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r124/examples/js/controls/OrbitControls.js"></script>
+    <!-- Astronomy Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@latest/astronomy.browser.min.js"></script>
+    <!-- D3 array & contour (for penumbra isolines) -->
+    <script src="https://cdn.jsdelivr.net/npm/d3-array@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-contour@4"></script>
+    <script src="https://unpkg.com/topojson-client@3"></script>
+    <script src="penumbra-contour.js"></script>
+    
+    <!-- Local Module Scripts -->
+    <script src="translations.js"></script>
+    <script src="astronomy-helper.js"></script>
+    <script src="app.js"></script>
+
+    <!-- 100-Year Catalog Modal Pop-up -->
+    <div class="modal-overlay" id="catalog-modal">
+        <div class="modal-content glass-panel animate-fade-in">
+            <div class="modal-header">
+                <h2 data-i18n="modal_catalog_title">NASA 5-Millennium Catalog (-2000 to +3000)</h2>
+                <button class="close-btn" id="btn-close-catalog">&times;</button>
+            </div>
+            <div class="modal-filters">
+                <select id="catalog-century-select" class="catalog-search" style="max-width: 250px;">
+                    <!-- Dynamically populated centuries -->
+                </select>
+                <input type="text" class="catalog-search" id="catalog-search" placeholder="Search by year (e.g. -584, 1999, 2045)..." data-i18n="catalog_search_placeholder">
+                <div class="filter-group">
+                    <button class="filter-btn active" data-cat-filter="all" data-i18n="filter_all">All</button>
+                    <button class="filter-btn" data-cat-filter="solar" data-i18n="filter_solar">Solar</button>
+                    <button class="filter-btn" data-cat-filter="lunar" data-i18n="filter_lunar">Lunar</button>
+                    <button class="filter-btn" data-cat-filter="transit" data-i18n="filter_transit">Transit</button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="catalog-table">
+                    <thead>
+                        <tr>
+                            <th data-i18n="th_date">Date</th>
+                            <th data-i18n="th_type">Event Type</th>
+                            <th data-i18n="th_time">Peak Time (UTC)</th>
+                            <th data-i18n="th_coords">Peak Coordinates</th>
+                            <th data-i18n="th_action">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="catalog-table-body">
+                        <!-- Dynamic calculated entries -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Credits & Attributions Modal Pop-up -->
+    <div class="modal-overlay" id="credits-modal">
+        <div class="modal-content glass-panel animate-fade-in" style="max-width: 760px;">
+            <div class="modal-header">
+                <h2 data-i18n="modal_credits_title">References, Credits & Scientific Attributions</h2>
+                <button class="close-btn" id="btn-close-credits">&times;</button>
+            </div>
+            <div class="credits-body" style="overflow-y: auto; max-height: 65vh; padding-right: 8px; display: flex; flex-direction: column; gap: 16px;">
+                <div class="credits-section" style="border-bottom: 1px solid var(--color-glass-border); padding-bottom: 12px;">
+                    <h3 style="color: #60a5fa; font-size: 14px; font-weight: 700; margin-bottom: 6px;" data-i18n="credits_astronomy_title">1. Astronomical Ephemerides & Calculations</h3>
+                    <p style="font-size: 12.5px; line-height: 1.5; color: rgba(255,255,255,0.85);" data-i18n="credits_astronomy_desc">All high-precision solar, lunar, and planetary transit calculations, Delta-T time corrections, and celestial coordinate transformations are powered by Astronomy Engine.</p>
+                    <div class="citation-box" style="margin-top: 8px; padding: 10px 12px; background: rgba(0,0,0,0.4); border-left: 3px solid #125DFF; border-radius: 4px; font-size: 11.5px; font-family: monospace; color: #93c5fd;" data-i18n="credits_astronomy_citation">Cross, D. (2024). Astronomy Engine: A C# / C++ / JavaScript / Python library for solar system ephemerides. MIT License.</div>
+                </div>
+
+                <div class="credits-section" style="border-bottom: 1px solid var(--color-glass-border); padding-bottom: 12px;">
+                    <h3 style="color: #ffe082; font-size: 14px; font-weight: 700; margin-bottom: 6px;" data-i18n="credits_nasa_title">2. NASA Five Millennium Catalog of Eclipses</h3>
+                    <p style="font-size: 12.5px; line-height: 1.5; color: rgba(255,255,255,0.85);" data-i18n="credits_nasa_desc">Eclipse canonical predictions and century catalog benchmarks derived from the NASA Goddard Space Flight Center 5-Millennium Canon of Solar & Lunar Eclipses.</p>
+                    <div class="citation-box" style="margin-top: 8px; padding: 10px 12px; background: rgba(0,0,0,0.4); border-left: 3px solid #ffc107; border-radius: 4px; font-size: 11.5px; font-family: monospace; color: #fde047;" data-i18n="credits_nasa_citation">Espenak, F., & Meeus, J. (2009). Five Millennium Catalog of Solar Eclipses: -1999 to +3000 (2000 BCE to 3000 CE). NASA Goddard Space Flight Center, NASA TP-2009-214172.</div>
+                </div>
+
+                <div class="credits-section" style="border-bottom: 1px solid var(--color-glass-border); padding-bottom: 12px;">
+                    <h3 style="color: #38bdf8; font-size: 14px; font-weight: 700; margin-bottom: 6px;" data-i18n="credits_maps_title">3. Geographic Mapping & 3D WebGL Engines</h3>
+                    <p style="font-size: 12.5px; line-height: 1.5; color: rgba(255,255,255,0.85);" data-i18n="credits_maps_desc">2D interactive map tiles provided by CartoDB Positron Dark Basemap © OpenStreetMap contributors (ODbL / CC BY 3.0). Interactive 2D mapping engine by Leaflet.js (BSD-2-Clause). 3D Earth Globe rendered using Three.js WebGL (MIT License) with Natural Earth Data & TopoJSON world boundaries (Public Domain / D3.js).</p>
+                </div>
+
+                <div class="credits-section">
+                    <h3 style="color: #4ade80; font-size: 14px; font-weight: 700; margin-bottom: 6px;" data-i18n="credits_esss_title">4. Publisher & Educational Platform</h3>
+                    <p style="font-size: 12.5px; line-height: 1.5; color: rgba(255,255,255,0.85);" data-i18n="credits_esss_desc">Designed and developed for the Ethiopian Space Science Society (ESSS) Science Portal. Features pure mathematical Ethiopian Calendar (JDN 1723856 offset) integration and scientific Amharic localization.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
