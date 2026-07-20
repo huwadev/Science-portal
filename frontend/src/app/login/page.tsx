@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePortalStore } from "@/store/usePortalStore";
@@ -9,7 +9,7 @@ import SentientMeshWrapper from "@/components/sentient/SentientMeshWrapper";
 import { ShieldAlert, Compass, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
@@ -121,5 +121,18 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-4">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Preparing Portal Link...</span>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
