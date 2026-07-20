@@ -8,7 +8,7 @@ const SentientMesh = dynamic(
 );
 
 interface SentientMeshWrapperProps {
-  activeObject?: string;
+  activeObject?: any;
   themeColor?: string;
   intensity?: number;
   complexity?: 'low' | 'medium' | 'high';

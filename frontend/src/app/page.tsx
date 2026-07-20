@@ -331,7 +331,11 @@ export default function Home() {
 
                     <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors flex items-center gap-2">
                       <span>{mod.title}</span>
-                      {mod.is_restricted && <Lock className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" title="Restricted Access" />}
+                      {mod.is_restricted && (
+                        <span title="Restricted Access">
+                          <Lock className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" />
+                        </span>
+                      )}
                     </h3>
 
                     <p className="text-xs text-gray-400 leading-relaxed min-h-[48px]">

@@ -109,7 +109,7 @@ export default function LoginPage() {
                 setError("Google Login failed. Please try again.");
               }}
               useOneTap
-              theme="filled_dark"
+              theme="filled_black"
               shape="pill"
             />
           )}
