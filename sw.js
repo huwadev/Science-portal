@@ -1,5 +1,5 @@
-const CACHE_NAME = 'esss-science-portal-v32';
-const RUNTIME_CACHE = 'esss-science-portal-runtime';
+const CACHE_NAME = 'esss-science-portal-v33';
+const RUNTIME_CACHE = 'esss-science-portal-runtime-v33';
 
 // Assets to pre-cache immediately on service worker install
 const PRECACHE_ASSETS = [
@@ -102,6 +102,37 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
+
+  // Network-First for HTML documents to ensure user changes show up immediately without stale cache delays
+  const isHTML = event.request.mode === 'navigate' || 
+                 (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html'));
+
+  if (isHTML) {
+    event.respondWith(
+      fetch(event.request)
+        .then(networkResponse => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(RUNTIME_CACHE).then(cache => cache.put(event.request, responseToCache));
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          return caches.match(event.request).then(cached => {
+            if (cached) return cached;
+            return new Response(
+              '<div style="text-align:center;padding:50px;font-family:\'Inter\',sans-serif;background:#060814;color:#e8edff;height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;">' +
+              '<h1 style="font-family:\'Outfit\',sans-serif;font-size:2.5rem;margin-bottom:10px;background:linear-gradient(135deg,#5aa6ff,#ffce4d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Connection Offline</h1>' +
+              '<p style="color:#8b97c4;max-width:400px;line-height:1.6;margin-bottom:24px;">You are currently offline.</p>' +
+              '<a href="/" style="color:#e8edff;text-decoration:none;border:1px solid rgba(120,160,255,0.3);background:rgba(120,160,255,0.08);padding:10px 24px;border-radius:8px;font-weight:500;transition:all 0.2s;">Back to Home Portal</a>' +
+              '</div>',
+              { headers: { 'Content-Type': 'text/html' } }
+            );
+          });
+        })
+    );
+    return;
+  }
 
   // Caching filter to prevent bloat: Cache local assets and trusted CDNs
   const shouldCache = url.origin === self.location.origin || 
