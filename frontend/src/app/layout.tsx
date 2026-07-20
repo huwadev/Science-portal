@@ -16,13 +16,35 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+        {/* Inline script to prevent theme flash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var savedTheme = localStorage.getItem('portal_theme');
+                  if (savedTheme === 'light') {
+                    document.documentElement.classList.add('light');
+                  } else if (savedTheme === 'dark') {
+                    document.documentElement.classList.remove('light');
+                  } else {
+                    var systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    if (!systemPrefersDark) {
+                      document.documentElement.classList.add('light');
+                    }
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
       </head>
-      <body className="min-h-screen bg-background text-foreground antialiased relative">
+      <body className="min-h-screen bg-background text-foreground antialiased relative transition-colors duration-200">
         <GoogleAuthProvider>
           {children}
         </GoogleAuthProvider>

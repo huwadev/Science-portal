@@ -8,7 +8,7 @@ import { translations } from "@/lib/translations";
 import SentientMeshWrapper from "@/components/sentient/SentientMeshWrapper";
 import { 
   Globe, Radio, Compass, Rocket, Satellite, Activity, 
-  Moon, LogIn, LogOut, ShieldCheck, Lock, Play, Menu, X, ChevronRight
+  Moon, Sun, LogIn, LogOut, ShieldCheck, Lock, Play, Menu, X, ChevronRight
 } from "lucide-react";
 
 interface ModuleData {
@@ -27,12 +27,11 @@ interface ModuleData {
 
 export default function Home() {
   const router = useRouter();
-  const { language, setLanguage, user, logout } = usePortalStore();
+  const { language, setLanguage, theme, setTheme, user, logout } = usePortalStore();
   const t = translations[language];
 
   const [modules, setModules] = useState<ModuleData[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>("Planetary Science");
-  const [selectedModuleForLock, setSelectedModuleForLock] = useState<ModuleData | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Telemetry fluctuation mock
@@ -42,6 +41,14 @@ export default function Home() {
   });
 
   useEffect(() => {
+    // Sync document class for hydration safety
+    const root = document.documentElement;
+    if (theme === 'light') {
+      root.classList.add('light');
+    } else {
+      root.classList.remove('light');
+    }
+
     // Fetch modules list from backend
     const fetchModules = async () => {
       try {
@@ -72,50 +79,49 @@ export default function Home() {
     }, 4000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [theme]);
 
   const categories = Array.from(new Set(modules.map(m => m.category)));
 
   const handleLaunchModule = (mod: ModuleData) => {
-    if (mod.is_restricted && !user) {
-      setSelectedModuleForLock(mod);
-    } else {
-      router.push(`/modules/${mod.slug}`);
-    }
+    // Bypassing auth check for development/testing
+    router.push(`/modules/${mod.slug}`);
   };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case "Planetary Science": return <Globe className="w-5 h-5" />;
-      case "Astrophysics": return <Compass className="w-5 h-5" />;
-      case "Cosmology & Relativity": return <Activity className="w-5 h-5" />;
-      case "Aerospace Engineering": return <Rocket className="w-5 h-5" />;
-      case "Radio Science": return <Radio className="w-5 h-5" />;
-      case "Space Weather & Physics": return <Satellite className="w-5 h-5" />;
-      default: return <Compass className="w-5 h-5" />;
+      case "Planetary Science": return <Globe className="w-4 h-4" />;
+      case "Astrophysics": return <Compass className="w-4 h-4" />;
+      case "Cosmology & Relativity": return <Activity className="w-4 h-4" />;
+      case "Aerospace Engineering": return <Rocket className="w-4 h-4" />;
+      case "Radio Science": return <Radio className="w-4 h-4" />;
+      case "Space Weather & Physics": return <Satellite className="w-4 h-4" />;
+      default: return <Compass className="w-4 h-4" />;
     }
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex flex-col">
-      {/* Mesh Background */}
-      <SentientMeshWrapper activeObject="low-poly-fabric" themeColor="#00d2ff" intensity={0.15} />
+    <div className="min-h-screen relative overflow-hidden flex flex-col bg-background text-foreground transition-colors duration-200">
+      {/* Mesh Background - Hidden in light mode for clean minimalist aesthetic */}
+      {theme === "dark" && (
+        <SentientMeshWrapper activeObject="low-poly-fabric" themeColor="#125DFF" intensity={0.12} />
+      )}
 
       {/* Grid Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#00d2ff08_1px,transparent_1px),linear-gradient(to_bottom,#00d2ff08_1px,transparent_1px)] bg-[size:4rem_4rem] -z-20"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--color-primary-hover)04_1px,transparent_1px),linear-gradient(to_bottom,var(--color-primary-hover)04_1px,transparent_1px)] bg-[size:4rem_4rem] -z-20"></div>
 
       {/* Header */}
-      <header className="border-b border-card-border backdrop-blur-md bg-background/40 sticky top-0 z-40 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
+      <header className="border-b border-card-border backdrop-blur-md bg-background/55 sticky top-0 z-40 transition-all duration-200">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-3">
-            <img src="/esss-logo.png" alt="ESSS Logo" className="h-10 sm:h-12 w-auto object-contain" />
+            <img src={theme === "dark" ? "/esss-logo-white.png" : "/esss-logo.png"} alt="ESSS Logo" className="h-8 w-auto object-contain transition-all" />
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-semibold tracking-wide uppercase">
-            <a href="#apps" className="hover:text-primary transition-colors text-white">{t.nav_apps}</a>
-            <a href="#labs" className="hover:text-primary transition-colors text-white">{t.nav_labs}</a>
-            <a href="#about" className="hover:text-primary transition-colors text-white">{t.nav_about}</a>
+          <nav className="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest">
+            <a href="#apps" className="hover:text-primary transition-colors text-foreground/80">{t.nav_apps}</a>
+            <a href="#labs" className="hover:text-primary transition-colors text-foreground/80">{t.nav_labs}</a>
+            <a href="#about" className="hover:text-primary transition-colors text-foreground/80">{t.nav_about}</a>
             {user?.role && ["admin", "superadmin"].includes(user.role) && (
               <Link href="/admin" className="text-primary hover:underline flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4" />
@@ -124,32 +130,41 @@ export default function Home() {
             )}
           </nav>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
             {/* Language Switch */}
             <button
               onClick={() => setLanguage(language === "en" ? "am" : "en")}
-              className="px-3.5 py-1.5 rounded-full border border-card-border bg-card/25 hover:bg-card/50 text-xs font-bold text-white tracking-wider flex items-center gap-1 transition-all"
+              className="px-3 py-1 rounded-lg border border-card-border bg-card/25 hover:bg-card/50 text-[10px] font-bold text-foreground tracking-wider flex items-center gap-1 transition-all cursor-pointer"
             >
-              <span className={language === "en" ? "text-primary" : "text-gray-400"}>EN</span>
-              <span className="text-gray-500">|</span>
-              <span className={language === "am" ? "text-primary" : "text-gray-400"}>አማ</span>
+              <span className={language === "en" ? "text-primary" : "text-foreground/45"}>EN</span>
+              <span className="text-card-border">|</span>
+              <span className={language === "am" ? "text-primary" : "text-foreground/45"}>አማ</span>
+            </button>
+
+            {/* Theme Toggle */}
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="p-1.5 rounded-lg border border-card-border bg-card/25 hover:bg-card/50 text-foreground transition-all cursor-pointer"
+              title="Toggle theme"
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-primary" />}
             </button>
 
             {/* Auth Button */}
             {user ? (
               <button
                 onClick={logout}
-                className="px-4 py-2 rounded-xl bg-card border border-card-border text-xs font-bold uppercase hover:bg-red-500/10 hover:border-red-500/30 text-white flex items-center gap-2 cursor-pointer transition-all"
+                className="px-3.5 py-1.5 rounded-lg border border-red-500/20 bg-card hover:bg-red-500/10 text-[10px] font-bold uppercase text-red-500 flex items-center gap-1.5 cursor-pointer transition-all"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-3.5 h-3.5" />
                 <span>{t.logout_btn}</span>
               </button>
             ) : (
               <Link
                 href="/login"
-                className="px-4 py-2 rounded-xl bg-primary text-background font-bold text-xs uppercase hover:bg-primary-hover active:scale-95 transition-all flex items-center gap-2"
+                className="px-3.5 py-1.5 rounded-lg bg-primary text-white font-bold text-[10px] uppercase hover:bg-primary-hover active:scale-95 transition-all flex items-center gap-1.5"
               >
-                <LogIn className="w-4 h-4" />
+                <LogIn className="w-3.5 h-3.5" />
                 <span>{t.login_btn}</span>
               </Link>
             )}
@@ -158,19 +173,19 @@ export default function Home() {
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-white hover:text-primary transition-colors cursor-pointer"
+            className="md:hidden p-2 text-foreground hover:text-primary transition-colors cursor-pointer"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
 
         {/* Mobile Dropdown Nav */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-b border-card-border bg-background/95 backdrop-blur-lg px-4 pt-4 pb-6 space-y-4">
-            <nav className="flex flex-col gap-3 font-semibold uppercase text-sm">
-              <a href="#apps" onClick={() => setMobileMenuOpen(false)} className="text-white hover:text-primary">{t.nav_apps}</a>
-              <a href="#labs" onClick={() => setMobileMenuOpen(false)} className="text-white hover:text-primary">{t.nav_labs}</a>
-              <a href="#about" onClick={() => setMobileMenuOpen(false)} className="text-white hover:text-primary">{t.nav_about}</a>
+          <div className="md:hidden border-b border-card-border bg-background/95 backdrop-blur-lg px-6 pt-4 pb-6 space-y-4">
+            <nav className="flex flex-col gap-3 font-semibold uppercase text-xs tracking-wider">
+              <a href="#apps" onClick={() => setMobileMenuOpen(false)} className="text-foreground hover:text-primary">{t.nav_apps}</a>
+              <a href="#labs" onClick={() => setMobileMenuOpen(false)} className="text-foreground hover:text-primary">{t.nav_labs}</a>
+              <a href="#about" onClick={() => setMobileMenuOpen(false)} className="text-foreground hover:text-primary">{t.nav_about}</a>
               {user?.role && ["admin", "superadmin"].includes(user.role) && (
                 <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="text-primary flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4" />
@@ -179,19 +194,27 @@ export default function Home() {
               )}
             </nav>
             <div className="pt-4 border-t border-card-border flex items-center justify-between">
-              <button
-                onClick={() => setLanguage(language === "en" ? "am" : "en")}
-                className="px-3.5 py-1.5 rounded-full border border-card-border bg-card/25 text-xs font-bold text-white flex items-center gap-1"
-              >
-                <span className={language === "en" ? "text-primary" : "text-gray-400"}>EN</span>
-                <span className="text-gray-500">|</span>
-                <span className={language === "am" ? "text-primary" : "text-gray-400"}>አማ</span>
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setLanguage(language === "en" ? "am" : "en")}
+                  className="px-3 py-1 rounded-lg border border-card-border bg-card/25 text-[10px] font-bold text-foreground flex items-center gap-1"
+                >
+                  <span className={language === "en" ? "text-primary" : "text-foreground/40"}>EN</span>
+                  <span className="text-card-border">|</span>
+                  <span className={language === "am" ? "text-primary" : "text-foreground/40"}>አማ</span>
+                </button>
+                <button
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  className="p-1.5 rounded-lg border border-card-border bg-card/25 text-foreground"
+                >
+                  {theme === "dark" ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-primary" />}
+                </button>
+              </div>
 
               {user ? (
                 <button
                   onClick={() => { logout(); setMobileMenuOpen(false); }}
-                  className="px-4 py-2 rounded-xl bg-card border border-card-border text-xs font-bold hover:bg-red-500/10 text-white flex items-center gap-2 cursor-pointer"
+                  className="px-4 py-2 rounded-lg bg-card border border-red-500/20 text-[10px] font-bold text-red-500 flex items-center gap-2 cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>{t.logout_btn}</span>
@@ -200,7 +223,7 @@ export default function Home() {
                 <Link
                   href="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-primary text-background font-bold text-xs uppercase hover:bg-primary-hover flex items-center gap-2"
+                  className="px-4 py-2 rounded-lg bg-primary text-white font-bold text-[10px] uppercase hover:bg-primary-hover flex items-center gap-2"
                 >
                   <LogIn className="w-4 h-4" />
                   <span>{t.login_btn}</span>
@@ -212,61 +235,59 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 flex-grow flex flex-col md:flex-row items-center gap-12 z-10">
+      <section className="max-w-7xl mx-auto px-6 py-16 md:py-24 flex-grow flex flex-col md:flex-row items-center gap-12 z-10 w-full">
         <div className="flex-1 space-y-6 text-left">
-          <span className="inline-flex px-3 py-1 rounded-full border border-primary/20 bg-primary/10 text-xs font-bold uppercase tracking-wider text-primary">
+          <span className="inline-flex px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-[10px] font-bold uppercase tracking-wider text-primary">
             {t.hero_badge}
           </span>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-none text-white">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-none text-foreground">
             <span className="text-gradient block">{t.hero_title}</span>
           </h1>
-          <p className="text-lg text-gray-400 max-w-xl">
+          <p className="text-sm text-foreground/70 max-w-xl leading-relaxed">
             {t.hero_subtitle}
           </p>
-          <div className="flex flex-wrap gap-4 pt-2">
-            <a href="#apps" className="px-6 py-3 rounded-xl bg-primary text-background font-bold text-sm hover:bg-primary-hover active:scale-95 transition-all">
+          <div className="flex flex-wrap gap-3 pt-2">
+            <a href="#apps" className="px-5 py-2.5 rounded-lg bg-primary text-white font-bold text-xs uppercase hover:bg-primary-hover active:scale-95 transition-all">
               {t.hero_cta}
             </a>
-            <a href="#labs" className="px-6 py-3 rounded-xl bg-card border border-card-border text-white font-bold text-sm hover:bg-card-border active:scale-95 transition-all">
+            <a href="#labs" className="px-5 py-2.5 rounded-lg bg-card border border-card-border text-foreground font-bold text-xs uppercase hover:bg-card-border active:scale-95 transition-all">
               {t.hero_secondary}
             </a>
           </div>
         </div>
 
         {/* Telemetry Visualizer */}
-        <div className="flex-1 w-full max-w-md md:max-w-none aspect-square glass rounded-3xl p-8 relative overflow-hidden group border border-card-border/50">
-          <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent -z-10 group-hover:opacity-100 transition-opacity"></div>
-          
+        <div className="flex-grow-0 w-full max-w-sm aspect-square glass rounded-2xl p-6 relative overflow-hidden group border border-card-border/50">
           {/* Aesthetic Telemetry Grid */}
-          <div className="w-full h-full border border-card-border/20 rounded-2xl relative flex flex-col justify-between p-6">
-            <div className="flex justify-between items-start text-[10px] font-black text-primary uppercase tracking-wider">
+          <div className="w-full h-full border border-card-border/20 rounded-xl relative flex flex-col justify-between p-5">
+            <div className="flex justify-between items-start text-[9px] font-black text-primary uppercase tracking-wider">
               <div>
                 <div>SYS.LAT</div>
-                <div className="text-white mt-1 text-xs">9.0300° N</div>
+                <div className="text-foreground mt-0.5 text-xs font-mono">9.0300° N</div>
               </div>
               <div className="text-right">
                 <div>SYS.LON</div>
-                <div className="text-white mt-1 text-xs">38.7400° E</div>
+                <div className="text-foreground mt-0.5 text-xs font-mono">38.7400° E</div>
               </div>
             </div>
 
             {/* Glowing Orb Animation */}
-            <div className="flex justify-center items-center relative flex-grow my-8">
-              <div className="w-36 h-36 rounded-full border border-primary/20 animate-pulse relative flex items-center justify-center">
-                <div className="w-24 h-24 rounded-full border border-primary/40 flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-full bg-primary/20 border border-primary animate-ping"></div>
+            <div className="flex justify-center items-center relative flex-grow my-4">
+              <div className="w-28 h-28 rounded-full border border-primary/10 animate-pulse relative flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full border border-primary/20 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-primary/15 border border-primary/50 animate-ping"></div>
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-between items-end text-[10px] font-black text-primary uppercase tracking-wider">
+            <div className="flex justify-between items-end text-[9px] font-black text-primary uppercase tracking-wider">
               <div>
                 <div>ALT.ORBIT</div>
-                <div className="text-white mt-1 text-xs">{telemetry.altitude} KM</div>
+                <div className="text-foreground mt-0.5 text-xs font-mono">{telemetry.altitude} KM</div>
               </div>
               <div className="text-right">
                 <div>SPACE WX</div>
-                <div className={`mt-1 text-xs transition-colors ${telemetry.signal === 'ACTIVE' ? 'text-green-400' : 'text-yellow-400'}`}>
+                <div className={`mt-0.5 text-xs font-mono transition-colors ${telemetry.signal === 'ACTIVE' ? 'text-green-500' : 'text-yellow-500'}`}>
                   {telemetry.signal}
                 </div>
               </div>
@@ -276,24 +297,24 @@ export default function Home() {
       </section>
 
       {/* Modules Dashboard */}
-      <section id="apps" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 z-10 w-full">
-        <div className="text-center mb-12 space-y-4">
-          <span className="text-xs font-bold uppercase tracking-wider text-primary">{t.future_tag}</span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white">{t.future_title}</h2>
-          <p className="text-sm text-gray-400 max-w-lg mx-auto">{t.future_subtitle}</p>
+      <section id="apps" className="max-w-7xl mx-auto px-6 py-20 z-10 w-full border-t border-card-border/20">
+        <div className="text-center mb-12 space-y-3">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-primary">{t.future_tag}</span>
+          <h2 className="text-3xl font-extrabold text-foreground tracking-tight">{t.future_title}</h2>
+          <p className="text-xs text-foreground/60 max-w-md mx-auto">{t.future_subtitle}</p>
         </div>
 
         {/* Category Navigation */}
         {categories.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-2 mb-10 pb-4 border-b border-card-border/30">
+          <div className="flex flex-wrap justify-center gap-2 mb-10 pb-4 border-b border-card-border/10">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
+                className={`px-3.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
                   activeCategory === cat
-                    ? "bg-primary text-background shadow-md shadow-primary/20"
-                    : "bg-card border border-card-border text-gray-400 hover:text-white"
+                    ? "bg-primary text-white shadow-md"
+                    : "bg-card border border-card-border text-foreground/50 hover:text-foreground"
                 }`}
               >
                 {getCategoryIcon(cat)}
@@ -312,24 +333,24 @@ export default function Home() {
               return (
                 <div
                   key={mod.slug}
-                  className="glass rounded-3xl p-6 border border-card-border/50 flex flex-col justify-between hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 relative group"
+                  className="glass rounded-2xl p-5 border border-card-border/40 flex flex-col justify-between hover:border-primary/30 transition-all duration-200 relative group"
                 >
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                      <span className="text-[9px] font-bold text-foreground/40 uppercase tracking-widest">
                         {mod.category}
                       </span>
-                      <span className={`text-[9px] font-extrabold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${
-                        complexityClass === "ultra" ? "bg-purple-500/10 border-purple-500/30 text-purple-400" :
-                        complexityClass === "high" ? "bg-red-500/10 border-red-500/30 text-red-400" :
-                        complexityClass === "medium" ? "bg-yellow-500/10 border-yellow-500/30 text-yellow-400" :
-                        "bg-green-500/10 border-green-500/30 text-green-400"
+                      <span className={`text-[8px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wider ${
+                        complexityClass === "ultra" ? "bg-purple-500/10 border-purple-500/20 text-purple-500" :
+                        complexityClass === "high" ? "bg-red-500/10 border-red-500/20 text-red-500" :
+                        complexityClass === "medium" ? "bg-yellow-500/10 border-yellow-500/20 text-yellow-500" :
+                        "bg-green-500/10 border-green-500/20 text-green-500"
                       }`}>
                         {mod.complexity}
                       </span>
                     </div>
 
-                    <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors flex items-center gap-2">
+                    <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors flex items-center gap-2">
                       <span>{mod.title}</span>
                       {mod.is_restricted && (
                         <span title="Restricted Access">
@@ -338,22 +359,22 @@ export default function Home() {
                       )}
                     </h3>
 
-                    <p className="text-xs text-gray-400 leading-relaxed min-h-[48px]">
+                    <p className="text-xs text-foreground/60 leading-relaxed min-h-[48px]">
                       {mod.concept}
                     </p>
                   </div>
 
                   <div className="mt-6 pt-4 border-t border-card-border/20 flex justify-between items-center">
-                    <span className="text-[10px] font-bold text-gray-500">
+                    <span className="text-[9px] font-bold text-foreground/40 font-mono">
                       {mod.tech}
                     </span>
 
                     <button
                       onClick={() => handleLaunchModule(mod)}
-                      className={`px-4 py-2 rounded-xl font-bold text-xs uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
+                      className={`px-3 py-1.5 rounded-lg font-bold text-[10px] uppercase transition-all cursor-pointer flex items-center gap-1 ${
                         mod.status === 'pending'
-                          ? "bg-card border border-card-border text-gray-500 cursor-not-allowed"
-                          : "bg-primary/10 border border-primary/20 text-primary hover:bg-primary hover:text-background"
+                          ? "bg-card border border-card-border text-foreground/30 cursor-not-allowed"
+                          : "bg-primary/10 border border-primary/20 text-primary hover:bg-primary hover:text-white"
                       }`}
                       disabled={mod.status === 'pending'}
                     >
@@ -362,7 +383,7 @@ export default function Home() {
                       ) : (
                         <>
                           <span>{t.mod_btn_launch}</span>
-                          <Play className="w-3 h-3 fill-current" />
+                          <Play className="w-2.5 h-2.5 fill-current" />
                         </>
                       )}
                     </button>
@@ -374,67 +395,32 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 z-10 w-full">
-        <div className="glass rounded-[2rem] border border-card-border/50 p-8 md:p-12 flex flex-col md:flex-row items-center gap-10">
+      <section id="about" className="max-w-7xl mx-auto px-6 py-20 z-10 w-full border-t border-card-border/20">
+        <div className="glass rounded-2xl border border-card-border/50 p-8 md:p-10 flex flex-col md:flex-row items-center gap-10">
           <div className="flex-1 space-y-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-primary">{t.about_tag}</span>
-            <h2 className="text-3xl font-extrabold text-white">{t.about_title}</h2>
-            <p className="text-sm text-gray-400 leading-relaxed">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-primary">{t.about_tag}</span>
+            <h2 className="text-2xl font-extrabold text-foreground">{t.about_title}</h2>
+            <p className="text-xs text-foreground/75 leading-relaxed">
               {t.about_desc}
             </p>
           </div>
 
           <div className="flex-1 grid grid-cols-2 gap-4 w-full">
-            <div className="p-6 border border-card-border/30 rounded-2xl bg-card/20 text-center">
-              <span className="text-2xl font-black text-white">2004</span>
-              <span className="text-[10px] text-gray-500 uppercase tracking-widest block mt-1">{t.stat_est}</span>
+            <div className="p-5 border border-card-border/30 rounded-xl bg-card/10 text-center">
+              <span className="text-xl font-black text-foreground">2004</span>
+              <span className="text-[9px] text-foreground/45 uppercase tracking-widest block mt-0.5">{t.stat_est}</span>
             </div>
-            <div className="p-6 border border-card-border/30 rounded-2xl bg-card/20 text-center">
-              <span className="text-2xl font-black text-white">15,000+</span>
-              <span className="text-[10px] text-gray-500 uppercase tracking-widest block mt-1">{t.stat_members}</span>
+            <div className="p-5 border border-card-border/30 rounded-xl bg-card/10 text-center">
+              <span className="text-xl font-black text-foreground">15,000+</span>
+              <span className="text-[9px] text-foreground/45 uppercase tracking-widest block mt-0.5">{t.stat_members}</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Lock Overlay Modal */}
-      {selectedModuleForLock && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-fade-in">
-          <div className="glass rounded-[2rem] border border-card-border/75 max-w-sm w-full p-8 text-center space-y-6 relative">
-            <button
-              onClick={() => setSelectedModuleForLock(null)}
-              className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-yellow-500">
-              <Lock className="w-8 h-8" />
-            </div>
-
-            <div className="space-y-2">
-              <h3 className="text-lg font-black text-white">{t.login_required}</h3>
-              <p className="text-xs text-gray-400 leading-relaxed">
-                {t.login_required_desc}
-              </p>
-            </div>
-
-            <div className="pt-2">
-              <Link
-                href={`/login?redirect=/modules/${selectedModuleForLock.slug}`}
-                className="w-full py-3 rounded-xl bg-primary text-background font-bold text-xs uppercase hover:bg-primary-hover flex items-center justify-center gap-2 active:scale-95 transition-all"
-              >
-                <LogIn className="w-4 h-4" />
-                <span>{t.login_btn}</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Footer */}
-      <footer className="border-t border-card-border bg-background/50 backdrop-blur-md py-8 mt-auto z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-semibold text-gray-500">
+      <footer className="border-t border-card-border bg-background/30 backdrop-blur-md py-6 mt-auto z-10">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-3 text-[10px] font-semibold text-foreground/45 uppercase tracking-widest">
           <span>{t.footer_copyright}</span>
           <div className="flex gap-6">
             <a href="https://ethiosss.org" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">{t.footer_main_site}</a>

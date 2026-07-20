@@ -11,6 +11,8 @@ interface User {
 interface PortalState {
   language: 'en' | 'am';
   setLanguage: (lang: 'en' | 'am') => void;
+  theme: 'dark' | 'light';
+  setTheme: (theme: 'dark' | 'light') => void;
   user: User | null;
   token: string | null;
   setUser: (user: User | null) => void;
@@ -26,6 +28,19 @@ export const usePortalStore = create<PortalState>((set) => {
       return (saved === 'am' || saved === 'en') ? saved : 'en';
     }
     return 'en';
+  };
+
+  const getInitialTheme = (): 'dark' | 'light' => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('portal_theme');
+      if (saved === 'light' || saved === 'dark') {
+        return saved;
+      }
+      // System default fallback
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return systemPrefersDark ? 'dark' : 'light';
+    }
+    return 'dark';
   };
 
   const getInitialToken = (): string | null => {
@@ -54,6 +69,19 @@ export const usePortalStore = create<PortalState>((set) => {
         localStorage.setItem('portal_lang', lang);
       }
       set({ language: lang });
+    },
+    theme: getInitialTheme(),
+    setTheme: (theme) => {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('portal_theme', theme);
+        const root = document.documentElement;
+        if (theme === 'light') {
+          root.classList.add('light');
+        } else {
+          root.classList.remove('light');
+        }
+      }
+      set({ theme });
     },
     user: getInitialUser(),
     token: getInitialToken(),

@@ -16,17 +16,33 @@
 
 @layer base {
   :root {
-    --background: #060814;
-    --foreground: #fafafa;
-    --primary-color: #00d2ff;
-    --primary-hover-color: #00a8cc;
-    --secondary-color: #0c102b;
-    --accent-color: #a5f3fc;
-    --card-bg: rgba(10, 12, 30, 0.8);
-    --card-border: rgba(0, 210, 255, 0.15);
+    /* Minimalist Dark Mode */
+    --background: #05070f;
+    --foreground: #FFFFFF;
+    --primary-color: #125DFF;        /* Cosmic Blue Base */
+    --primary-hover-color: #004de6;
+    --secondary-color: #021034;      /* Cosmic Blue Tertiary */
+    --accent-color: #DEEBFF;         /* Cosmic Blue Secondary */
+    --card-bg: rgba(2, 16, 52, 0.25);
+    --card-border: rgba(18, 93, 255, 0.12);
     
-    --gradient-start: #00d2ff;
-    --gradient-end: #6366f1;
+    --gradient-start: #125DFF;
+    --gradient-end: #DEEBFF;
+  }
+
+  :root.light {
+    /* Minimalist Light Mode */
+    --background: #FFFFFF;
+    --foreground: #1c1c1c;
+    --primary-color: #125DFF;        /* Cosmic Blue Base */
+    --primary-hover-color: #004de6;
+    --secondary-color: #DEEBFF;      /* Cosmic Blue Secondary */
+    --accent-color: #3E3E3E;         /* Neutral Tertiary */
+    --card-bg: rgba(222, 235, 255, 0.15);
+    --card-border: rgba(18, 93, 255, 0.1);
+    
+    --gradient-start: #125DFF;
+    --gradient-end: #3E3E3E;
   }
 
   body {
@@ -38,21 +54,22 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   }
 
   ::selection {
     background-color: var(--primary-color);
-    color: #000000;
+    color: #FFFFFF;
   }
 }
 
 @layer utilities {
   .glass {
     background: var(--color-card);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--color-card-border);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
   }
   
   .text-gradient {
