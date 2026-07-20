@@ -150,8 +150,8 @@ export default function Home() {
               {theme === "dark" ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-primary" />}
             </button>
 
-            {/* Auth Button */}
-            {user ? (
+            {/* Auth Button (Disabled for testing) */}
+            {user && (
               <button
                 onClick={logout}
                 className="px-3.5 py-1.5 rounded-lg border border-red-500/20 bg-card hover:bg-red-500/10 text-[10px] font-bold uppercase text-red-500 flex items-center gap-1.5 cursor-pointer transition-all"
@@ -159,14 +159,6 @@ export default function Home() {
                 <LogOut className="w-3.5 h-3.5" />
                 <span>{t.logout_btn}</span>
               </button>
-            ) : (
-              <Link
-                href="/login"
-                className="px-3.5 py-1.5 rounded-lg bg-primary text-white font-bold text-[10px] uppercase hover:bg-primary-hover active:scale-95 transition-all flex items-center gap-1.5"
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                <span>{t.login_btn}</span>
-              </Link>
             )}
           </div>
 
@@ -211,7 +203,7 @@ export default function Home() {
                 </button>
               </div>
 
-              {user ? (
+              {user && (
                 <button
                   onClick={() => { logout(); setMobileMenuOpen(false); }}
                   className="px-4 py-2 rounded-lg bg-card border border-red-500/20 text-[10px] font-bold text-red-500 flex items-center gap-2 cursor-pointer"
@@ -219,15 +211,6 @@ export default function Home() {
                   <LogOut className="w-4 h-4" />
                   <span>{t.logout_btn}</span>
                 </button>
-              ) : (
-                <Link
-                  href="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-2 rounded-lg bg-primary text-white font-bold text-[10px] uppercase hover:bg-primary-hover flex items-center gap-2"
-                >
-                  <LogIn className="w-4 h-4" />
-                  <span>{t.login_btn}</span>
-                </Link>
               )}
             </div>
           </div>
@@ -352,11 +335,6 @@ export default function Home() {
 
                     <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors flex items-center gap-2">
                       <span>{mod.title}</span>
-                      {mod.is_restricted && (
-                        <span title="Restricted Access">
-                          <Lock className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" />
-                        </span>
-                      )}
                     </h3>
 
                     <p className="text-xs text-foreground/60 leading-relaxed min-h-[48px]">
