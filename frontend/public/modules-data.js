@@ -357,10 +357,3 @@ function renderModuleDashboard() {
 
 // Expose for Next.js Script onLoad callback
 window.renderModuleDashboard = renderModuleDashboard;
-
-// Auto-run when loaded normally (non-Next.js / standalone)
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', renderModuleDashboard);
-} else {
-    renderModuleDashboard();
-}

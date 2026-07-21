@@ -876,10 +876,3 @@ function initApp() {
 
 // Expose for Next.js Script onLoad callback
 window.initApp = initApp;
-
-// Auto-run when loaded normally (non-Next.js / standalone)
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initApp);
-} else {
-    initApp();
-}
