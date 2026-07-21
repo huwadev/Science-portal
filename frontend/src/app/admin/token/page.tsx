@@ -46,7 +46,7 @@ export default function AdminTokenCallbackPage() {
       window.history.replaceState(null, "", window.location.pathname);
 
       try {
-        const res = await fetch("/api/admin/login", {
+        const res = await fetch("/api/v1/admin/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ access_token: accessToken }),
@@ -93,7 +93,7 @@ export default function AdminTokenCallbackPage() {
     setError(null);
 
     try {
-      const res = await fetch("/api/admin/login/verify-2fa", {
+      const res = await fetch("/api/v1/admin/login/verify-2fa", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

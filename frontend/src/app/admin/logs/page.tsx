@@ -41,7 +41,7 @@ export default function AdminLogsPage() {
     setError(null);
     try {
       const token = localStorage.getItem("admin_api_token");
-      let url = `/api/admin/logs?page=${currentPage}`;
+      let url = `/api/v1/admin/logs?page=${currentPage}`;
       if (eventFilter) url += `&event=${encodeURIComponent(eventFilter)}`;
       if (emailFilter) url += `&email=${encodeURIComponent(emailFilter)}`;
 

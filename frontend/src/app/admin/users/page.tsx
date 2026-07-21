@@ -42,7 +42,7 @@ export default function AdminUsersPage() {
     setError(null);
     try {
       const token = localStorage.getItem("admin_api_token");
-      const res = await fetch("/api/admin/users", {
+      const res = await fetch("/api/v1/admin/users", {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Accept": "application/json"
@@ -88,7 +88,7 @@ export default function AdminUsersPage() {
       const id = editingUser.id || editingUser._id;
       const token = localStorage.getItem("admin_api_token");
 
-      const res = await fetch(`/api/admin/users/${id}`, {
+      const res = await fetch(`/api/v1/admin/users/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -121,7 +121,7 @@ export default function AdminUsersPage() {
       const id = user.id || user._id;
       const token = localStorage.getItem("admin_api_token");
 
-      const res = await fetch(`/api/admin/users/${id}`, {
+      const res = await fetch(`/api/v1/admin/users/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

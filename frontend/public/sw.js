@@ -1,5 +1,5 @@
-const CACHE_NAME = 'esss-science-portal-v34';
-const RUNTIME_CACHE = 'esss-science-portal-runtime-v34';
+const CACHE_NAME = 'esss-science-portal-v35';
+const RUNTIME_CACHE = 'esss-science-portal-runtime-v35';
 
 // Assets to pre-cache immediately on service worker install
 const PRECACHE_ASSETS = [
@@ -103,6 +103,16 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(event.request.url);
 
+  // Bypass Service Worker for Next.js engine files, HMR, API calls, and Next routes
+  if (
+    url.pathname.startsWith('/_next') ||
+    url.pathname.startsWith('/api') ||
+    url.pathname.includes('webpack-hmr') ||
+    url.pathname.includes('turbopack')
+  ) {
+    return;
+  }
+
   // Network-First for HTML documents to ensure user changes show up immediately without stale cache delays
   const isHTML = event.request.mode === 'navigate' || 
                  (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html'));
@@ -130,6 +140,22 @@ self.addEventListener('fetch', event => {
             );
           });
         })
+    );
+    return;
+  }
+
+  // Network-First strategy for local CSS & JS files to ensure latest styles load instantly
+  if (url.origin === self.location.origin && (url.pathname.endsWith('.css') || url.pathname.endsWith('.js'))) {
+    event.respondWith(
+      fetch(event.request)
+        .then(networkResponse => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(RUNTIME_CACHE).then(cache => cache.put(event.request, responseToCache));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request))
     );
     return;
   }

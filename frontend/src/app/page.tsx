@@ -106,22 +106,6 @@ export default function Home() {
 
   return (
     <>
-      <script dangerouslySetInnerHTML={{ __html: `
-        document.addEventListener("click", function(e) {
-          var target = e.target;
-          var link = target.closest("a");
-          if (link) {
-            var href = link.getAttribute("href");
-            if (href && (href.indexOf("modules/") !== -1 || href.indexOf("index.html") !== -1)) {
-              e.preventDefault();
-              var match = href.match(/modules\\/([^/]+)/);
-              if (match) {
-                window.location.href = '/modules/' + match[1];
-              }
-            }
-          }
-        });
-      `}} />
       {/* 1. Starry background decoration */}
       <canvas id="space-canvas"></canvas>
       <div className="stars-container" aria-hidden="true">

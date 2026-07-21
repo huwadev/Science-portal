@@ -47,7 +47,7 @@ export default function AdminDashboardOverview() {
     setError(null);
     try {
       const token = localStorage.getItem("admin_api_token");
-      const res = await fetch("/api/admin/stats", {
+      const res = await fetch("/api/v1/admin/stats", {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Accept": "application/json"
