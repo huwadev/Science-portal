@@ -3,7 +3,11 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   allowedDevOrigins: [
     "dev.science.ethiosss.org",
+    "https://dev.science.ethiosss.org",
+    "http://dev.science.ethiosss.org",
     "dev.science.ethioss.org",
+    "https://dev.science.ethioss.org",
+    "http://dev.science.ethioss.org",
     "*.ethiosss.org",
     "*.ethioss.org",
     "localhost:8095",
