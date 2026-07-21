@@ -4,8 +4,23 @@
   <script>
     if (window.self === window.top) {
         window.location.replace('/');
+    } else {
+        // Intercept back button clicks inside iframe to navigate parent window instead of iframe
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('a[href*="index.html"]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (window.parent && window.parent !== window) {
+                        window.parent.location.href = '/';
+                    } else {
+                        window.location.href = '/';
+                    }
+                });
+            });
+        });
     }
   </script>
+  
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Cosmic Distance Ladder | ESSS Simulator</title>

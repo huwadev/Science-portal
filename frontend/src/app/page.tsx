@@ -19,14 +19,6 @@ export default function Home() {
       root.classList.remove("light");
     }
   }, [theme]);
-
-  // Frame-busting check: If this page (the home page) is loaded inside an iframe, redirect the top window to home.
-  useEffect(() => {
-    if (window.self !== window.top && window.top) {
-      window.top.location.href = "/";
-    }
-  }, []);
-
   // Register PWA Service Worker to manage cached assets offline and automatically invalidate old versions
   useEffect(() => {
     if ("serviceWorker" in navigator) {

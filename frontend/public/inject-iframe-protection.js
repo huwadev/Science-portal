@@ -19,17 +19,29 @@ function scanDirectory(dir) {
 function injectProtection(filePath) {
   let content = fs.readFileSync(filePath, 'utf8');
   
-  // Guard script to inject
+  // Clean up any existing version of the guard script first
+  content = content.replace(/<script>\s*if\s*\(window\.self\s*===\s*window\.top\)[\s\S]*?<\/script>/g, '');
+
+  // Guard script to inject (handles frame-busting AND back button click interception inside iframe)
   const guardScript = `<script>
     if (window.self === window.top) {
         window.location.replace('/');
+    } else {
+        // Intercept back button clicks inside iframe to navigate parent window instead of iframe
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('a[href*="index.html"]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (window.parent && window.parent !== window) {
+                        window.parent.location.href = '/';
+                    } else {
+                        window.location.href = '/';
+                    }
+                });
+            });
+        });
     }
   </script>`;
-
-  if (content.includes("window.self === window.top")) {
-    console.log(`[ALREADY PROTECTED] ${path.relative(modulesDir, filePath)}`);
-    return;
-  }
 
   // Inject right after <head> or at the very beginning
   if (content.includes('<head>')) {
