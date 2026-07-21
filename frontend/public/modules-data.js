@@ -362,5 +362,5 @@ window.renderModuleDashboard = renderModuleDashboard;
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', renderModuleDashboard);
 } else {
-    // Already loaded (Next.js afterInteractive), will be called via onLoad
+    renderModuleDashboard();
 }

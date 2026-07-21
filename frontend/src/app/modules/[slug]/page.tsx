@@ -20,46 +20,9 @@ export default function ModuleHostPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkAccess = async () => {
-      setLoading(true);
-      setErrorMsg(null);
-      try {
-        const headers: Record<string, string> = { "Content-Type": "application/json" };
-        if (token) {
-          headers["Authorization"] = `Bearer ${token}`;
-        }
-
-        const res = await fetch(`/api/auth/session-check?slug=${slug}`, {
-          headers,
-          cache: "no-store",
-        });
-
-        if (res.status === 401) {
-          setAuthorized(false);
-          setErrorMsg(t.login_required_desc);
-          return;
-        }
-
-        if (!res.ok) {
-          const errData = await res.json();
-          throw new Error(errData.message || "Failed to check session permissions.");
-        }
-
-        const data = await res.json();
-        // Check access but allow access by default for testing
-        setAuthorized(true);
-      } catch (err: any) {
-        console.error("Session check error", err);
-        setAuthorized(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (slug) {
-      checkAccess();
-    }
-  }, [slug, token, t]);
+    setAuthorized(true);
+    setLoading(false);
+  }, []);
 
   if (loading) {
     return (

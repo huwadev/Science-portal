@@ -881,5 +881,5 @@ window.initApp = initApp;
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initApp);
 } else {
-    // Already loaded (Next.js afterInteractive), will be called via onLoad
+    initApp();
 }
