@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import GoogleAuthProvider from "@/providers/GoogleAuthProvider";
+import ThemeHydrator from "@/components/ThemeHydrator";
 
 export const metadata: Metadata = {
   title: "ESSS Science Portal | Ethiopian Space Science Society",
@@ -9,8 +10,6 @@ export const metadata: Metadata = {
     icon: "/esss-badge.png",
   }
 };
-
-import ThemeHydrator from "@/components/ThemeHydrator";
 
 export default function RootLayout({
   children,
@@ -22,8 +21,8 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-        {/* Load original styles */}
+        <link href="https://fonts.cdnfonts.com/css/google-sans" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="/style.css" />
         {/* Inline script to prevent theme flash */}
         <script
@@ -48,9 +47,9 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen bg-background text-foreground antialiased relative transition-colors duration-200">
+      <body className="antialiased">
+        <ThemeHydrator />
         <GoogleAuthProvider>
-          <ThemeHydrator />
           {children}
         </GoogleAuthProvider>
       </body>

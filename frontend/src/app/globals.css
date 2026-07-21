@@ -10,96 +10,195 @@
   --color-card: var(--card-bg);
   --color-card-border: var(--card-border);
   
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-outfit: 'Outfit', sans-serif;
+  --font-sans: 'Google Sans', 'Product Sans', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-outfit: 'Google Sans', 'Product Sans', sans-serif;
 }
 
 @layer base {
   :root {
-    /* Pure Black Dark Mode */
+    /* Pure Black Dark Mode with Neutral Monochrome Accents */
     --background: #000000;
-    --foreground: #DEEBFF;
-    --primary-color: #125DFF;        /* Cosmic Blue Base */
-    --primary-hover-color: #004de6;
-    --secondary-color: #050505;      /* Pure dark */
-    --accent-color: #DEEBFF;         /* Cosmic Blue Secondary */
+    --foreground: #f4f4f5;
+    --primary-color: #ffffff;
+    --primary-hover-color: #e4e4e7;
+    --secondary-color: #18181b;
+    --accent-color: #a1a1aa;
     --card-bg: rgba(18, 18, 18, 0.7);
-    --card-border: rgba(18, 93, 255, 0.15);
+    --card-border: rgba(255, 255, 255, 0.1);
 
-    /* Original CSS Custom Properties Override */
-    --color-cosmic-base: #125DFF;
-    --color-cosmic-secondary: #DEEBFF;
+    /* Neutral Overrides for Legacy Scripts */
+    --color-cosmic-base: #ffffff;
+    --color-cosmic-secondary: #a1a1aa;
     --color-cosmic-tertiary: #000000;
-    --color-neutral-base: #C4C4C4;
-    --color-neutral-secondary: #FFFFFF;
-    --color-neutral-tertiary: #1f1f1f;
+    --color-neutral-base: #a1a1aa;
+    --color-neutral-secondary: #ffffff;
+    --color-neutral-tertiary: #18181b;
 
-    --color-glass-bg: rgba(10, 10, 10, 0.85);
-    --color-glass-border: rgba(222, 235, 255, 0.08);
-    --color-glass-border-hover: rgba(18, 93, 255, 0.4);
+    --color-glass-bg: rgba(12, 12, 12, 0.85);
+    --color-glass-border: rgba(255, 255, 255, 0.1);
+    --color-glass-border-hover: rgba(255, 255, 255, 0.25);
   }
 
   :root.light {
-    /* Pure White Light Mode */
-    --background: #FFFFFF;
-    --foreground: #111827;
-    --primary-color: #125DFF;
-    --primary-hover-color: #004de6;
-    --secondary-color: #F3F4F6;
-    --accent-color: #1F2937;
+    /* Pure White Light Mode with Dark Neutral Accents */
+    --background: #ffffff;
+    --foreground: #09090b;
+    --primary-color: #09090b;
+    --primary-hover-color: #27272a;
+    --secondary-color: #f4f4f5;
+    --accent-color: #71717a;
     --card-bg: rgba(255, 255, 255, 0.9);
-    --card-border: rgba(18, 93, 255, 0.15);
+    --card-border: rgba(0, 0, 0, 0.1);
 
-    /* Original CSS Custom Properties Light Overrides */
-    --color-cosmic-base: #125DFF;
-    --color-cosmic-secondary: #125DFF;
-    --color-cosmic-tertiary: #FFFFFF;
-    --color-neutral-base: #374151;
-    --color-neutral-secondary: #111827;
-    --color-neutral-tertiary: #E5E7EB;
+    --color-cosmic-base: #09090b;
+    --color-cosmic-secondary: #27272a;
+    --color-cosmic-tertiary: #ffffff;
+    --color-neutral-base: #52525b;
+    --color-neutral-secondary: #09090b;
+    --color-neutral-tertiary: #f4f4f5;
 
     --color-glass-bg: rgba(255, 255, 255, 0.9);
     --color-glass-border: rgba(0, 0, 0, 0.1);
-    --color-glass-border-hover: rgba(18, 93, 255, 0.5);
+    --color-glass-border-hover: rgba(0, 0, 0, 0.25);
+  }
+
+  * {
+    font-family: 'Google Sans', 'Product Sans', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   }
 
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    font-family: 'Google Sans', 'Product Sans', sans-serif;
+    letter-spacing: -0.01em;
+    overflow-x: hidden;
   }
 }
 
-/* Stargazer Easter Egg Toast Styles */
-.stargazer-toast {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(18, 93, 255, 0.2);
-  border: 1px solid var(--color-cosmic-base);
-  color: var(--color-neutral-secondary);
-  padding: 12px 24px;
-  border-radius: 30px;
-  font-family: 'Outfit', sans-serif;
-  font-weight: 600;
-  font-size: 1.1rem;
-  z-index: 9999;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 0 20px rgba(18, 93, 255, 0.4);
-  opacity: 0;
-  animation: toastFade 4s forwards;
+/* Neutral Gradient override */
+.text-gradient {
+  background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
 }
 
-@keyframes toastFade {
-  0% { opacity: 0; bottom: 10px; }
-  10% { opacity: 1; bottom: 30px; }
-  90% { opacity: 1; bottom: 30px; }
-  100% { opacity: 0; bottom: 10px; }
+:root.light .text-gradient {
+  background: linear-gradient(135deg, #09090b 0%, #52525b 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Canvas & 3D Wireframe Relativity Lattice */
+#space-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  pointer-events: none;
+}
+
+.stars-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(160px);
+  opacity: 0.04;
+  pointer-events: none;
+  background: #ffffff;
+}
+
+#glow-orb-1 { width: 600px; height: 600px; top: -150px; right: -100px; }
+#glow-orb-2 { width: 800px; height: 800px; bottom: 5%; left: -200px; }
+
+.dashboard-wireframe {
+  width: 380px;
+  height: 380px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(9, 9, 11, 0.7);
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+}
+
+#hero-mesh-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 24px;
+  pointer-events: auto;
+}
+
+.telemetry-node {
+  position: absolute;
+  background: rgba(9, 9, 11, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 6px 12px;
+  display: flex;
+  flex-direction: column;
+  font-family: monospace !important;
+  font-size: 0.7rem;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+  letter-spacing: 0.5px;
+}
+
+.telemetry-node.top-left { top: -10px; left: -10px; }
+.telemetry-node.top-right { top: -10px; right: -10px; }
+.telemetry-node.bottom-left { bottom: -10px; left: -10px; }
+.telemetry-node.bottom-right { bottom: -10px; right: -10px; }
+
+.telemetry-label { color: #a1a1aa; font-weight: 500; }
+.telemetry-val { color: #ffffff; font-weight: 700; }
+
+.moon-widget-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #09090b;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.moon-widget-wrapper:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.lang-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  background: rgba(24, 24, 27, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #a1a1aa;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.lang-indicator.active-lang {
+  color: #ffffff;
+  font-weight: 700;
 }

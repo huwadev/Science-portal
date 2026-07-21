@@ -4,48 +4,48 @@
    ========================================================================== */
 
 :root {
-    /* Cosmic Blue Theme Colors */
-    --color-cosmic-base: #125DFF;       /* Primary CTA, active states, accents */
-    --color-cosmic-secondary: #DEEBFF;  /* Hover highlights, light text contrast, glass tints */
+    /* Neutral/Zinc Theme Colors */
+    --color-cosmic-base: #ffffff;       /* Primary CTA, active states, accents */
+    --color-cosmic-secondary: #e4e4e7;  /* Hover highlights, light text contrast, glass tints */
     --color-cosmic-tertiary: #000000;   /* Pure black background for dark mode */
 
     /* Neutral Theme Colors */
-    --color-neutral-base: #C4C4C4;      /* Secondary text, borders, inactive cards */
-    --color-neutral-secondary: #FFFFFF; /* High contrast headers, primary text, pure highlights */
-    --color-neutral-tertiary: #1f1f1f;  /* Surface backgrounds, secondary panel cards */
+    --color-neutral-base: #a1a1aa;      /* Secondary text, borders, inactive cards */
+    --color-neutral-secondary: #ffffff; /* High contrast headers, primary text, pure highlights */
+    --color-neutral-tertiary: #09090b;  /* Surface backgrounds, secondary panel cards */
 
-    /* Alpha/Glow tints derived from strict palette */
-    --color-cosmic-glow: rgba(18, 93, 255, 0.4);
-    --color-cosmic-glow-soft: rgba(18, 93, 255, 0.15);
-    --color-glass-bg: rgba(10, 10, 10, 0.85);
-    --color-glass-border: rgba(222, 235, 255, 0.08);
-    --color-glass-border-hover: rgba(18, 93, 255, 0.4);
+    /* Alpha/Glow tints derived from zinc palette */
+    --color-cosmic-glow: rgba(255, 255, 255, 0.1);
+    --color-cosmic-glow-soft: rgba(255, 255, 255, 0.05);
+    --color-glass-bg: rgba(9, 9, 11, 0.85);
+    --color-glass-border: rgba(255, 255, 255, 0.1);
+    --color-glass-border-hover: rgba(255, 255, 255, 0.25);
     
     /* Layout Constants */
     --max-width: 1280px;
     --header-height: 80px;
-    --border-radius-sm: 4px; /* Sharper corners fit the high-tech sci-fi dashboard theme */
-    --border-radius-md: 8px;
-    --border-radius-lg: 12px;
+    --border-radius-sm: 8px; /* Slightly smoother corners fitting modern design system */
+    --border-radius-md: 12px;
+    --border-radius-lg: 16px;
     --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 :root.light {
-    --color-cosmic-base: #125DFF;
-    --color-cosmic-secondary: #125DFF;
-    --color-cosmic-tertiary: #FFFFFF;   /* Pure white background for light mode */
+    --color-cosmic-base: #09090b;
+    --color-cosmic-secondary: #27272a;
+    --color-cosmic-tertiary: #ffffff;   /* Pure white background for light mode */
 
-    --color-neutral-base: #374151;
-    --color-neutral-secondary: #111827;
-    --color-neutral-tertiary: #E5E7EB;
+    --color-neutral-base: #52525b;
+    --color-neutral-secondary: #09090b;
+    --color-neutral-tertiary: #f4f4f5;
 
     --color-glass-bg: rgba(255, 255, 255, 0.9);
     --color-glass-border: rgba(0, 0, 0, 0.1);
-    --color-glass-border-hover: rgba(18, 93, 255, 0.5);
+    --color-glass-border-hover: rgba(0, 0, 0, 0.25);
 }
 
 .light .text-gradient {
-    background: linear-gradient(135deg, #111827 40%, #125DFF 75%, #004de6 100%);
+    background: linear-gradient(135deg, #09090b 40%, #27272a 75%, #52525b 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -57,9 +57,19 @@
 
 /* ==========================================================================
    RESET & BASE STYLES
+   Scoped reset — only resets block/text elements the legacy site uses.
+   Buttons, links, inputs, divs, sections, headers, and footers are NOT
+   reset so that Tailwind padding/margin utilities work correctly.
    ========================================================================== */
 *, *::before, *::after {
     box-sizing: border-box;
+}
+
+html, body,
+h1, h2, h3, h4, h5, h6,
+p, blockquote, figure, figcaption,
+ul, ol, li,
+fieldset, legend {
     margin: 0;
     padding: 0;
 }
@@ -70,7 +80,7 @@ html {
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     background-color: var(--color-cosmic-tertiary);
     color: var(--color-neutral-base);
     line-height: 1.6;
@@ -102,20 +112,6 @@ body {
     background: var(--color-cosmic-base);
 }
 
-/* Typography elements */
-h1, h2, h3, h4, h5, h6 {
-    font-family: 'Outfit', sans-serif;
-    color: var(--color-neutral-secondary);
-    font-weight: 700;
-    line-spacing: -0.5px;
-    letter-spacing: -0.5px;
-}
-
-a {
-    color: var(--color-cosmic-secondary);
-    text-decoration: none;
-    transition: var(--transition-smooth);
-}
 
 /* Container */
 .container {
@@ -192,7 +188,7 @@ a {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(rgba(18, 93, 255, 0) 97%, rgba(18, 93, 255, 0.04) 98%, rgba(18, 93, 255, 0.04) 100%);
+    background: linear-gradient(rgba(255, 255, 255, 0) 97%, rgba(255, 255, 255, 0.02) 98%, rgba(255, 255, 255, 0.02) 100%);
     background-size: 100% 20px;
     animation: scanlineScroll 60s linear infinite;
     pointer-events: none;
@@ -225,8 +221,8 @@ a {
     left: -1px;
     width: 16px;
     height: 16px;
-    border-top: 2px solid var(--color-cosmic-base);
-    border-left: 2px solid var(--color-cosmic-base);
+    border-top: 2px solid rgba(255, 255, 255, 0.2);
+    border-left: 2px solid rgba(255, 255, 255, 0.2);
     border-top-left-radius: 2px;
     pointer-events: none;
     transition: var(--transition-smooth);
@@ -239,29 +235,29 @@ a {
     right: -1px;
     width: 16px;
     height: 16px;
-    border-bottom: 2px solid var(--color-cosmic-base);
-    border-right: 2px solid var(--color-cosmic-base);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    border-right: 2px solid rgba(255, 255, 255, 0.2);
     border-bottom-right-radius: 2px;
     pointer-events: none;
     transition: var(--transition-smooth);
 }
 
 .glass-panel:hover {
-    border-color: var(--color-glass-border-hover);
-    box-shadow: 0 20px 48px 0 rgba(18, 93, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 20px 48px 0 rgba(0, 0, 0, 0.6);
     transform: translateY(-2px);
 }
 
 .glass-panel:hover::before {
     width: 24px;
     height: 24px;
-    border-color: var(--color-cosmic-secondary);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 .glass-panel:hover::after {
     width: 24px;
     height: 24px;
-    border-color: var(--color-cosmic-secondary);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 /* ==========================================================================
@@ -273,9 +269,9 @@ a {
     justify-content: center;
     padding: 12px 28px;
     border-radius: var(--border-radius-sm);
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: var(--transition-smooth);
     border: 1px solid transparent;
@@ -286,10 +282,16 @@ a {
 }
 
 .btn-primary {
-    background-color: var(--color-cosmic-base);
-    color: var(--color-neutral-secondary);
-    box-shadow: 0 4px 20px var(--color-cosmic-glow);
-    border: 1px solid rgba(222, 235, 255, 0.2);
+    background-color: #ffffff;
+    color: #000000;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+:root.light .btn-primary {
+    background-color: #09090b;
+    color: #ffffff;
+    border-color: #09090b;
 }
 
 .btn-primary::before {
@@ -299,7 +301,7 @@ a {
     left: -100%;
     width: 50%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
     transition: 0.5s;
 }
 
@@ -308,21 +310,22 @@ a {
 }
 
 .btn-primary:hover {
-    background-color: #2b70ff;
-    box-shadow: 0 6px 25px rgba(18, 93, 255, 0.7);
+    background-color: #e4e4e7;
+    color: #000000;
+    box-shadow: 0 6px 25px rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
 }
 
 .btn-secondary {
-    background-color: rgba(222, 235, 255, 0.03);
-    color: var(--color-cosmic-secondary);
-    border: 1px solid rgba(222, 235, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #f4f4f5;
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .btn-secondary:hover {
-    background-color: rgba(18, 93, 255, 0.1);
-    color: var(--color-neutral-secondary);
-    border-color: var(--color-cosmic-base);
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.4);
     transform: translateY(-2px);
 }
 
