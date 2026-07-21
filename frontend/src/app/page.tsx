@@ -20,6 +20,13 @@ export default function Home() {
     }
   }, [theme]);
 
+  // Frame-busting check: If this page (the home page) is loaded inside an iframe, redirect the top window to home.
+  useEffect(() => {
+    if (window.self !== window.top && window.top) {
+      window.top.location.href = "/";
+    }
+  }, []);
+
   // Sync language change inside app.js back to Zustand store
   useEffect(() => {
     const syncLanguage = () => {
