@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   }
 };
 
+import ThemeHydrator from "@/components/ThemeHydrator";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -48,6 +50,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased relative transition-colors duration-200">
         <GoogleAuthProvider>
+          <ThemeHydrator />
           {children}
         </GoogleAuthProvider>
       </body>

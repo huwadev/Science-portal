@@ -7,17 +7,17 @@
     /* Cosmic Blue Theme Colors */
     --color-cosmic-base: #125DFF;       /* Primary CTA, active states, accents */
     --color-cosmic-secondary: #DEEBFF;  /* Hover highlights, light text contrast, glass tints */
-    --color-cosmic-tertiary: #021034;   /* Deep space background, dark panels */
+    --color-cosmic-tertiary: #000000;   /* Pure black background for dark mode */
 
     /* Neutral Theme Colors */
     --color-neutral-base: #C4C4C4;      /* Secondary text, borders, inactive cards */
     --color-neutral-secondary: #FFFFFF; /* High contrast headers, primary text, pure highlights */
-    --color-neutral-tertiary: #3E3E3E;  /* Surface backgrounds, secondary panel cards */
+    --color-neutral-tertiary: #1f1f1f;  /* Surface backgrounds, secondary panel cards */
 
     /* Alpha/Glow tints derived from strict palette */
     --color-cosmic-glow: rgba(18, 93, 255, 0.4);
     --color-cosmic-glow-soft: rgba(18, 93, 255, 0.15);
-    --color-glass-bg: rgba(2, 16, 52, 0.7);
+    --color-glass-bg: rgba(10, 10, 10, 0.85);
     --color-glass-border: rgba(222, 235, 255, 0.08);
     --color-glass-border-hover: rgba(18, 93, 255, 0.4);
     
@@ -28,6 +28,31 @@
     --border-radius-md: 8px;
     --border-radius-lg: 12px;
     --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+:root.light {
+    --color-cosmic-base: #125DFF;
+    --color-cosmic-secondary: #125DFF;
+    --color-cosmic-tertiary: #FFFFFF;   /* Pure white background for light mode */
+
+    --color-neutral-base: #374151;
+    --color-neutral-secondary: #111827;
+    --color-neutral-tertiary: #E5E7EB;
+
+    --color-glass-bg: rgba(255, 255, 255, 0.9);
+    --color-glass-border: rgba(0, 0, 0, 0.1);
+    --color-glass-border-hover: rgba(18, 93, 255, 0.5);
+}
+
+.light .text-gradient {
+    background: linear-gradient(135deg, #111827 40%, #125DFF 75%, #004de6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.light .glow-orb {
+    opacity: 0.02;
 }
 
 /* ==========================================================================
@@ -347,10 +372,10 @@ a {
    ========================================================================== */
 .main-header {
     height: var(--header-height);
-    background: rgba(2, 16, 52, 0.85);
+    background: var(--color-glass-bg);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(18, 93, 255, 0.15);
+    border-bottom: 1px solid var(--color-glass-border);
     position: sticky;
     top: 0;
     z-index: 100;
