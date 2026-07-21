@@ -1,5 +1,5 @@
-const CACHE_NAME = 'esss-science-portal-v33';
-const RUNTIME_CACHE = 'esss-science-portal-runtime-v33';
+const CACHE_NAME = 'esss-science-portal-v34';
+const RUNTIME_CACHE = 'esss-science-portal-runtime-v34';
 
 // Assets to pre-cache immediately on service worker install
 const PRECACHE_ASSETS = [
