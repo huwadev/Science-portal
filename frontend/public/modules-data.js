@@ -34,7 +34,7 @@ const modulesData = [
         audience: "Students & Teachers",
         concept: "Simulate a planet crossing a star to plot light dimming curves.",
         tech: "NASA Astronify • Chart.js",
-        status: "build",
+        status: "build", // ready to build
         href: "modules/exoplanet-lab/index.html",
         iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5" stroke-width="1.5"/><circle cx="20" cy="12" r="2" fill="currentColor"/><path d="M4 12h16" stroke-dasharray="2 2"/></svg>`
     },
@@ -169,13 +169,15 @@ function renderModuleDashboard() {
         const categoryModules = modulesData.filter(m => m.category === category && m.status !== 'pending');
         
         if (categoryModules.length === 0) {
-            return;
+            return; // Skip empty categories
         }
 
+        // First rendered category is expanded by default
         const isExpanded = categoryIndex === 0 ? 'expanded' : ''; 
         
         tabsHTML += `<div class="category-group ${isExpanded}">`;
         
+        // Render category header button with chevron
         const catKey = 'cat_' + category.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_');
         tabsHTML += `
             <button class="category-header">
@@ -203,6 +205,7 @@ function renderModuleDashboard() {
                               </a>`;
             }
 
+            // Tab Button
             tabsHTML += `
                 <button class="module-tab ${isActive}" data-id="${mod.id}">
                     <div class="tab-icon">${mod.iconSvg}</div>
@@ -213,6 +216,7 @@ function renderModuleDashboard() {
                 </button>
             `;
 
+            // Showcase Pane
             const modCatKey = 'cat_' + mod.category.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_');
             showcaseHTML += `
                 <div class="module-pane ${isActive}" id="pane-${mod.id}">
@@ -240,7 +244,7 @@ function renderModuleDashboard() {
             isFirst = false;
         });
         
-        tabsHTML += `</div></div>`;
+        tabsHTML += `</div></div>`; // Close category-content and category-group
         categoryIndex++;
     });
 
@@ -249,6 +253,7 @@ function renderModuleDashboard() {
         tabsHTML += `<hr class="module-divider" style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">`;
         tabsHTML += `<div class="category-group">`;
         
+        // Render category header button with chevron
         tabsHTML += `
             <button class="category-header">
                 <span class="category-name" data-i18n="in_development">In Development</span>
@@ -267,6 +272,7 @@ function renderModuleDashboard() {
             
             let buttonHTML = `<a href="#" class="btn btn-primary btn-launch disabled" onclick="return false;"><span data-i18n="mod_btn_pending">Pending</span></a>`;
 
+            // Tab Button
             tabsHTML += `
                 <button class="module-tab ${isActive}" data-id="${mod.id}">
                     <div class="tab-icon">${mod.iconSvg}</div>
@@ -277,6 +283,7 @@ function renderModuleDashboard() {
                 </button>
             `;
 
+            // Showcase Pane
             const modCatKey = 'cat_' + mod.category.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_');
             showcaseHTML += `
                 <div class="module-pane ${isActive}" id="pane-${mod.id}">
@@ -304,7 +311,7 @@ function renderModuleDashboard() {
             isFirst = false;
         });
         
-        tabsHTML += `</div></div>`;
+        tabsHTML += `</div></div>`; // Close category-content and category-group
     }
 
     tabsHTML += '</div>';
@@ -312,14 +319,17 @@ function renderModuleDashboard() {
 
     container.innerHTML = tabsHTML + showcaseHTML;
 
+    // Attach event listeners for tabs
     const tabs = document.querySelectorAll('.module-tab');
     const panes = document.querySelectorAll('.module-pane');
 
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
+            // Remove active class from all
             tabs.forEach(t => t.classList.remove('active'));
             panes.forEach(p => p.classList.remove('active'));
 
+            // Add active class to clicked tab and corresponding pane
             tab.classList.add('active');
             const paneId = 'pane-' + tab.getAttribute('data-id');
             const targetPane = document.getElementById(paneId);
@@ -329,6 +339,7 @@ function renderModuleDashboard() {
         });
     });
 
+    // Attach event listeners for category headers (collapse/expand)
     const categoryHeaders = document.querySelectorAll('.category-header');
     categoryHeaders.forEach(header => {
         header.addEventListener('click', () => {
@@ -337,16 +348,19 @@ function renderModuleDashboard() {
         });
     });
 
+    // Apply translations to the newly generated DOM elements
     if (window.setLanguage) {
         window.setLanguage(localStorage.getItem('esss_science_lang') || 'en');
     }
 }
 
-// Global reference
+
+// Expose for Next.js Script onLoad callback
 window.renderModuleDashboard = renderModuleDashboard;
 
+// Auto-run when loaded normally (non-Next.js / standalone)
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', renderModuleDashboard);
 } else {
-    renderModuleDashboard();
+    // Already loaded (Next.js afterInteractive), will be called via onLoad
 }

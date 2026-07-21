@@ -412,18 +412,14 @@ export default function Home() {
 
           {/* Future Projects Modular Grid */}
           <section className="grid-section" id="labs">
-            <div className="section-header text-center">
+            <div className="section-header">
               <span className="section-tag" data-i18n="future_tag" id="future-tag-txt">Science Labs</span>
               <h2 className="section-title" data-i18n="future_title" id="future-title-txt">Science Lab Modules</h2>
               <p className="section-subtitle" data-i18n="future_subtitle" id="future-subtitle-txt">Explore our collection of interactive science labs, physics sandboxes, and aerospace simulators.</p>
             </div>
 
-            {/* Dynamic Module Dashboard injected via modules-data.js */}
             <div className="module-dashboard glass-panel" id="module-dashboard-container">
-              {/* Dashboard UI populated by modules-data.js */}
-              <div style={{ display: "flex", width: "100%", height: "100%", alignItems: "center", justifyContent: "center" }}>
-                <span className="font-mono text-xs text-foreground/40">Loading science lab modules...</span>
-              </div>
+              {/* Dashboard UI will be populated by modules-data.js */}
             </div>
           </section>
 
