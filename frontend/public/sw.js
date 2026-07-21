@@ -1,10 +1,9 @@
-const CACHE_NAME = 'esss-science-portal-v35';
-const RUNTIME_CACHE = 'esss-science-portal-runtime-v35';
+const CACHE_NAME = 'esss-science-portal-v36';
+const RUNTIME_CACHE = 'esss-science-portal-runtime-v36';
 
 // Assets to pre-cache immediately on service worker install
 const PRECACHE_ASSETS = [
   './',
-  './index.html',
   './style.css',
   './app.js',
   './modules-data.js',
@@ -73,7 +72,11 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('[Service Worker] Pre-caching offline assets...');
-        return cache.addAll(PRECACHE_ASSETS);
+        return Promise.allSettled(
+          PRECACHE_ASSETS.map(asset => 
+            cache.add(asset).catch(err => console.warn('[Service Worker] Could not precache:', asset, err))
+          )
+        );
       })
       .then(() => self.skipWaiting())
   );
