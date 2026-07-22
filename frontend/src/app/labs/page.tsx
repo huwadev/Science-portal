@@ -20,6 +20,9 @@ import {
   Layers,
   ChevronRight
 } from "lucide-react";
+import SiteCard from "@/components/SiteCard";
+import UniversalNavbar from "@/components/UniversalNavbar";
+import UniversalFooter from "@/components/UniversalFooter";
 
 interface ScienceModule {
   id: string;
@@ -32,6 +35,7 @@ interface ScienceModule {
   tech: string;
   status: string;
   href: string;
+  image: string;
   icon: React.ReactNode;
 }
 
@@ -47,6 +51,7 @@ const LAB_MODULES: ScienceModule[] = [
     tech: "WebGL • Physics Engine • Light Simulation",
     status: "build",
     href: "/modules/eclipses-transits",
+    image: "https://images.unsplash.com/photo-1532693322450-2cb5c511067d?q=80&w=600&auto=format&fit=crop",
     icon: <Globe className="w-6 h-6 text-zinc-300" />
   },
   {
@@ -60,6 +65,7 @@ const LAB_MODULES: ScienceModule[] = [
     tech: "Three.js • Chart.js • MathJax",
     status: "build",
     href: "/modules/cosmic-ladder",
+    image: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?q=80&w=600&auto=format&fit=crop",
     icon: <Sparkles className="w-6 h-6 text-zinc-300" />
   },
   {
@@ -73,6 +79,7 @@ const LAB_MODULES: ScienceModule[] = [
     tech: "NASA Astronify • Chart.js",
     status: "build",
     href: "/modules/exoplanet-lab",
+    image: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=600&auto=format&fit=crop",
     icon: <Orbit className="w-6 h-6 text-zinc-300" />
   },
   {
@@ -86,6 +93,7 @@ const LAB_MODULES: ScienceModule[] = [
     tech: "Matter.js • HTML5 Canvas",
     status: "build",
     href: "/modules/slingshot-sandbox",
+    image: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=600&auto=format&fit=crop",
     icon: <Layers className="w-6 h-6 text-zinc-300" />
   },
   {
@@ -99,6 +107,7 @@ const LAB_MODULES: ScienceModule[] = [
     tech: "Barrowman Equations • Chart.js",
     status: "build",
     href: "/modules/rocket-ballistics",
+    image: "https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?q=80&w=600&auto=format&fit=crop",
     icon: <Cpu className="w-6 h-6 text-zinc-300" />
   },
   {
@@ -112,6 +121,7 @@ const LAB_MODULES: ScienceModule[] = [
     tech: "SatNOGS • satellite.js • Leaflet.js",
     status: "build",
     href: "/modules/satellite-doppler",
+    image: "https://images.unsplash.com/photo-1517976487492-5750f3195933?q=80&w=600&auto=format&fit=crop",
     icon: <Radio className="w-6 h-6 text-zinc-300" />
   },
   {
@@ -125,6 +135,7 @@ const LAB_MODULES: ScienceModule[] = [
     tech: "NASA Open MCT • Canvas",
     status: "build",
     href: "/modules/aperture-synthesis",
+    image: "https://images.unsplash.com/photo-1543722530-d2c3201371e7?q=80&w=600&auto=format&fit=crop",
     icon: <Radio className="w-6 h-6 text-zinc-300" />
   },
   {
@@ -138,6 +149,7 @@ const LAB_MODULES: ScienceModule[] = [
     tech: "2D Physics • Vector Math",
     status: "build",
     href: "/modules/orbital-mechanics",
+    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=600&auto=format&fit=crop",
     icon: <Orbit className="w-6 h-6 text-zinc-300" />
   }
 ];
@@ -159,47 +171,19 @@ export default function LabsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-black text-zinc-100 transition-colors duration-200">
-      {/* Header Bar */}
-      <header className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur-xl border-b border-zinc-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="flex items-center gap-2 text-xs font-mono text-zinc-400 hover:text-white transition-colors"
-            >
-              <ArrowLeft size={16} />
-              <span>RETURN TO PORTAL</span>
-            </Link>
-            <span className="h-4 w-px bg-zinc-800" />
-            <div className="flex items-center gap-2">
-              <FlaskConical className="w-5 h-5 text-zinc-200" />
-              <h1 className="text-sm font-extrabold tracking-wider uppercase font-outfit text-white">Science Laboratories</h1>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer text-zinc-300"
-              title="Toggle theme"
-            >
-              {theme === "dark" ? <Sun style={{ width: "18px", height: "18px", color: "#ffcc00" }} /> : <Moon style={{ width: "18px", height: "18px", color: "#ffffff" }} />}
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-black light:bg-white text-zinc-100 light:text-zinc-900 transition-colors duration-200 font-sans">
+      <UniversalNavbar />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-zinc-700 bg-zinc-900 text-zinc-300 text-xs font-mono font-bold uppercase tracking-widest">
+          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-zinc-700 light:border-zinc-200 bg-zinc-900 light:bg-zinc-100 text-zinc-300 light:text-zinc-700 text-xs font-mono font-bold uppercase tracking-widest">
             <FlaskConical size={14} /> Modular Scientific Suite
           </span>
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-            Interactive <span className="text-zinc-400">Science Laboratories</span>
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white light:text-zinc-900">
+            Interactive <span className="text-zinc-400 light:text-zinc-500">Science Laboratories</span>
           </h2>
-          <p className="text-sm sm:text-base text-zinc-400">
+          <p className="text-sm sm:text-base text-zinc-400 light:text-zinc-600">
             Access dedicated interactive physics engines, orbital mechanics tools, exoplanet light curve solvers, and radio astronomy simulators.
           </p>
         </div>
@@ -213,8 +197,8 @@ export default function LabsPage() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-2 rounded-xl text-xs font-mono font-bold tracking-wider transition-all cursor-pointer ${
                   selectedCategory === cat
-                    ? "bg-white text-black shadow-lg"
-                    : "bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700"
+                    ? "bg-[#FBE04C] text-black shadow-lg shadow-[#FBE04C]/20"
+                    : "bg-zinc-900 light:bg-zinc-100 border border-zinc-800 light:border-zinc-200 text-zinc-400 light:text-zinc-600 hover:text-white light:hover:text-zinc-900 hover:border-zinc-700 light:hover:border-zinc-300"
                 }`}
               >
                 {cat}
@@ -228,62 +212,29 @@ export default function LabsPage() {
               placeholder="Filter lab modules..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-zinc-800 bg-zinc-900 pl-9 pr-4 py-2 text-xs font-medium text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-600 transition-colors"
+              className="w-full rounded-xl border border-zinc-800 light:border-zinc-300 bg-zinc-900 light:bg-zinc-100 pl-9 pr-4 py-2 text-xs font-medium text-white light:text-zinc-900 placeholder-zinc-500 light:placeholder-zinc-400 focus:outline-none focus:border-zinc-600 light:focus:border-zinc-400 transition-colors"
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 light:text-zinc-400 w-4 h-4" />
           </div>
         </div>
 
         {/* Lab Modules Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredModules.map((mod) => (
-            <div
+            <SiteCard
               key={mod.id}
-              className="border border-zinc-800 bg-zinc-950/80 p-6 rounded-2xl flex flex-col justify-between hover:border-zinc-600 transition-all group shadow-xl"
-            >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800">
-                    {mod.icon}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-400">
-                      MOD {mod.num}
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest">
-                    {mod.category}
-                  </span>
-                  <h3 className="text-lg font-bold text-white mt-1 group-hover:text-zinc-300 transition-colors">
-                    {mod.title}
-                  </h3>
-                </div>
-
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  {mod.concept}
-                </p>
-
-                <div className="pt-2 border-t border-zinc-800/80 text-[11px] font-mono text-zinc-500">
-                  <span className="text-zinc-300 font-bold">TECH:</span> {mod.tech}
-                </div>
-              </div>
-
-              <div className="pt-6">
-                <Link
-                  href={mod.href}
-                  className="w-full py-2.5 bg-white text-black hover:bg-zinc-200 text-xs font-mono font-bold tracking-wider uppercase rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
-                >
-                  <span>LAUNCH LABORATORY</span>
-                  <ArrowRight size={14} />
-                </Link>
-              </div>
-            </div>
+              title={mod.title}
+              description={mod.concept}
+              image={mod.image}
+              href={mod.href}
+              badge={`MOD ${mod.num}`}
+              category={mod.category}
+              aspectRatio="h-[320px] sm:h-[360px]"
+            />
           ))}
         </div>
       </main>
+      <UniversalFooter />
     </div>
   );
 }

@@ -25,6 +25,9 @@ import {
   Layers,
   Orbit
 } from "lucide-react";
+import SiteCard from "@/components/SiteCard";
+import UniversalNavbar from "@/components/UniversalNavbar";
+import UniversalFooter from "@/components/UniversalFooter";
 
 interface CarouselApp {
   id: string;
@@ -116,21 +119,30 @@ export default function Home() {
     }
   }, [theme]);
 
-  // Register PWA Service Worker
+  // Register PWA Service Worker (Only in Production)
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      const registerSW = () => {
-        navigator.serviceWorker
-          .register("/sw.js")
-          .then((reg) => console.log("Service Worker registered successfully with scope:", reg.scope))
-          .catch((err) => console.error("Service Worker registration failed:", err));
-      };
+      if (process.env.NODE_ENV === "production") {
+        const registerSW = () => {
+          navigator.serviceWorker
+            .register("/sw.js")
+            .then((reg) => console.log("Service Worker registered successfully with scope:", reg.scope))
+            .catch((err) => console.error("Service Worker registration failed:", err));
+        };
 
-      if (document.readyState === "complete") {
-        registerSW();
+        if (document.readyState === "complete") {
+          registerSW();
+        } else {
+          window.addEventListener("load", registerSW);
+          return () => window.removeEventListener("load", registerSW);
+        }
       } else {
-        window.addEventListener("load", registerSW);
-        return () => window.removeEventListener("load", registerSW);
+        // In Development mode, unregister active service workers to prevent Turbopack HMR ChunkLoadError & reload loops
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const registration of registrations) {
+            registration.unregister();
+          }
+        });
       }
     }
   }, []);
@@ -246,119 +258,8 @@ export default function Home() {
         <span id="lang-am"></span>
       </div>
 
-      {/* Starry background decoration */}
-      <canvas id="space-canvas"></canvas>
-      <div className="stars-container" aria-hidden="true">
-        <div className="glow-orb" id="glow-orb-1"></div>
-        <div className="glow-orb" id="glow-orb-2"></div>
-      </div>
-
-      {/* MODERN TAILWIND NAVBAR WITH GUARANTEED POSITIVE PADDING */}
-      <header className="sticky top-0 z-50 w-full bg-zinc-950/90 backdrop-blur-xl border-b border-zinc-800/80">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 h-20 flex items-center justify-between">
-          {/* ESSS Logo on Far Left */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <img src={theme === "dark" ? "/esss-logo-white.png" : "/esss-logo.png"} alt="ESSS Logo" className="h-10 w-auto object-contain group-hover:scale-105 transition-transform" />
-          </Link>
-
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-10 font-mono text-xs uppercase tracking-widest">
-            <Link href="/" className="text-white font-bold">Home</Link>
-            <Link href="/apps" className="text-zinc-400 hover:text-white transition-colors">Apps</Link>
-            <Link href="/labs" className="text-zinc-400 hover:text-white transition-colors">Labs</Link>
-            <Link href="/about" className="text-zinc-400 hover:text-white transition-colors">About</Link>
-            <Link href="/blogs" className="text-zinc-400 hover:text-white transition-colors">Blogs</Link>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            {/* Search Portal Trigger */}
-            <button
-              onClick={() => setIsSearchOpen(true)}
-              style={{ padding: "10px 22px", borderRadius: "9999px" }}
-              className="flex items-center gap-3 border border-white/25 bg-zinc-900/90 text-xs text-zinc-200 hover:text-white hover:border-white/50 transition-all cursor-pointer shadow-md font-sans"
-            >
-              <Search className="w-4 h-4 text-zinc-400 flex-shrink-0" />
-              <span className="hidden sm:inline font-semibold">Search Portal...</span>
-              <kbd className="hidden lg:inline-block px-2 py-0.5 rounded bg-zinc-800 text-[10px] font-mono text-zinc-400 border border-zinc-700">⌘K</kbd>
-            </button>
-
-            {/* Modern Language Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
-                style={{ padding: "10px 20px", borderRadius: "9999px" }}
-                className="flex items-center gap-2.5 border border-white/25 bg-zinc-900/90 text-xs font-semibold text-zinc-200 hover:border-white/50 transition-all cursor-pointer shadow-md font-sans"
-              >
-                <Globe className="w-4 h-4 text-zinc-400 flex-shrink-0" />
-                <span>{language === "en" ? "English" : "አማርኛ"}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" />
-              </button>
-
-              {isLangDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-36 rounded-2xl bg-zinc-950 border border-white/20 shadow-2xl p-1.5 z-50">
-                  <button
-                    onClick={() => handleSelectLanguage("en")}
-                    className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors flex items-center justify-between font-sans cursor-pointer ${
-                      language === "en" ? "bg-white text-black font-bold" : "text-zinc-300 hover:bg-zinc-900 hover:text-white"
-                    }`}
-                  >
-                    <span>English</span>
-                    <span className="text-[10px] font-mono opacity-70">EN</span>
-                  </button>
-                  <button
-                    onClick={() => handleSelectLanguage("am")}
-                    className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors flex items-center justify-between font-sans cursor-pointer ${
-                      language === "am" ? "bg-white text-black font-bold" : "text-zinc-300 hover:bg-zinc-900 hover:text-white"
-                    }`}
-                  >
-                    <span>አማርኛ</span>
-                    <span className="text-[10px] font-mono opacity-70">AM</span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Modern Theme Toggle Pill */}
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              style={{ padding: "10px 20px", borderRadius: "9999px" }}
-              className="flex items-center gap-2.5 border border-white/25 bg-zinc-900/90 text-xs font-semibold text-zinc-200 hover:border-white/50 transition-all cursor-pointer shadow-md font-sans"
-              title="Toggle Theme"
-            >
-              {theme === "dark" ? (
-                <>
-                  <Sun className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                  <span className="hidden sm:inline">Dark</span>
-                </>
-              ) : (
-                <>
-                  <Moon className="w-4 h-4 text-zinc-400 flex-shrink-0" />
-                  <span className="hidden sm:inline">Light</span>
-                </>
-              )}
-            </button>
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-zinc-400 hover:text-white transition-colors cursor-pointer"
-            >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Drawer */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-zinc-800 bg-zinc-950/95 backdrop-blur-xl p-6 flex flex-col gap-4 font-mono text-sm">
-            <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="text-white font-bold">Home</Link>
-            <Link href="/apps" onClick={() => setIsMobileMenuOpen(false)} className="text-zinc-400 hover:text-white">Apps</Link>
-            <Link href="/labs" onClick={() => setIsMobileMenuOpen(false)} className="text-zinc-400 hover:text-white">Labs</Link>
-            <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="text-zinc-400 hover:text-white">About</Link>
-            <Link href="/blogs" onClick={() => setIsMobileMenuOpen(false)} className="text-zinc-400 hover:text-white">Blogs</Link>
-          </div>
-        )}
-      </header>
+      {/* UNIVERSAL ESSS ECOSYSTEM NAVBAR */}
+      <UniversalNavbar onOpenSearch={() => setIsSearchOpen(true)} />
 
       {/* PERFECTLY CENTERED SPOTLIGHT SEARCH MODAL */}
       {isSearchOpen && (
@@ -464,11 +365,37 @@ export default function Home() {
                       <div className="pt-4 flex items-center gap-4">
                         <Link
                           href={app.link}
-                          style={{ padding: "14px 32px", borderRadius: "9999px" }}
-                          className="inline-flex items-center gap-3 bg-white text-black hover:bg-zinc-200 text-xs font-bold tracking-widest uppercase transition-all cursor-pointer shadow-2xl whitespace-nowrap"
+                          className="group relative inline-flex items-center justify-between gap-4 px-8 py-3.5 rounded-full bg-zinc-950/90 border border-white/25 hover:bg-[#FBE04C] hover:border-[#FBE04C] transition-all duration-300 shadow-2xl cursor-pointer"
                         >
-                          <span>LAUNCH APP</span>
-                          <ArrowRight size={16} />
+                          <span className="text-xs font-mono font-bold tracking-widest uppercase text-white group-hover:text-black transition-colors duration-300">
+                            LAUNCH APPLICATION
+                          </span>
+                          <div className="flex items-center justify-center w-6 h-6">
+                            <svg
+                              className="w-5 h-5 text-white group-hover:hidden transition-all duration-300"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <line x1="7" y1="17" x2="17" y2="7" />
+                              <polyline points="7 7 17 7 17 17" />
+                            </svg>
+                            <svg
+                              className="w-5 h-5 text-black hidden group-hover:block transition-all duration-300"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="3.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <line x1="4" y1="12" x2="20" y2="12" />
+                              <polyline points="13 5 20 12 13 19" />
+                            </svg>
+                          </div>
                         </Link>
                       </div>
                     </div>
@@ -547,9 +474,6 @@ export default function Home() {
                 <div className="orbiting-marker"></div>
               </div>
 
-              {/* RESTORED 3D GRAVITY WELL RELATIVITY LATTICE CANVAS */}
-              <canvas id="hero-mesh-canvas"></canvas>
-
               <div className="telemetry-node top-left">
                 <span className="telemetry-label">SYS.LAT</span>
                 <span className="telemetry-val">9.0300° N</span>
@@ -571,7 +495,56 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. FEATURED PROJECTS SECTIONS (100% FULLY STYLED SCHEMATICS) */}
+      {/* 3. FEATURED SPACE APPS GRID SHOWCASE */}
+      <section className="max-w-7xl mx-auto px-6 sm:px-8 py-16">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-12">
+          <div>
+            <span className="text-xs font-mono font-bold text-zinc-400 uppercase tracking-widest">// EXPLORE APPLICATIONS</span>
+            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mt-1">
+              Featured <span className="text-zinc-400">Space Applications</span>
+            </h2>
+          </div>
+          <Link
+            href="/apps"
+            className="group flex items-center gap-2 text-xs font-mono font-bold text-white hover:text-[#FBE04C] transition-colors"
+          >
+            <span>VIEW ALL APPLICATIONS</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <SiteCard
+            title="Walk in the Solar System"
+            description="Navigate our cosmic neighborhood with accurate 3D orbital physics and scaled planetary bodies."
+            image="https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?q=80&w=800&auto=format&fit=crop"
+            href="/modules/walk-in-solar-system"
+            badge="3D Navigation"
+            category="Navigators"
+            aspectRatio="h-[340px] sm:h-[380px]"
+          />
+          <SiteCard
+            title="3D Lunar Explorer"
+            description="Inspect high-resolution lunar topography, crater formations, and Lunar Reconnaissance Orbiter telemetry."
+            image="https://images.unsplash.com/photo-1522030299830-16b8d3d049fe?q=80&w=800&auto=format&fit=crop"
+            href="/modules/lunar-explorer"
+            badge="Topography"
+            category="Exploration"
+            aspectRatio="h-[340px] sm:h-[380px]"
+          />
+          <SiteCard
+            title="Solar & Lunar Eclipse Predictor"
+            description="Calculate totality pathways, penumbral coverage, and local obscuration statistics."
+            image="https://images.unsplash.com/photo-1532693322450-2cb5c511067d?q=80&w=800&auto=format&fit=crop"
+            href="/modules/eclipses-transits"
+            badge="Ephemerides"
+            category="Calculators"
+            aspectRatio="h-[340px] sm:h-[380px]"
+          />
+        </div>
+      </section>
+
+      {/* 4. FEATURED PROJECTS SECTIONS (100% FULLY STYLED SCHEMATICS) */}
       <main className="main-content" id="apps">
         <div className="container">
           {/* FEATURED SECTION 1: 3D LUNAR EXPLORER */}
@@ -815,24 +788,8 @@ export default function Home() {
         </div>
       </main>
 
-      {/* FOOTER */}
-      <footer className="border-t border-zinc-800 bg-zinc-950/80 py-12">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-4">
-            <img src={theme === "dark" ? "/esss-logo-white.png" : "/esss-logo.png"} alt="ESSS Logo" className="h-8 w-auto" />
-            <span className="text-xs text-zinc-400 font-mono">
-              © {new Date().getFullYear()} Ethiopian Space Science Society (ESSS). All rights reserved.
-            </span>
-          </div>
-
-          <div className="flex items-center gap-6 text-xs text-zinc-400 font-mono">
-            <Link href="/about" className="hover:text-white transition-colors">About Us</Link>
-            <Link href="/apps" className="hover:text-white transition-colors">Space Apps</Link>
-            <Link href="/labs" className="hover:text-white transition-colors">Science Labs</Link>
-            <Link href="/blogs" className="hover:text-white transition-colors">Publications</Link>
-          </div>
-        </div>
-      </footer>
+      {/* UNIVERSAL ESSS ECOSYSTEM FOOTER */}
+      <UniversalFooter />
 
       {/* Load original legacy script files */}
       <Script src="/modules-data.js" strategy="lazyOnload" />

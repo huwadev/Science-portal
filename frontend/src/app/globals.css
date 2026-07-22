@@ -14,52 +14,73 @@
   --font-outfit: 'Google Sans', 'Product Sans', sans-serif;
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant light (&:where(.light, .light *));
+
 @layer base {
   :root {
-    /* Pure Black Dark Mode with Neutral Monochrome Accents */
+    /* Stellar Yellow SpaceDesign Palette */
+    --stellar-yellow-base: #FBE04C;      /* 10% Accent */
+    --stellar-yellow-secondary: #FDF0B5; /* Soft highlight text */
+    --stellar-yellow-tertiary: #403517;  /* Deep warm amber-gold dark border/surface */
+
+    /* 60% Dominant (Dark Background) */
     --background: #000000;
     --foreground: #f4f4f5;
-    --primary-color: #ffffff;
-    --primary-hover-color: #e4e4e7;
-    --secondary-color: #18181b;
-    --accent-color: #a1a1aa;
-    --card-bg: rgba(18, 18, 18, 0.7);
-    --card-border: rgba(255, 255, 255, 0.1);
 
-    /* Neutral Overrides for Legacy Scripts */
-    --color-cosmic-base: #ffffff;
-    --color-cosmic-secondary: #a1a1aa;
+    /* 30% Structural (Surfaces, Cards & Text) */
+    --secondary-color: #18181b;
+    --card-bg: rgba(18, 18, 18, 0.85);
+    --card-border: rgba(251, 224, 76, 0.2);
+
+    /* 10% Accent (Stellar Yellow Base & Secondary) */
+    --primary-color: #FBE04C;
+    --primary-hover-color: #FDF0B5;
+    --accent-color: #FBE04C;
+
+    /* Overrides for Legacy Scripts & Components */
+    --color-cosmic-base: #FBE04C;
+    --color-cosmic-secondary: #FDF0B5;
     --color-cosmic-tertiary: #000000;
     --color-neutral-base: #a1a1aa;
     --color-neutral-secondary: #ffffff;
     --color-neutral-tertiary: #18181b;
 
     --color-glass-bg: rgba(12, 12, 12, 0.85);
-    --color-glass-border: rgba(255, 255, 255, 0.1);
-    --color-glass-border-hover: rgba(255, 255, 255, 0.25);
+    --color-glass-border: rgba(251, 224, 76, 0.25);
+    --color-glass-border-hover: rgba(251, 224, 76, 0.6);
   }
 
   :root.light {
-    /* Pure White Light Mode with Dark Neutral Accents */
+    /* Stellar Yellow SpaceDesign Palette (Light Mode) */
+    --stellar-yellow-base: #FBE04C;
+    --stellar-yellow-secondary: #FDF0B5;
+    --stellar-yellow-tertiary: #403517;
+
+    /* 60% Dominant (Light Background) */
     --background: #ffffff;
     --foreground: #09090b;
-    --primary-color: #09090b;
-    --primary-hover-color: #27272a;
-    --secondary-color: #f4f4f5;
-    --accent-color: #71717a;
-    --card-bg: rgba(255, 255, 255, 0.9);
-    --card-border: rgba(0, 0, 0, 0.1);
 
-    --color-cosmic-base: #09090b;
-    --color-cosmic-secondary: #27272a;
+    /* 30% Structural */
+    --secondary-color: #f4f4f5;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --card-border: rgba(64, 53, 23, 0.2);
+
+    /* 10% Accent */
+    --primary-color: #403517;
+    --primary-hover-color: #FBE04C;
+    --accent-color: #FBE04C;
+
+    --color-cosmic-base: #403517;
+    --color-cosmic-secondary: #FBE04C;
     --color-cosmic-tertiary: #ffffff;
     --color-neutral-base: #52525b;
     --color-neutral-secondary: #09090b;
     --color-neutral-tertiary: #f4f4f5;
 
     --color-glass-bg: rgba(255, 255, 255, 0.9);
-    --color-glass-border: rgba(0, 0, 0, 0.1);
-    --color-glass-border-hover: rgba(0, 0, 0, 0.25);
+    --color-glass-border: rgba(64, 53, 23, 0.2);
+    --color-glass-border-hover: rgba(64, 53, 23, 0.5);
   }
 
   * {
@@ -88,62 +109,26 @@
   -webkit-text-fill-color: transparent !important;
 }
 
-/* Canvas & 3D Wireframe Relativity Lattice */
-#space-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -2;
-  pointer-events: none;
+/* High-Performance Theme Backgrounds (Pure Dark / Pure Light) */
+html, body {
+  background-color: #000000;
+  color: #f4f4f5;
 }
 
-.stars-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  overflow: hidden;
-  pointer-events: none;
+:root.light body,
+html.light body {
+  background-color: #ffffff !important;
+  color: #09090b !important;
 }
 
-.glow-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(160px);
-  opacity: 0.04;
-  pointer-events: none;
-  background: #ffffff;
-}
-
-#glow-orb-1 { width: 600px; height: 600px; top: -150px; right: -100px; }
-#glow-orb-2 { width: 800px; height: 800px; bottom: 5%; left: -200px; }
-
-.dashboard-wireframe {
-  width: 380px;
-  height: 380px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(9, 9, 11, 0.7);
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  backdrop-filter: blur(12px);
-  border-radius: 24px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
-}
-
+/* Hide heavy canvas particle loops for maximum FPS & instant theme switching */
+#space-canvas,
+.stars-container,
 #hero-mesh-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 24px;
-  pointer-events: auto;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .telemetry-node {
@@ -202,3 +187,23 @@
   color: #ffffff;
   font-weight: 700;
 }
+
+/* Site-wide Stellar Yellow Hover Card Styling */
+:root {
+  --color-neon-lime: #FBE04C;
+}
+
+.site-card-lime-banner {
+  background-color: rgba(9, 9, 11, 0.95);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.group:hover .site-card-lime-banner {
+  background-color: var(--stellar-yellow-base) !important;
+  color: #000000 !important;
+}
+
+.group:hover .site-card-lime-title {
+  color: #000000 !important;
+}
+

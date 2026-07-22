@@ -1,5 +1,5 @@
-const CACHE_NAME = 'esss-science-portal-v36';
-const RUNTIME_CACHE = 'esss-science-portal-runtime-v36';
+const CACHE_NAME = 'esss-science-portal-v37';
+const RUNTIME_CACHE = 'esss-science-portal-runtime-v37';
 
 // Assets to pre-cache immediately on service worker install
 const PRECACHE_ASSETS = [
@@ -66,6 +66,19 @@ const PRECACHE_ASSETS = [
   './modules/eclipses-transits/astronomy-helper.js'
 ];
 
+// Helper to safely cache a response clone
+function safeCachePut(cacheName, request, response) {
+  if (!response || response.status !== 200 || response.type === 'opaque') return;
+  const url = new URL(request.url);
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+
+  caches.open(cacheName).then(cache => {
+    cache.put(request, response.clone()).catch(err => {
+      console.warn('[Service Worker] Cache put ignored:', err);
+    });
+  }).catch(() => {});
+}
+
 // Install Event
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -79,6 +92,7 @@ self.addEventListener('install', event => {
         );
       })
       .then(() => self.skipWaiting())
+      .catch(err => console.warn('[Service Worker] Install error:', err))
   );
 });
 
@@ -96,27 +110,54 @@ self.addEventListener('activate', event => {
         })
       );
     }).then(() => self.clients.claim())
+      .catch(err => console.warn('[Service Worker] Activate error:', err))
   );
 });
 
 // Fetch Event
 self.addEventListener('fetch', event => {
+  const reqUrl = event.request.url || '';
+
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
 
-  const url = new URL(event.request.url);
-
-  // Bypass Service Worker for Next.js engine files, HMR, API calls, and Next routes
+  // Immediately bypass Service Worker for Next.js internal files, HMR, Turbopack, and dev server requests
   if (
-    url.pathname.startsWith('/_next') ||
-    url.pathname.startsWith('/api') ||
-    url.pathname.includes('webpack-hmr') ||
-    url.pathname.includes('turbopack')
+    reqUrl.includes('_next') ||
+    reqUrl.includes('turbopack') ||
+    reqUrl.includes('webpack') ||
+    reqUrl.includes('hmr') ||
+    reqUrl.includes('hot-update') ||
+    reqUrl.includes('localhost') ||
+    reqUrl.includes('127.0.0.1')
   ) {
     return;
   }
 
-  // Network-First for HTML documents to ensure user changes show up immediately without stale cache delays
+  let url;
+  try {
+    url = new URL(event.request.url);
+  } catch (e) {
+    return;
+  }
+
+  // Only handle http/https requests
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+
+  // Caching filter: bypass SW completely for external 3rd-party APIs (e.g. NOAA SWPC)
+  const shouldCache = url.origin === self.location.origin || 
+                      url.origin.includes('jsdelivr') ||
+                      url.origin.includes('cloudflare') ||
+                      url.origin.includes('unpkg') ||
+                      url.origin.includes('googleapis') ||
+                      url.origin.includes('gstatic');
+
+  if (!shouldCache) {
+    // Return early to allow browser native handling without intercepting
+    return;
+  }
+
+  // Network-First for HTML documents
   const isHTML = event.request.mode === 'navigate' || 
                  (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html'));
 
@@ -125,8 +166,7 @@ self.addEventListener('fetch', event => {
       fetch(event.request)
         .then(networkResponse => {
           if (networkResponse && networkResponse.status === 200) {
-            const responseToCache = networkResponse.clone();
-            caches.open(RUNTIME_CACHE).then(cache => cache.put(event.request, responseToCache));
+            safeCachePut(RUNTIME_CACHE, event.request, networkResponse);
           }
           return networkResponse;
         })
@@ -141,39 +181,24 @@ self.addEventListener('fetch', event => {
               '</div>',
               { headers: { 'Content-Type': 'text/html' } }
             );
-          });
+          }).catch(() => new Response("Offline", { status: 503 }));
         })
     );
     return;
   }
 
-  // Network-First strategy for local CSS & JS files to ensure latest styles load instantly
+  // Network-First strategy for local CSS & JS files
   if (url.origin === self.location.origin && (url.pathname.endsWith('.css') || url.pathname.endsWith('.js'))) {
     event.respondWith(
       fetch(event.request)
         .then(networkResponse => {
           if (networkResponse && networkResponse.status === 200) {
-            const responseToCache = networkResponse.clone();
-            caches.open(RUNTIME_CACHE).then(cache => cache.put(event.request, responseToCache));
+            safeCachePut(RUNTIME_CACHE, event.request, networkResponse);
           }
           return networkResponse;
         })
-        .catch(() => caches.match(event.request))
+        .catch(() => caches.match(event.request).then(res => res || new Response('', { status: 404 })))
     );
-    return;
-  }
-
-  // Caching filter to prevent bloat: Cache local assets and trusted CDNs
-  const shouldCache = url.origin === self.location.origin || 
-                      url.origin.includes('jsdelivr') ||
-                      url.origin.includes('cloudflare') ||
-                      url.origin.includes('unpkg') ||
-                      url.origin.includes('googleapis') ||
-                      url.origin.includes('gstatic');
-
-  if (!shouldCache) {
-    // If not cache-worthy (e.g. NOAA SWPC weather APIs, analytics), fetch directly from network
-    event.respondWith(fetch(event.request));
     return;
   }
 
@@ -185,42 +210,27 @@ self.addEventListener('fetch', event => {
         fetch(event.request)
           .then(networkResponse => {
             if (networkResponse && networkResponse.status === 200) {
-              caches.open(RUNTIME_CACHE).then(cache => cache.put(event.request, networkResponse));
+              safeCachePut(RUNTIME_CACHE, event.request, networkResponse);
             }
           })
-          .catch(() => { /* Ignore offline background fetch failure */ });
+          .catch(() => { /* Ignore background fetch failure */ });
         return cachedResponse;
       }
 
       // If not in cache, fetch from network and cache dynamically
       return fetch(event.request)
         .then(networkResponse => {
-          // Check if response is valid before caching
-          if (!networkResponse || (networkResponse.status !== 200 && networkResponse.type !== 'opaque')) {
-            return networkResponse;
+          if (networkResponse && networkResponse.status === 200) {
+            safeCachePut(RUNTIME_CACHE, event.request, networkResponse);
           }
-          
-          // Cache the fetched resource
-          const responseToCache = networkResponse.clone();
-          caches.open(RUNTIME_CACHE).then(cache => {
-            cache.put(event.request, responseToCache);
-          });
           return networkResponse;
         })
         .catch(err => {
-          console.error('[Service Worker] Fetch failed offline:', err);
-          // If offline and request is for HTML, return a fallback offline message
-          if (event.request.headers.get('accept').includes('text/html')) {
-            return new Response(
-              '<div style="text-align:center;padding:50px;font-family:\'Inter\',sans-serif;background:#060814;color:#e8edff;height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;">' +
-              '<h1 style="font-family:\'Outfit\',sans-serif;font-size:2.5rem;margin-bottom:10px;background:linear-gradient(135deg,#5aa6ff,#ffce4d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Connection Offline</h1>' +
-              '<p style="color:#8b97c4;max-width:400px;line-height:1.6;margin-bottom:24px;">You are currently offline. This science page has not been visited yet and is not stored locally.</p>' +
-              '<a href="/" style="color:#e8edff;text-decoration:none;border:1px solid rgba(120,160,255,0.3);background:rgba(120,160,255,0.08);padding:10px 24px;border-radius:8px;font-weight:500;transition:all 0.2s;">Back to Home Portal</a>' +
-              '</div>',
-              { headers: { 'Content-Type': 'text/html' } }
-            );
-          }
+          console.warn('[Service Worker] Fetch failed offline:', err);
+          return new Response('', { status: 408 });
         });
+    }).catch(err => {
+      return fetch(event.request).catch(() => new Response('', { status: 408 }));
     })
   );
 });

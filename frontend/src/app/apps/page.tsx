@@ -15,6 +15,9 @@ import {
   ExternalLink,
   ChevronRight
 } from "lucide-react";
+import SiteCard from "@/components/SiteCard";
+import UniversalNavbar from "@/components/UniversalNavbar";
+import UniversalFooter from "@/components/UniversalFooter";
 
 interface SpaceApp {
   id: string;
@@ -158,47 +161,19 @@ export default function AppsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-black text-zinc-100 transition-colors duration-200">
-      {/* Header Bar */}
-      <header className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur-xl border-b border-zinc-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="flex items-center gap-2 text-xs font-mono text-zinc-400 hover:text-white transition-colors"
-            >
-              <ArrowLeft size={16} />
-              <span>RETURN TO PORTAL</span>
-            </Link>
-            <span className="h-4 w-px bg-zinc-800" />
-            <div className="flex items-center gap-2">
-              <Rocket className="w-5 h-5 text-zinc-200" />
-              <h1 className="text-sm font-extrabold tracking-wider uppercase font-outfit text-white">Space Applications Suite</h1>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer text-zinc-300"
-              title="Toggle theme"
-            >
-              {theme === "dark" ? <Sun style={{ width: "18px", height: "18px", color: "#ffcc00" }} /> : <Moon style={{ width: "18px", height: "18px", color: "#ffffff" }} />}
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-black light:bg-white text-zinc-100 light:text-zinc-900 transition-colors duration-200 font-sans">
+      <UniversalNavbar />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-zinc-700 bg-zinc-900 text-zinc-300 text-xs font-mono font-bold uppercase tracking-widest">
+          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-zinc-700 light:border-zinc-200 bg-zinc-900 light:bg-zinc-100 text-zinc-300 light:text-zinc-700 text-xs font-mono font-bold uppercase tracking-widest">
             <Rocket size={14} /> Interactive Suite
           </span>
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-            Space <span className="text-zinc-400">Applications</span>
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white light:text-zinc-900">
+            Space <span className="text-zinc-400 light:text-zinc-500">Applications</span>
           </h2>
-          <p className="text-sm sm:text-base text-zinc-400">
+          <p className="text-sm sm:text-base text-zinc-400 light:text-zinc-600">
             Explore 10 physics-based space simulators, orbital transfer calculators, satellite Doppler trackers, and exoplanet photometries.
           </p>
         </div>
@@ -212,8 +187,8 @@ export default function AppsPage() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-2 rounded-xl text-xs font-mono font-bold tracking-wider transition-all cursor-pointer ${
                   selectedCategory === cat
-                    ? "bg-white text-black shadow-lg"
-                    : "bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700"
+                    ? "bg-[#FBE04C] text-black shadow-lg shadow-[#FBE04C]/20"
+                    : "bg-zinc-900 light:bg-zinc-100 border border-zinc-800 light:border-zinc-200 text-zinc-400 light:text-zinc-600 hover:text-white light:hover:text-zinc-900 hover:border-zinc-700 light:hover:border-zinc-300"
                 }`}
               >
                 {cat}
@@ -227,67 +202,35 @@ export default function AppsPage() {
               placeholder="Search applications..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-zinc-800 bg-zinc-900 pl-9 pr-4 py-2 text-xs font-medium text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-600 transition-colors"
+              className="w-full rounded-xl border border-zinc-800 light:border-zinc-300 bg-zinc-900 light:bg-zinc-100 pl-9 pr-4 py-2 text-xs font-medium text-white light:text-zinc-900 placeholder-zinc-500 light:placeholder-zinc-400 focus:outline-none focus:border-zinc-600 light:focus:border-zinc-400 transition-colors"
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 light:text-zinc-400 w-4 h-4" />
           </div>
         </div>
 
         {/* Apps Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredApps.map((app) => (
             <motion.div
               key={app.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="border border-zinc-800 bg-zinc-950/80 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-zinc-600 transition-all group shadow-xl"
             >
-              <div>
-                <div className="relative h-48 w-full overflow-hidden">
-                  <img
-                    src={app.image}
-                    alt={app.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
-                  <span className="absolute top-3 left-3 px-3 py-1 bg-zinc-900/90 border border-zinc-700 text-zinc-200 text-[10px] font-mono font-bold uppercase tracking-wider rounded-md backdrop-blur-md">
-                    {app.badge}
-                  </span>
-                </div>
-
-                <div className="p-6 space-y-3">
-                  <h3 className="text-lg font-bold text-white group-hover:text-zinc-300 transition-colors">
-                    {language === "am" ? app.titleAm : app.title}
-                  </h3>
-                  <p className="text-xs text-zinc-400 line-clamp-3">
-                    {app.desc}
-                  </p>
-
-                  <div className="pt-2 space-y-1.5">
-                    {app.features.map((feat, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-[11px] text-zinc-400">
-                        <ChevronRight className="w-3 h-3 text-zinc-300 flex-shrink-0" />
-                        <span>{feat}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-6 pt-0">
-                <Link
-                  href={app.link}
-                  className="w-full py-2.5 bg-white text-black hover:bg-zinc-200 text-xs font-mono font-bold tracking-wider uppercase rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
-                >
-                  <span>LAUNCH APPLICATION</span>
-                  <ArrowRight size={14} />
-                </Link>
-              </div>
+              <SiteCard
+                title={language === "am" ? app.titleAm : app.title}
+                description={app.desc}
+                image={app.image}
+                href={app.link}
+                badge={app.badge}
+                category={app.category}
+                aspectRatio="h-[320px] sm:h-[360px]"
+              />
             </motion.div>
           ))}
         </div>
       </main>
+      <UniversalFooter />
     </div>
   );
 }
