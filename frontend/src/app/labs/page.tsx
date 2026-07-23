@@ -16,7 +16,6 @@ import {
   Cpu,
   Orbit,
   Radio,
-  Globe,
   Layers,
   ChevronRight
 } from "lucide-react";
@@ -44,23 +43,6 @@ interface ScienceModule {
 }
 
 const LAB_MODULES: ScienceModule[] = [
-  {
-    id: "module-11",
-    num: "11",
-    title: "Eclipse & Transit Physics Lab",
-    category: "Planetary Science",
-    complexity: "High",
-    audience: "Students & Enthusiasts",
-    concept: "Explore optical geometry, umbra/penumbra shadow structures, and celestial alignment physics that create solar and lunar eclipses.",
-    tech: "WebGL • Physics Engine • Light Simulation",
-    status: "build",
-    href: "/modules/eclipses-transits",
-    image: "",
-    useSentientMesh: true,
-    meshShape: "svg",
-    svgUrl: "/svgs/eclipse-geometry.svg",
-    icon: <Globe className="w-6 h-6 text-zinc-300" />
-  },
   {
     id: "module-10",
     num: "10",

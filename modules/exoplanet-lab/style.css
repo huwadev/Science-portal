@@ -13,12 +13,14 @@
 
 /* Header */
 .lab-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 32px;
-    border-bottom: 1px solid rgba(18, 93, 255, 0.2);
-    z-index: 10;
+    display: none !important;
+}
+
+#audio-toggle {
+    position: absolute;
+    top: 14px;
+    right: 20px;
+    z-index: 100;
 }
 
 .lab-title-group {

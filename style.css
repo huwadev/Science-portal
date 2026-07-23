@@ -2018,3 +2018,8 @@ body.stargazer-mode::after {
     0% { transform: translateX(-4px); }
     100% { transform: translateX(4px); }
 }
+
+/* Hide duplicate internal module header bar in system iframe mode */
+.lab-header {
+    display: none !important;
+}

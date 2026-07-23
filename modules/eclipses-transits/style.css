@@ -1656,6 +1656,30 @@ body {
    Dynamic Map Polish
    ============================================================ */
 
+.esss-top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    overflow: visible;
+    background: transparent;
+    border: none;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.esss-topbar-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 12px 20px;
+}
+
+.esss-topbar-left {
+    display: none !important;
+}
+
 /* Eclipse Obscuration Legend Bar (horizontal, below the map) */
 .eclipse-legend-bar {
     display: flex;

@@ -48,28 +48,52 @@ export default function ModuleHostPage() {
     return () => clearInterval(interval);
   }, [slug]);
 
-  const formattedTitle = slug
-    ? slug
-        .split("-")
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(" ")
-    : "Module";
+  const MODULE_META: Record<string, { title: string; section: string; sectionHref: string }> = {
+    "cosmic-ladder": { title: "The Cosmic Distance Ladder", section: "LABS", sectionHref: "/labs" },
+    "exoplanet-lab": { title: "Exoplanet Transit Light Curve Lab", section: "LABS", sectionHref: "/labs" },
+    "slingshot-sandbox": { title: "Gravitational Slingshot Sandbox", section: "LABS", sectionHref: "/labs" },
+    "rocket-ballistics": { title: "Amateur Rocket Ballistics Engine", section: "LABS", sectionHref: "/labs" },
+    "satellite-doppler": { title: "LEO Satellite Pass & Doppler Calculator", section: "LABS", sectionHref: "/labs" },
+    "aperture-synthesis": { title: "Radio Aperture Synthesis Visualizer", section: "LABS", sectionHref: "/labs" },
+    "orbital-mechanics": { title: "Multi-Phase Orbital Mechanics Simulator", section: "LABS", sectionHref: "/labs" },
+    "lunar-explorer": { title: "3D Lunar Surface Explorer", section: "APPS", sectionHref: "/apps" },
+    "walk-in-solar-system": { title: "Interactive Solar System Walk", section: "APPS", sectionHref: "/apps" },
+    "eclipses-transits": { title: "Solar & Lunar Eclipse Predictor", section: "APPS", sectionHref: "/apps" }
+  };
+
+  const meta = MODULE_META[slug] || {
+    title: slug
+      ? slug
+          .split("-")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" ")
+      : "Module",
+    section: "LABS",
+    sectionHref: "/labs"
+  };
 
   return (
     <div className="h-screen w-screen flex flex-col bg-white dark:bg-black text-zinc-900 dark:text-white overflow-hidden select-none">
-      {/* Simulation Top Bar */}
+      {/* Simulation System Breadcrumb Top Bar */}
       <header className="h-14 bg-zinc-50 dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800/80 px-6 flex justify-between items-center flex-shrink-0 z-30">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2.5">
           <Link
             href="/"
-            className="flex items-center gap-2 text-xs font-mono font-bold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+            className="flex items-center gap-1.5 text-xs font-mono font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             <span>PORTAL</span>
           </Link>
-          <span className="text-zinc-300 dark:text-zinc-700">/</span>
+          <span className="text-zinc-300 dark:text-zinc-700 font-mono text-xs">/</span>
+          <Link
+            href={meta.sectionHref}
+            className="text-xs font-mono font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors uppercase"
+          >
+            {meta.section}
+          </Link>
+          <span className="text-zinc-300 dark:text-zinc-700 font-mono text-xs">/</span>
           <span className="text-xs font-mono font-extrabold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
-            {formattedTitle}
+            {meta.title}
           </span>
         </div>
 
@@ -110,7 +134,7 @@ export default function ModuleHostPage() {
                 Launching Module
               </span>
               <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight">
-                {formattedTitle}
+                {meta.title}
               </h2>
             </div>
 
