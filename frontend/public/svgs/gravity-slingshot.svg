@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="gravity-slingshot" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <!-- Massive Planet Body -->
+  <circle cx="260" cy="300" r="110" fill="none" stroke="#FFFFFF" stroke-width="16" />
+  <circle cx="260" cy="300" r="140" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-dasharray="16 12" opacity="0.9" />
+  <!-- Hyperbolic Slingshot Trajectory Curve -->
+  <path d="M70,90 C150,180 200,450 390,460 C490,465 545,410 565,340" fill="none" stroke="#FFFFFF" stroke-width="16" />
+  <!-- Velocity Boost Arrow Vectors -->
+  <polyline points="525,385 565,340 545,405" fill="none" stroke="#FFFFFF" stroke-width="14" />
+  <!-- Gravitational Potential Well Rings -->
+  <ellipse cx="260" cy="300" rx="195" ry="85" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-dasharray="18 14" transform="rotate(25 260 300)" opacity="0.85" />
+</svg>

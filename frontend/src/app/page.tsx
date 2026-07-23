@@ -26,6 +26,7 @@ import {
   Orbit
 } from "lucide-react";
 import SiteCard from "@/components/SiteCard";
+import SentientMeshCanvas from "@/components/SentientMeshCanvas";
 import UniversalNavbar from "@/components/UniversalNavbar";
 import UniversalFooter from "@/components/UniversalFooter";
 
@@ -38,6 +39,9 @@ interface CarouselApp {
   oneSentenceDescAm: string;
   image: string;
   link: string;
+  meshShape?: string;
+  svgUrl?: string;
+  icon: React.ElementType;
 }
 
 const TOP_CAROUSEL_APPS: CarouselApp[] = [
@@ -46,50 +50,37 @@ const TOP_CAROUSEL_APPS: CarouselApp[] = [
     title: "Walk in the Solar System",
     titleAm: "በሶላር ሲስተም ውስጥ ጉዞ",
     badge: "3D Navigation",
-    oneSentenceDesc: "Navigate our cosmic neighborhood with accurate 3D orbital physics and scaled planetary bodies.",
-    oneSentenceDescAm: "በትክክለኛ 3D ኦርቢታል ፊዚክስ በሶላር ሲስተም ውስጥ ይጓዙ።",
-    image: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?q=80&w=1400&auto=format&fit=crop",
-    link: "/modules/walk-in-solar-system"
+    oneSentenceDesc: "An immersive 3D simulation of planets, moons, and their orbits—bringing Hewa+ app functionalities directly to your browser for interactive space learning.",
+    oneSentenceDescAm: "በይነተገናኝ የስፔስ ትምህርት የHewa+ መተግበሪያን ተግባራት ወደ ማሰሻዎ በቀጥታ የሚያመጣ የፕላኔቶች እና የጨረቃዎች 3D ሲሙሌሽን።",
+    image: "/images/1D4A3091.MOV 8_7_2025 3_14_19 PM.png",
+    link: "/modules/walk-in-solar-system",
+    meshShape: "svg",
+    svgUrl: "/svgs/solar-system-orbit.svg",
+    icon: Orbit
   },
   {
     id: "lunar-explorer",
     title: "3D Lunar Explorer",
     titleAm: "3D የጨረቃ ዳሰሳ",
     badge: "Topography",
-    oneSentenceDesc: "Inspect high-resolution lunar topography, crater formations, and Lunar Reconnaissance Orbiter telemetry.",
-    oneSentenceDescAm: "የጨረቃ ወለል እና ኤል.አር.ኦ ሳተላይት ኦርቢትን በ3D ይመልከቱ።",
-    image: "https://images.unsplash.com/photo-1522030299830-16b8d3d049fe?q=80&w=1400&auto=format&fit=crop",
-    link: "/modules/lunar-explorer"
+    oneSentenceDesc: "Zoom into historic landing sites, inspect topography, and examine high-resolution Lunar Reconnaissance Orbiter telemetry in full 3D.",
+    oneSentenceDescAm: "የጨረቃን ወለል ታሪካዊ ቦታዎች፣ ተራሮች እና የናሳ መረጃዎችን በ3D ዝርዝር ይመልከቱ።",
+    image: "/images/1D4A3209.png",
+    link: "/modules/lunar-explorer",
+    meshShape: "sphere",
+    icon: Moon
   },
   {
     id: "eclipses-transits",
     title: "Solar & Lunar Eclipse Predictor",
     titleAm: "የፀሐይ እና የጨረቃ ግርዶሽ ትንበያ",
     badge: "Ephemerides",
-    oneSentenceDesc: "Calculate totality pathways, penumbral coverage, and local obscuration statistics for past and future eclipses.",
-    oneSentenceDescAm: "የፀሐይ እና የጨረቃ ግርዶሽ መንገዶችን እና ጊዜያትን በትክክል ይተንብዩ።",
-    image: "https://images.unsplash.com/photo-1532693322450-2cb5c511067d?q=80&w=1400&auto=format&fit=crop",
-    link: "/modules/eclipses-transits"
-  },
-  {
-    id: "satellite-doppler",
-    title: "Satellite Doppler Tracker",
-    titleAm: "የሳተላይት ዶፕለር መከታተያ",
-    badge: "Telemetry",
-    oneSentenceDesc: "Track low Earth orbit satellites in real-time and compute ground station radio frequency Doppler shifts.",
-    oneSentenceDescAm: "የሳተላይቶች የኦርቢት ጉዞ እና የሬዲዮ ዶፕለር ሽፍት በቅጽበት ይከታተሉ።",
-    image: "https://images.unsplash.com/photo-1517976487492-5750f3195933?q=80&w=1400&auto=format&fit=crop",
-    link: "/modules/satellite-doppler"
-  },
-  {
-    id: "exoplanet-lab",
-    title: "Exoplanet Transit Light Curve Lab",
-    titleAm: "የኤክሶፕላኔት ዳሰሳ ላብ",
-    badge: "Astrophysics",
-    oneSentenceDesc: "Simulate distant planetary transits across host stars to derive light dimming curves and radial velocity wobbles.",
-    oneSentenceDescAm: "ከሶላር ሲስተም ውጪ ያሉ ፕላኔቶችን የብርሃን ቅናሽ ግራፍ ይስሉ እና ይመረምሩ።",
-    image: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=1400&auto=format&fit=crop",
-    link: "/modules/exoplanet-lab"
+    oneSentenceDesc: "Calculate exact shadow paths, penumbral coverage, and local obscurations so you never miss another solar or lunar eclipse.",
+    oneSentenceDescAm: "የፀሐይ እና የጨረቃ ግርዶሽ የአካባቢውን መቶኛ እና ጥላ መንገድ በትክክል በማስላት ግርዶሾችን መቼም እንዳያመልጥዎት።",
+    image: "/images/1D4A3251.png",
+    link: "/modules/eclipses-transits",
+    meshShape: "hyperboloid",
+    icon: Sun
   }
 ];
 
@@ -319,7 +310,7 @@ export default function Home() {
 
       {/* 1. SPACE APPS HERO CAROUSEL */}
       <section
-        className="relative w-full overflow-hidden bg-black text-white group"
+        className="relative w-full overflow-hidden bg-black text-white group/carousel"
         onMouseEnter={() => setIsCarouselPaused(true)}
         onMouseLeave={() => setIsCarouselPaused(false)}
       >
@@ -336,13 +327,13 @@ export default function Home() {
                   transition={{ duration: 0.6 }}
                   className="absolute inset-0 w-full h-full flex items-center"
                 >
-                  {/* Background Image */}
-                  <div
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-[10000ms] ease-linear group-hover:scale-103"
-                    style={{ backgroundImage: `url(${app.image})` }}
-                  />
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/30" />
+                  {/* Full-Bleed Sentient Mesh Background (No photo, no secondary container) */}
+                  <div className="absolute inset-0 w-full h-full pointer-events-none">
+                    <SentientMeshCanvas activeObject={app.meshShape} svgUrl={app.svgUrl} autoRotate={false} />
+                  </div>
+
+                  {/* Dark Gradient Overlay for text contrast */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent pointer-events-none z-10" />
 
                   {/* Content Layer with Inset Side Margins (Clears Nav Arrows) */}
                   <div
@@ -365,14 +356,14 @@ export default function Home() {
                       <div className="pt-4 flex items-center gap-4">
                         <Link
                           href={app.link}
-                          className="group relative inline-flex items-center justify-between gap-4 px-8 py-3.5 rounded-full bg-zinc-950/90 border border-white/25 hover:bg-[#FBE04C] hover:border-[#FBE04C] transition-all duration-300 shadow-2xl cursor-pointer"
+                          className="group/btn relative inline-flex items-center justify-between gap-4 px-8 py-3.5 rounded-full bg-zinc-950/90 light:bg-zinc-100 border border-white/25 light:border-zinc-300 hover:!bg-[#FFEA4B] light:hover:!bg-[#FFEA4B] hover:!border-[#FFEA4B] light:hover:!border-[#FFEA4B] transition-all duration-200 shadow-2xl cursor-pointer"
                         >
-                          <span className="text-xs font-mono font-bold tracking-widest uppercase text-white group-hover:text-black transition-colors duration-300">
+                          <span className="text-xs font-mono font-bold tracking-widest uppercase text-white light:text-zinc-900 group-hover/btn:!text-black transition-colors duration-200">
                             LAUNCH APPLICATION
                           </span>
                           <div className="flex items-center justify-center w-6 h-6">
                             <svg
-                              className="w-5 h-5 text-white group-hover:hidden transition-all duration-300"
+                              className="w-5 h-5 text-white group-hover/btn:hidden transition-all duration-300"
                               viewBox="0 0 24 24"
                               fill="none"
                               stroke="currentColor"
@@ -384,7 +375,7 @@ export default function Home() {
                               <polyline points="7 7 17 7 17 17" />
                             </svg>
                             <svg
-                              className="w-5 h-5 text-black hidden group-hover:block transition-all duration-300"
+                              className="w-5 h-5 text-black hidden group-hover/btn:block transition-all duration-300"
                               viewBox="0 0 24 24"
                               fill="none"
                               stroke="currentColor"
@@ -421,372 +412,330 @@ export default function Home() {
             <ChevronRight size={24} />
           </button>
 
-          {/* Progress Bar */}
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-900 z-30">
+          {/* Ultra-Thin Gradient Progress Bar Line */}
+          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-white/10 z-30">
             <div
-              className="h-full bg-white transition-all ease-linear"
+              className="h-full bg-gradient-to-r from-transparent via-[#FFEA4B] to-[#FFF7B8] transition-all ease-linear shadow-[0_0_10px_#FFEA4B]"
               style={{ width: `${progress}%` }}
             />
           </div>
 
-          {/* CIRCLE THUMBNAIL PREVIEWS */}
+          {/* ICON THUMBNAIL INDICATORS */}
           <div className="absolute bottom-8 right-12 z-30 hidden lg:flex items-center gap-3">
-            {TOP_CAROUSEL_APPS.map((app, idx) => (
-              <button
-                key={app.id}
-                onClick={() => setCarouselIndex(idx)}
-                style={{ width: "64px", height: "64px", borderRadius: "50%" }}
-                className={`relative overflow-hidden border-2 transition-all cursor-pointer shadow-xl ${
-                  idx === carouselIndex ? "border-white scale-110 shadow-white/30" : "border-white/20 opacity-50 hover:opacity-100"
-                }`}
-                title={app.title}
+            {TOP_CAROUSEL_APPS.map((app, idx) => {
+              const IconComponent = app.icon as React.ComponentType<{ className?: string }>;
+              const isActive = idx === carouselIndex;
+              return (
+                <button
+                  key={app.id}
+                  onClick={() => setCarouselIndex(idx)}
+                  style={{ width: "48px", height: "48px", borderRadius: "50%" }}
+                  className={`relative flex items-center justify-center transition-all cursor-pointer backdrop-blur-md ${
+                    isActive
+                      ? "bg-[#FFEA4B] text-black border-2 border-[#FFEA4B] scale-110 shadow-lg shadow-[#FFEA4B]/40 font-bold"
+                      : "bg-zinc-900/80 border border-white/20 text-zinc-400 hover:text-white hover:border-white/40 hover:bg-zinc-800"
+                  }`}
+                  title={app.title}
+                >
+                  <IconComponent className="w-5 h-5" />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* 2. STELLAR YELLOW MISSION BANNER (SPACIOUS & ELEGANT) */}
+      <section className="my-20 sm:my-28 max-w-7xl mx-auto px-4 sm:px-8">
+        <div className="bg-[#FFEA4B] rounded-[2.5rem] p-10 sm:p-20 text-black shadow-2xl relative overflow-hidden">
+          {/* Centered Non-Interactable Black Low-Poly-Fabric Sentient Mesh Background */}
+          <div className="absolute inset-0 w-full h-full pointer-events-none opacity-25 mix-blend-multiply z-0">
+            <SentientMeshCanvas
+              activeObject="low-poly-fabric"
+              themeColor="#000000"
+              darkMode={false}
+              bgColor="bg-transparent"
+              autoRotate={false}
+            />
+          </div>
+
+          {/* Subtle sci-fi grid overlay */}
+          <div className="absolute inset-0 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.07] pointer-events-none" />
+
+          <div className="max-w-3xl mx-auto text-center space-y-8 relative z-10">
+            <h2 className="text-4xl sm:text-6xl font-black text-black tracking-tight leading-[1.1]">
+              Democratizing Space Science <br />
+              <span className="font-normal opacity-80">For Everyone, Everywhere</span>
+            </h2>
+
+            <p className="text-base sm:text-xl text-zinc-900 leading-relaxed font-medium max-w-2xl mx-auto">
+              Welcome to the ESSS Science Portal — a free interactive learning environment built by the Ethiopian Space Science Society to make space science intuitive and accessible for students, educators, and space enthusiasts.
+            </p>
+
+            <div className="pt-4 flex flex-wrap items-center justify-center gap-5">
+              <Link href="/apps" className="px-8 py-4 rounded-full bg-black text-white hover:bg-zinc-800 font-bold text-xs tracking-widest uppercase transition-all shadow-xl cursor-pointer flex items-center gap-3 hover:scale-105">
+                <span>Launch Space Apps</span>
+                <ArrowRight size={16} />
+              </Link>
+              <Link href="/labs" className="px-8 py-4 rounded-full border-2 border-black hover:bg-black/10 text-black font-bold text-xs tracking-widest uppercase transition-all cursor-pointer hover:scale-105">
+                Explore Science Labs
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. FEATURE STORY 1: IMAGE LEFT, TEXT RIGHT (Student & Classroom Learning) */}
+      <section className="max-w-7xl mx-auto px-6 sm:px-8 py-20 sm:py-28 border-t border-zinc-800/40 light:border-zinc-200">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 sm:gap-16 items-center">
+          {/* Image Container with Local Asset, B&W to Color/Yellow Glow Hover */}
+          <div className="lg:col-span-6 group relative rounded-[2rem] overflow-hidden border border-zinc-800 light:border-zinc-200 shadow-2xl cursor-pointer">
+            <img
+              src="/images/1D4A3209.png"
+              alt="Students Learning Space Science"
+              className="w-full h-[400px] sm:h-[480px] object-cover filter grayscale contrast-125 brightness-95 group-hover:grayscale-0 group-hover:contrast-110 transition-all duration-700 ease-out group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-[#FFEA4B]/0 group-hover:bg-[#FFEA4B]/25 transition-all duration-700 pointer-events-none mix-blend-overlay" />
+            <div className="absolute top-6 left-6 z-10">
+              <span className="px-4 py-1.5 rounded-full bg-black/85 text-[#FFEA4B] text-xs font-mono font-bold uppercase tracking-widest backdrop-blur-md">
+                Student Learning
+              </span>
+            </div>
+          </div>
+
+          <div className="lg:col-span-6 space-y-8">
+            <div className="space-y-4">
+              <span className="text-xs font-mono font-bold text-[#FFEA4B] light:text-[#3C3318] uppercase tracking-widest">Hands-On Space Education</span>
+              <h2 className="text-3xl sm:text-5xl font-black text-white light:text-zinc-900 tracking-tight leading-tight">
+                Bringing Space Science <br />
+                <span className="text-zinc-400 light:text-zinc-500 font-normal">To Ethiopian Classrooms</span>
+              </h2>
+            </div>
+            <p className="text-base sm:text-lg text-zinc-300 light:text-zinc-700 leading-relaxed">
+              Our interactive 3D simulators empower students, teachers, and space school clubs across Ethiopia to explore orbital physics, lunar topography, and astronomical principles hands-on directly in their web browsers.
+            </p>
+            <div className="pt-2">
+              <Link
+                href="/modules/lunar-explorer"
+                className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-white light:bg-zinc-900 text-black light:text-white font-mono font-bold text-xs uppercase tracking-widest hover:bg-[#FFEA4B] light:hover:bg-[#FFEA4B] light:hover:text-black transition-all cursor-pointer shadow-xl hover:scale-105"
               >
-                <img src={app.image} alt={app.title} className="w-full h-full object-cover" />
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 2. HERO SECTION WITH RESTORED 3D GRAVITY WELL RELATIVITY LATTICE & ANIMATED RADAR SIMULATION */}
-      <section className="hero-section">
-        <div className="container hero-wrapper">
-          <div className="hero-content">
-            <span className="hero-badge" data-i18n="hero_badge" id="hero-badge-txt">ESSS Science & Innovation</span>
-            <h1 className="hero-title"><span className="text-gradient" data-i18n="hero_title" id="hero-title-txt">Ethiopian Space Science Society</span></h1>
-            <p className="hero-subtitle" data-i18n="hero_subtitle" id="hero-subtitle-txt">Exploration, Innovation, and Inspiration for Africa's Space Future.</p>
-            <div className="hero-actions">
-              <a href="#featured-lunar" className="btn btn-primary" data-i18n="hero_cta" id="hero-cta-btn">Explore the Universe</a>
-              <Link href="/apps" className="btn btn-secondary" data-i18n="hero_secondary" id="hero-secondary-btn">View Space Apps</Link>
-            </div>
-          </div>
-
-          <div className="hero-visual">
-            <div className="dashboard-wireframe">
-              {/* ANIMATED RADAR SIMULATION LAYERS */}
-              <div className="grid-overlay"></div>
-              <div className="radar-sweep"></div>
-              <div className="orbit-visualizer-container">
-                <div className="dashboard-circle ring-outer"></div>
-                <div className="dashboard-circle ring-mid"></div>
-                <div className="dashboard-circle ring-inner"></div>
-                <div className="pulsing-core"></div>
-                <div className="orbiting-marker"></div>
-              </div>
-
-              <div className="telemetry-node top-left">
-                <span className="telemetry-label">SYS.LAT</span>
-                <span className="telemetry-val">9.0300° N</span>
-              </div>
-              <div className="telemetry-node top-right">
-                <span className="telemetry-label">SYS.LON</span>
-                <span className="telemetry-val">38.7400° E</span>
-              </div>
-              <div className="telemetry-node bottom-left">
-                <span className="telemetry-label">ALT.ORBIT</span>
-                <span className="telemetry-val" id="alt-val">628 KM</span>
-              </div>
-              <div className="telemetry-node bottom-right">
-                <span className="telemetry-label">SPACE WX</span>
-                <span className="telemetry-val" id="sw-val">Kp 2.0</span>
-              </div>
+                <span>Explore Lunar Simulator</span>
+                <ArrowRight size={16} />
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. FEATURED SPACE APPS GRID SHOWCASE */}
-      <section className="max-w-7xl mx-auto px-6 sm:px-8 py-16">
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-12">
-          <div>
-            <span className="text-xs font-mono font-bold text-zinc-400 uppercase tracking-widest">// EXPLORE APPLICATIONS</span>
-            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mt-1">
-              Featured <span className="text-zinc-400">Space Applications</span>
+      {/* 4. FEATURED SPACE APPS GRID SHOWCASE (PART 1) */}
+      <section className="max-w-7xl mx-auto px-6 sm:px-8 py-16 sm:py-24">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 mb-14">
+          <div className="space-y-2">
+            <span className="text-xs font-mono font-bold text-zinc-400 light:text-zinc-500 uppercase tracking-widest">Interactive Simulators</span>
+            <h2 className="text-3xl sm:text-5xl font-black text-white light:text-zinc-900 tracking-tight">
+              Featured <span className="text-zinc-400 light:text-zinc-500 font-normal">Space Applications</span>
             </h2>
           </div>
           <Link
             href="/apps"
-            className="group flex items-center gap-2 text-xs font-mono font-bold text-white hover:text-[#FBE04C] transition-colors"
+            className="group flex items-center gap-2 text-xs font-mono font-bold text-white light:text-[#3C3318] hover:text-[#FFEA4B] light:hover:text-[#FFEA4B] transition-colors"
           >
             <span>VIEW ALL APPLICATIONS</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
           <SiteCard
             title="Walk in the Solar System"
             description="Navigate our cosmic neighborhood with accurate 3D orbital physics and scaled planetary bodies."
-            image="https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?q=80&w=800&auto=format&fit=crop"
+            image=""
+            useSentientMesh={true}
+            meshShape="svg"
+            svgUrl="/svgs/solar-system-orbit.svg"
             href="/modules/walk-in-solar-system"
             badge="3D Navigation"
             category="Navigators"
-            aspectRatio="h-[340px] sm:h-[380px]"
+            aspectRatio="h-[340px]"
           />
           <SiteCard
             title="3D Lunar Explorer"
             description="Inspect high-resolution lunar topography, crater formations, and Lunar Reconnaissance Orbiter telemetry."
-            image="https://images.unsplash.com/photo-1522030299830-16b8d3d049fe?q=80&w=800&auto=format&fit=crop"
+            image=""
+            useSentientMesh={true}
+            meshShape="svg"
+            svgUrl="/svgs/lunar-topography.svg"
             href="/modules/lunar-explorer"
             badge="Topography"
             category="Exploration"
-            aspectRatio="h-[340px] sm:h-[380px]"
+            aspectRatio="h-[340px]"
           />
           <SiteCard
             title="Solar & Lunar Eclipse Predictor"
             description="Calculate totality pathways, penumbral coverage, and local obscuration statistics."
-            image="https://images.unsplash.com/photo-1532693322450-2cb5c511067d?q=80&w=800&auto=format&fit=crop"
+            image=""
+            useSentientMesh={true}
+            meshShape="svg"
+            svgUrl="/svgs/eclipse-geometry.svg"
             href="/modules/eclipses-transits"
             badge="Ephemerides"
             category="Calculators"
-            aspectRatio="h-[340px] sm:h-[380px]"
+            aspectRatio="h-[340px]"
           />
         </div>
       </section>
 
-      {/* 4. FEATURED PROJECTS SECTIONS (100% FULLY STYLED SCHEMATICS) */}
-      <main className="main-content" id="apps">
-        <div className="container">
-          {/* FEATURED SECTION 1: 3D LUNAR EXPLORER */}
-          <section className="featured-section" id="featured-lunar" style={{ marginBottom: "60px" }}>
-            <div className="section-header text-center">
-              <span className="section-tag" data-i18n="lunar_tag" id="lunar-tag-txt">Featured Space App</span>
-              <h2 className="section-title"><span className="text-gradient" data-i18n="lunar_title_main" id="lunar-title-main-txt">3D Interactive Lunar Explorer</span></h2>
+      {/* 5. FEATURE STORY 2: FULL WIDTH, TEXT LEFT, BLACK & WHITE IMAGE RIGHT WITH LEFT BLENDING GRADIENT */}
+      <section className="w-full relative overflow-hidden py-20 sm:py-28 border-t border-zinc-800/40 light:border-zinc-200 bg-black light:bg-white">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-12 items-center">
+          {/* Left Text Content */}
+          <div className="lg:col-span-6 px-6 sm:px-12 lg:pl-16 xl:pl-24 lg:pr-8 py-8 space-y-8 order-2 lg:order-1 z-20">
+            <div className="space-y-4">
+              <span className="text-xs font-mono font-bold text-[#FFEA4B] light:text-[#3C3318] uppercase tracking-widest">Astronomy Clubs & Community</span>
+              <h2 className="text-3xl sm:text-5xl font-black text-white light:text-zinc-900 tracking-tight leading-tight">
+                Empowering Space Enthusiasts <br />
+                <span className="text-zinc-400 light:text-zinc-500 font-normal">& Young Researchers</span>
+              </h2>
             </div>
-
-            <div className="featured-card glass-panel">
-              <div className="featured-info">
-                <span className="status-badge live" data-i18n="status_active_lunar" id="status-active-lunar-txt">Space App</span>
-                <h3 className="featured-project-title" data-i18n="lunar_title" id="lunar-title-txt">3D Interactive Lunar Explorer</h3>
-                <p className="featured-project-desc" data-i18n="lunar_desc" id="lunar-desc-txt">
-                  Inspect high-resolution lunar topography, crater formations, real-time moon phase calculations, and LRO satellite orbital tracking in an interactive 3D environment.
-                </p>
-                
-                <div className="project-features">
-                  <h4 className="features-heading" data-i18n="lunar_features_title" id="lunar-features-title-txt">Key Features:</h4>
-                  <ul className="features-list">
-                    <li>
-                      <svg className="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
-                      <span data-i18n="lunar_feat_1" id="lunar-feat-1-txt">3D Lunar Surface & Crater Topography</span>
-                    </li>
-                    <li>
-                      <svg className="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
-                      <span data-i18n="lunar_feat_2" id="lunar-feat-2-txt">LRO Satellite Polar Orbit Simulation</span>
-                    </li>
-                    <li>
-                      <svg className="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
-                      <span data-i18n="lunar_feat_3" id="lunar-feat-3-txt">Real-time Phase Telemetry & Illumination</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="featured-actions">
-                  <a href="/modules/lunar-explorer" className="btn btn-primary btn-large btn-icon" id="lunar-launch-btn">
-                    <span data-i18n="lunar_button" id="lunar-button-txt">Launch Lunar Explorer</span>
-                    <svg className="btn-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                    </svg>
-                  </a>
-                </div>
-              </div>
-
-              <div className="featured-visual-container">
-                <div className="lunar-schematic">
-                  <div className="schematic-moon-large">
-                    <div className="moon-crater crater-1"></div>
-                    <div className="moon-crater crater-2"></div>
-                    <div className="moon-crater crater-3"></div>
-                    <div className="moon-crater crater-4"></div>
-                    <div className="moon-crater crater-5"></div>
-                  </div>
-                  <div className="orbit-lro">
-                    <div className="satellite-marker">
-                      <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17.5 4.5l-2-2L9.2 8.8l-1.3-.7-1.4 1.4 2.8 2.8-5.3 5.3 1.4 1.4 5.3-5.3 2.8 2.8 1.4-1.4-.7-1.3 6.3-6.3-2-2-1.3.7-3.8-3.8.7-1.3zM15 8.3L10.7 4 12 2.7l4.3 4.3L15 8.3zm-6.7 6.7L4 10.7 2.7 12l4.3 4.3 1.3-1.3z"/>
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="visual-panel-telemetry">
-                  <div className="telemetry-bar">
-                    <span className="lbl">DSN UPLINK</span>
-                    <span className="val">NOMINAL 🟢</span>
-                  </div>
-                  <div className="telemetry-bar">
-                    <span className="lbl">SATELLITE ORBIT</span>
-                    <span className="val">LRO POLAR</span>
-                  </div>
-                </div>
-              </div>
+            <p className="text-base sm:text-lg text-zinc-300 light:text-zinc-700 leading-relaxed max-w-xl">
+              From calculating local solar eclipse totality pathways over East Africa to tracking low Earth orbit satellites in real time, the ESSS Science Portal equips space enthusiasts and university students with high-precision research tools.
+            </p>
+            <div className="pt-2">
+              <Link
+                href="/modules/eclipses-transits"
+                className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-white light:bg-zinc-900 text-black light:text-white font-mono font-bold text-xs uppercase tracking-widest hover:bg-[#FFEA4B] light:hover:bg-[#FFEA4B] light:hover:text-black transition-all cursor-pointer shadow-xl hover:scale-105"
+              >
+                <span>Launch Eclipse Predictor</span>
+                <ArrowRight size={16} />
+              </Link>
             </div>
-          </section>
+          </div>
 
-          {/* FEATURED SECTION 2: SOLAR & LUNAR ECLIPSE PREDICTOR */}
-          <section className="featured-section" id="featured-eclipse" style={{ marginBottom: "60px" }}>
-            <div className="section-header text-center">
-              <span className="section-tag" data-i18n="eclipse_tag" id="eclipse-tag-txt">Featured Space App</span>
-              <h2 className="section-title"><span className="text-gradient" data-i18n="eclipse_title_main" id="eclipse-title-main-txt">Solar & Lunar Eclipse Predictor</span></h2>
-            </div>
-
-            <div className="featured-card glass-panel">
-              <div className="featured-info">
-                <span className="status-badge live" data-i18n="status_active_eclipse" id="status-active-eclipse-txt">Space App</span>
-                <h3 className="featured-project-title" data-i18n="eclipse_title" id="eclipse-title-txt">Solar & Lunar Eclipse Predictor</h3>
-                <p className="featured-project-desc" data-i18n="eclipse_desc" id="eclipse-desc-txt">
-                  Explore past and future solar and lunar eclipses. Inspect totality paths, penumbral coverage, and local obscuration details using our high-precision simulation engine.
-                </p>
-                
-                <div className="project-features">
-                  <h4 className="features-heading" data-i18n="eclipse_features_title" id="eclipse-features-title-txt">Key Features:</h4>
-                  <ul className="features-list">
-                    <li>
-                      <svg className="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
-                      <span data-i18n="eclipse_feat_1" id="eclipse-feat-1-txt">Precision 2D/3D dynamic map views</span>
-                    </li>
-                    <li>
-                      <svg className="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
-                      <span data-i18n="eclipse_feat_2" id="eclipse-feat-2-txt">Custom local simulation & stats</span>
-                    </li>
-                    <li>
-                      <svg className="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
-                      <span data-i18n="eclipse_feat_3" id="eclipse-feat-3-txt">Syzygy geometry & umbra calculation</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="featured-actions">
-                  <a href="/modules/eclipses-transits" className="btn btn-primary btn-large btn-icon" id="eclipse-launch-btn">
-                    <span data-i18n="eclipse_button" id="eclipse-button-txt">Launch Eclipse Predictor</span>
-                    <svg className="btn-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                    </svg>
-                  </a>
-                </div>
-              </div>
-
-              <div className="featured-visual-container">
-                <div className="eclipse-schematic">
-                  <div className="schematic-sun-body">
-                    <div className="sun-glow"></div>
-                  </div>
-                  <div className="schematic-moon-body"></div>
-                  <div className="schematic-earth-body">
-                    <div className="earth-glow"></div>
-                  </div>
-                  <svg className="eclipse-geometry-svg" viewBox="0 0 380 380">
-                    <line x1="65" y1="155" x2="190" y2="180" stroke="rgba(255, 255, 255, 0.25)" strokeWidth="1" strokeDasharray="3, 3" />
-                    <line x1="65" y1="225" x2="190" y2="200" stroke="rgba(255, 255, 255, 0.25)" strokeWidth="1" strokeDasharray="3, 3" />
-                    <line x1="65" y1="155" x2="190" y2="200" stroke="rgba(255, 255, 255, 0.12)" strokeWidth="0.8" strokeDasharray="2, 2" />
-                    <line x1="65" y1="225" x2="190" y2="180" stroke="rgba(255, 255, 255, 0.12)" strokeWidth="0.8" strokeDasharray="2, 2" />
-                    <polygon points="190,180 310,186 310,194 190,200" fill="rgba(0, 0, 0, 0.85)" />
-                    <polygon points="190,180 310,150 310,230 190,200" fill="rgba(255, 255, 255, 0.05)" />
-                  </svg>
-                </div>
-                
-                <div className="visual-panel-telemetry">
-                  <div className="telemetry-bar">
-                    <span className="lbl">ALIGNMENT</span>
-                    <span className="val">SYZYGY 🟢</span>
-                  </div>
-                  <div className="telemetry-bar">
-                    <span className="lbl">SHADOW AXIS</span>
-                    <span className="val">UMBRA / PENUMBRA</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* FEATURED SECTION 3: WALK IN THE SOLAR SYSTEM */}
-          <section className="featured-section" id="featured-project">
-            <div className="section-header text-center">
-              <span className="section-tag" data-i18n="featured_tag" id="featured-tag-txt">Featured Space App</span>
-              <h2 className="section-title"><span className="text-gradient" data-i18n="featured_title_main" id="featured-title-main-txt">Walk in the Solar System</span></h2>
-            </div>
-
-            <div className="featured-card glass-panel">
-              <div className="featured-info">
-                <span className="status-badge live" data-i18n="status_active" id="status-active-txt">Space App</span>
-                <h3 className="featured-project-title" data-i18n="featured_title" id="featured-title-txt">Walk in the Solar System</h3>
-                <p className="featured-project-desc" data-i18n="featured_desc" id="featured-desc-txt">
-                  Experience our neighborhood in space with this interactive 3D map. Explore accurate orbital mechanics, scaled celestial bodies, and physics-based simulation.
-                </p>
-                
-                <div className="project-features">
-                  <h4 className="features-heading" data-i18n="features_title" id="features-title-txt">Key Features:</h4>
-                  <ul className="features-list">
-                    <li>
-                      <svg className="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
-                      <span data-i18n="feat_1" id="feat-1-txt">Interactive 3D celestial navigation</span>
-                    </li>
-                    <li>
-                      <svg className="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
-                      <span data-i18n="feat_2" id="feat-2-txt">Accurate orbital mechanics & scaling</span>
-                    </li>
-                    <li>
-                      <svg className="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
-                      <span data-i18n="feat_3" id="feat-3-txt">Bilingual guidance & rich educational details</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="featured-actions">
-                  <a href="/modules/walk-in-solar-system" className="btn btn-primary btn-large btn-icon" id="launch-btn">
-                    <span data-i18n="featured_button" id="featured-button-txt">Launch Interactive Map</span>
-                    <svg className="btn-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                    </svg>
-                  </a>
-                </div>
-              </div>
-
-              <div className="featured-visual-container">
-                <div className="solar-system-schematic">
-                  <div className="schematic-sun">
-                    <div className="sun-glow"></div>
-                  </div>
-                  
-                  <div className="schematic-orbit orbit-mercury">
-                    <div className="schematic-planet planet-mercury" data-tooltip="Mercury"></div>
-                  </div>
-                  
-                  <div className="schematic-orbit orbit-venus">
-                    <div className="schematic-planet planet-venus" data-tooltip="Venus"></div>
-                  </div>
-                  
-                  <div className="schematic-orbit orbit-earth">
-                    <div className="schematic-planet planet-earth" data-tooltip="Earth">
-                      <div className="schematic-moon"></div>
-                    </div>
-                  </div>
-                  
-                  <div className="schematic-orbit orbit-mars">
-                    <div className="schematic-planet planet-mars" data-tooltip="Mars"></div>
-                  </div>
-
-                  <div className="schematic-orbit orbit-jupiter">
-                    <div className="schematic-planet planet-jupiter" data-tooltip="Jupiter"></div>
-                  </div>
-
-                  <div className="orbit-lines-overlay"></div>
-                </div>
-                
-                <div className="visual-panel-telemetry">
-                  <div className="telemetry-bar">
-                    <span className="lbl">SIM TIME SPEED</span>
-                    <span className="val">1.0x (REAL)</span>
-                  </div>
-                  <div className="telemetry-bar">
-                    <span className="lbl">CELESTIAL NODES</span>
-                    <span className="val">8/9 ACTIVE</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
+          {/* Right Image Container (Full Width, Strictly Black & White with Left-Blending Gradient) */}
+          <div className="lg:col-span-6 relative w-full h-[400px] sm:h-[500px] lg:h-[580px] overflow-hidden order-1 lg:order-2">
+            <img
+              src="/images/1D4A3251.png"
+              alt="Space Enthusiasts Collaborating"
+              className="w-full h-full object-cover filter grayscale contrast-125 brightness-90"
+            />
+            {/* Left-to-Right Blending Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent light:from-white light:via-white/60 light:to-transparent pointer-events-none z-10" />
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* 6. FEATURED SCIENCE LAB MODULES SHOWCASE (BETWEEN 2ND AND 3RD PICTURE) */}
+      <section className="max-w-7xl mx-auto px-6 sm:px-8 py-16 sm:py-24 border-t border-zinc-800/40 light:border-zinc-200">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 mb-14">
+          <div className="space-y-2">
+            <span className="text-xs font-mono font-bold text-zinc-400 light:text-zinc-500 uppercase tracking-widest">Modular Lab Suites</span>
+            <h2 className="text-3xl sm:text-5xl font-black text-white light:text-zinc-900 tracking-tight">
+              Science Lab <span className="text-zinc-400 light:text-zinc-500 font-normal">Modules</span>
+            </h2>
+          </div>
+          <Link
+            href="/labs"
+            className="group flex items-center gap-2 text-xs font-mono font-bold text-white light:text-[#3C3318] hover:text-[#FFEA4B] light:hover:text-[#FFEA4B] transition-colors"
+          >
+            <span>EXPLORE ALL LABS</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-10">
+          {/* Card 1 testing the Sentient Mesh default cover! */}
+          <SiteCard
+            title="Exoplanet Transit Light Curve Lab"
+            description="Simulate planetary transits across distant host stars to plot transit light dimming curves and derive orbital radii."
+            image=""
+            useSentientMesh={true}
+            meshShape="svg"
+            svgUrl="/svgs/exoplanet-transit.svg"
+            href="/modules/exoplanet-lab"
+            badge="MOD 01"
+            category="Astrophysics"
+            aspectRatio="h-[340px]"
+          />
+          <SiteCard
+            title="Gravitational Slingshot Sandbox"
+            description="Launch a deep space probe past moving gas giants to execute gravity assist maneuvers and alter heliocentric velocity vectors."
+            image=""
+            useSentientMesh={true}
+            meshShape="svg"
+            svgUrl="/svgs/gravity-slingshot.svg"
+            href="/modules/slingshot-sandbox"
+            badge="MOD 02"
+            category="Astrophysics"
+            aspectRatio="h-[340px]"
+          />
+          <SiteCard
+            title="Radio Aperture Synthesis Visualizer"
+            description="Arrange radio telescope antenna baselines to observe how array geometry dictates UV plane sampling and synthesized beam resolution."
+            image=""
+            useSentientMesh={true}
+            meshShape="svg"
+            svgUrl="/svgs/radio-interferometer.svg"
+            href="/modules/aperture-synthesis"
+            badge="MOD 05"
+            category="Radio Science"
+            aspectRatio="h-[340px]"
+          />
+          <SiteCard
+            title="LEO Satellite Pass & Doppler Calculator"
+            description="Predict satellite footprint visibility, calculate ground station passes, and model real-time radio frequency Doppler shifts."
+            image=""
+            useSentientMesh={true}
+            meshShape="svg"
+            svgUrl="/svgs/satellite-tracker.svg"
+            href="/modules/satellite-doppler"
+            badge="MOD 04"
+            category="Aerospace Engineering"
+            aspectRatio="h-[340px]"
+          />
+        </div>
+      </section>
+
+      {/* 7. FEATURE STORY 3: IMAGE LEFT, TEXT RIGHT (Making Science Hands-On & Interactive) */}
+      <section className="max-w-7xl mx-auto px-6 sm:px-8 py-20 sm:py-28 border-t border-zinc-800/40 light:border-zinc-200">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 sm:gap-16 items-center">
+          {/* Image Container with Local Asset, B&W to Color/Yellow Glow Hover */}
+          <div className="lg:col-span-6 group relative rounded-[2rem] overflow-hidden border border-zinc-800 light:border-zinc-200 shadow-2xl cursor-pointer">
+            <img
+              src="/images/1D4A3091.MOV 8_7_2025 3_14_19 PM.png"
+              alt="Making Science Hands-On & Interactive"
+              className="w-full h-[400px] sm:h-[480px] object-cover filter grayscale contrast-125 brightness-95 group-hover:grayscale-0 group-hover:contrast-110 transition-all duration-700 ease-out group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-[#FFEA4B]/0 group-hover:bg-[#FFEA4B]/25 transition-all duration-700 pointer-events-none mix-blend-overlay" />
+            <div className="absolute top-6 left-6 z-10">
+              <span className="px-4 py-1.5 rounded-full bg-black/85 text-[#FFEA4B] text-xs font-mono font-bold uppercase tracking-widest backdrop-blur-md">
+                Hands-On Learning
+              </span>
+            </div>
+          </div>
+
+          <div className="lg:col-span-6 space-y-8">
+            <div className="space-y-4">
+              <span className="text-xs font-mono font-bold text-[#FFEA4B] light:text-[#3C3318] uppercase tracking-widest">Bridging the Gap</span>
+              <h2 className="text-3xl sm:text-5xl font-black text-white light:text-zinc-900 tracking-tight leading-tight">
+                Making Science Hands-On <br />
+                <span className="text-zinc-400 light:text-zinc-500 font-normal">& Truly Interactive</span>
+              </h2>
+            </div>
+            <p className="text-base sm:text-lg text-zinc-300 light:text-zinc-700 leading-relaxed">
+              By bringing complex astrophysical simulations, 3D orbital mechanics, and real satellite telemetry into an intuitive web platform—built with functionalities adapted from the official Hewa+ app—the ESSS Science Portal bridges the gap between theoretical textbook formulas and practical, visual discovery.
+            </p>
+            <div className="pt-2">
+              <Link
+                href="/apps"
+                className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-white light:bg-zinc-900 text-black light:text-white font-mono font-bold text-xs uppercase tracking-widest hover:bg-[#FFEA4B] light:hover:bg-[#FFEA4B] light:hover:text-black transition-all cursor-pointer shadow-xl hover:scale-105"
+              >
+                <span>Explore Interactive Apps</span>
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* UNIVERSAL ESSS ECOSYSTEM FOOTER */}
       <UniversalFooter />

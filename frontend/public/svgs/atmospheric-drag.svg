@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="atmospheric-drag" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <!-- Planetary Limb Curvature -->
+  <path d="M70,480 C190,310 410,310 530,480" fill="none" stroke="#FFFFFF" stroke-width="16" />
+  <!-- Atmospheric Layers Shells -->
+  <path d="M100,430 C200,280 400,280 500,430" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-dasharray="16 12" />
+  <path d="M130,380 C210,250 390,250 470,380" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-dasharray="12 10" opacity="0.85" />
+  <!-- Re-entry Capsule Payload Body -->
+  <polygon points="300,150 345,215 255,215" fill="none" stroke="#FFFFFF" stroke-width="14" />
+  <!-- Shockwave Bow Drag Curves -->
+  <path d="M210,175 C255,120 345,120 390,175" fill="none" stroke="#FFFFFF" stroke-width="14" />
+  <path d="M180,150 C245,85 355,85 420,150" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-dasharray="14 10" />
+</svg>

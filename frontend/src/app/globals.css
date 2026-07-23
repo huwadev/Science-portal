@@ -20,9 +20,9 @@
 @layer base {
   :root {
     /* Stellar Yellow SpaceDesign Palette */
-    --stellar-yellow-base: #FBE04C;      /* 10% Accent */
-    --stellar-yellow-secondary: #FDF0B5; /* Soft highlight text */
-    --stellar-yellow-tertiary: #403517;  /* Deep warm amber-gold dark border/surface */
+    --stellar-yellow-base: #FFEA4B;      /* 10% Accent */
+    --stellar-yellow-secondary: #FFF7B8; /* Soft highlight text */
+    --stellar-yellow-tertiary: #3C3318;  /* Deep warm amber-gold dark border/surface */
 
     /* 60% Dominant (Dark Background) */
     --background: #000000;
@@ -31,31 +31,31 @@
     /* 30% Structural (Surfaces, Cards & Text) */
     --secondary-color: #18181b;
     --card-bg: rgba(18, 18, 18, 0.85);
-    --card-border: rgba(251, 224, 76, 0.2);
+    --card-border: rgba(255, 234, 75, 0.2);
 
     /* 10% Accent (Stellar Yellow Base & Secondary) */
-    --primary-color: #FBE04C;
-    --primary-hover-color: #FDF0B5;
-    --accent-color: #FBE04C;
+    --primary-color: #FFEA4B;
+    --primary-hover-color: #FFF7B8;
+    --accent-color: #FFEA4B;
 
     /* Overrides for Legacy Scripts & Components */
-    --color-cosmic-base: #FBE04C;
-    --color-cosmic-secondary: #FDF0B5;
+    --color-cosmic-base: #FFEA4B;
+    --color-cosmic-secondary: #FFF7B8;
     --color-cosmic-tertiary: #000000;
     --color-neutral-base: #a1a1aa;
     --color-neutral-secondary: #ffffff;
     --color-neutral-tertiary: #18181b;
 
     --color-glass-bg: rgba(12, 12, 12, 0.85);
-    --color-glass-border: rgba(251, 224, 76, 0.25);
-    --color-glass-border-hover: rgba(251, 224, 76, 0.6);
+    --color-glass-border: rgba(255, 234, 75, 0.25);
+    --color-glass-border-hover: rgba(255, 234, 75, 0.6);
   }
 
   :root.light {
     /* Stellar Yellow SpaceDesign Palette (Light Mode) */
-    --stellar-yellow-base: #FBE04C;
-    --stellar-yellow-secondary: #FDF0B5;
-    --stellar-yellow-tertiary: #403517;
+    --stellar-yellow-base: #FFEA4B;
+    --stellar-yellow-secondary: #FFF7B8;
+    --stellar-yellow-tertiary: #3C3318;
 
     /* 60% Dominant (Light Background) */
     --background: #ffffff;
@@ -64,23 +64,23 @@
     /* 30% Structural */
     --secondary-color: #f4f4f5;
     --card-bg: rgba(255, 255, 255, 0.95);
-    --card-border: rgba(64, 53, 23, 0.2);
+    --card-border: rgba(60, 51, 24, 0.2);
 
     /* 10% Accent */
-    --primary-color: #403517;
-    --primary-hover-color: #FBE04C;
-    --accent-color: #FBE04C;
+    --primary-color: #3C3318;
+    --primary-hover-color: #FFEA4B;
+    --accent-color: #FFEA4B;
 
-    --color-cosmic-base: #403517;
-    --color-cosmic-secondary: #FBE04C;
+    --color-cosmic-base: #3C3318;
+    --color-cosmic-secondary: #FFEA4B;
     --color-cosmic-tertiary: #ffffff;
     --color-neutral-base: #52525b;
     --color-neutral-secondary: #09090b;
     --color-neutral-tertiary: #f4f4f5;
 
     --color-glass-bg: rgba(255, 255, 255, 0.9);
-    --color-glass-border: rgba(64, 53, 23, 0.2);
-    --color-glass-border-hover: rgba(64, 53, 23, 0.5);
+    --color-glass-border: rgba(60, 51, 24, 0.2);
+    --color-glass-border-hover: rgba(60, 51, 24, 0.5);
   }
 
   * {
@@ -109,16 +109,27 @@
   -webkit-text-fill-color: transparent !important;
 }
 
-/* High-Performance Theme Backgrounds (Pure Dark / Pure Light) */
+/* Pure High-Performance Solid Theme Backgrounds (Dark #000000 / Light #ffffff) */
 html, body {
   background-color: #000000;
-  color: #f4f4f5;
+  color: #ffffff;
 }
 
 :root.light body,
 html.light body {
   background-color: #ffffff !important;
-  color: #09090b !important;
+  color: #000000 !important;
+}
+
+/* Global High-Contrast Text Selection Rules (Black background with Stellar Yellow text) */
+::selection {
+  background-color: #000000 !important;
+  color: #FFEA4B !important;
+}
+
+::-moz-selection {
+  background-color: #000000 !important;
+  color: #FFEA4B !important;
 }
 
 /* Hide heavy canvas particle loops for maximum FPS & instant theme switching */

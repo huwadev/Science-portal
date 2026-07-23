@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="satellite-tracker" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <!-- Central Planet Earth -->
+  <circle cx="300" cy="300" r="120" fill="none" stroke="#FFFFFF" stroke-width="16" />
+  <!-- Equator & Meridian Grid -->
+  <ellipse cx="300" cy="300" rx="120" ry="45" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-dasharray="14 10" />
+  <!-- Satellite Orbit Ellipse -->
+  <ellipse cx="300" cy="300" rx="240" ry="120" fill="none" stroke="#FFFFFF" stroke-width="14" transform="rotate(-30 300 300)" />
+  <!-- Satellite Body & Solar Panels -->
+  <rect x="440" y="150" width="44" height="30" rx="6" fill="none" stroke="#FFFFFF" stroke-width="12" transform="rotate(-30 462 165)" />
+  <line x1="416" y1="165" x2="508" y2="165" stroke="#FFFFFF" stroke-width="12" transform="rotate(-30 462 165)" />
+  <!-- RF Signal Doppler Wave Arc -->
+  <path d="M430,220 A60,60 0 0,1 370,270" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-dasharray="12 8" />
+  <path d="M410,235 A40,40 0 0,1 370,270" fill="none" stroke="#FFFFFF" stroke-width="12" />
+</svg>

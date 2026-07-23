@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="solar-system-orbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <!-- Central Sun Sphere -->
+  <circle cx="300" cy="300" r="50" fill="none" stroke="#FFFFFF" stroke-width="16" />
+  <!-- Inner Orbit Track (Mercury/Venus) -->
+  <ellipse cx="300" cy="300" rx="110" ry="55" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-dasharray="14 10" transform="rotate(-15 300 300)" opacity="0.85" />
+  <!-- Earth Orbit Track -->
+  <ellipse cx="300" cy="300" rx="180" ry="90" fill="none" stroke="#FFFFFF" stroke-width="12" transform="rotate(-15 300 300)" />
+  <circle cx="468" cy="255" r="16" fill="none" stroke="#FFFFFF" stroke-width="12" />
+  <!-- Outer Gas Giant Orbit Track (Jupiter/Saturn) -->
+  <ellipse cx="300" cy="300" rx="245" ry="125" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-dasharray="20 14" transform="rotate(-15 300 300)" />
+  <circle cx="115" cy="350" r="24" fill="none" stroke="#FFFFFF" stroke-width="14" />
+</svg>

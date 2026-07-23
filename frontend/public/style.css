@@ -143,67 +143,10 @@ body {
 /* ==========================================================================
    DYNAMIC INTERACTIVE SPACE BACKGROUND (CANVAS)
    ========================================================================== */
-#space-canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -2;
-    pointer-events: none;
-}
-
-.stars-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    overflow: hidden;
-    pointer-events: none;
-}
-
+#space-canvas,
+.stars-container,
 .glow-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(160px);
-    opacity: 0.08;
-    pointer-events: none;
-    background: var(--color-cosmic-base);
-}
-
-#glow-orb-1 {
-    width: 600px;
-    height: 600px;
-    top: -150px;
-    right: -100px;
-}
-
-#glow-orb-2 {
-    width: 800px;
-    height: 800px;
-    bottom: 5%;
-    left: -200px;
-}
-
-/* Scanning scanline animation overlays */
-.stars-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(rgba(255, 255, 255, 0) 97%, rgba(255, 255, 255, 0.02) 98%, rgba(255, 255, 255, 0.02) 100%);
-    background-size: 100% 20px;
-    animation: scanlineScroll 60s linear infinite;
-    pointer-events: none;
-}
-
-@keyframes scanlineScroll {
-    from { background-position: 0 0; }
-    to { background-position: 0 100%; }
+    display: none !important;
 }
 
 /* ==========================================================================
@@ -1917,17 +1860,13 @@ body {
 }
 
 /* ==========================================================================
-   STARGAZER MODE (KONAMI EASTER EGG)
-   ========================================================================== */
-body {
-    transition: background-color 2s ease-in-out;
-}
-
+   STARGAZER MODE (KONAMI EASTER EGG) - COMMENTED OUT FOR LATER USE
+   ==========================================================================
 body.stargazer-mode {
+    transition: background-color 2s ease-in-out;
     background-color: #000;
 }
 
-/* Always present but invisible pseudo-elements for transitions */
 body::before,
 body::after {
     content: '';
@@ -1939,7 +1878,7 @@ body::after {
     pointer-events: none;
     opacity: 0;
     visibility: hidden;
-    z-index: -1; /* Behind all content, fixes faded text! */
+    z-index: -1;
 }
 
 body::before {
@@ -1956,7 +1895,7 @@ body::after {
     background-size: 200px 200px;
     background-repeat: repeat;
     filter: brightness(1);
-    transition: opacity 3s ease-out 0s, visibility 3s; /* Transition OUT */
+    transition: opacity 3s ease-out 0s, visibility 3s;
 }
 
 body.stargazer-mode::before {
@@ -1968,7 +1907,7 @@ body.stargazer-mode::before {
 body.stargazer-mode::after {
     opacity: 0.8;
     visibility: visible;
-    transition: opacity 3s ease-out 1s, visibility 0s; /* Delayed transition IN */
+    transition: opacity 3s ease-out 1s, visibility 0s;
     animation: twinkleStars 4s infinite alternate 4s;
 }
 
@@ -2003,6 +1942,7 @@ body.stargazer-mode::after {
     90% { opacity: 1; bottom: 30px; }
     100% { opacity: 0; bottom: 10px; }
 }
+========================================================================== */
 
 /* Eclipse Schematic Visualizer */
 .eclipse-schematic {

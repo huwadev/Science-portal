@@ -16,6 +16,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import SiteCard from "@/components/SiteCard";
+import SentientMeshCanvas from "@/components/SentientMeshCanvas";
 import UniversalNavbar from "@/components/UniversalNavbar";
 import UniversalFooter from "@/components/UniversalFooter";
 
@@ -29,6 +30,9 @@ interface SpaceApp {
   link: string;
   category: string;
   features: string[];
+  useSentientMesh?: boolean;
+  meshShape?: string;
+  svgUrl?: string;
 }
 
 const SPACE_APPS: SpaceApp[] = [
@@ -39,7 +43,10 @@ const SPACE_APPS: SpaceApp[] = [
     category: "Navigators",
     badge: "3D Interactive Map",
     desc: "Experience our neighborhood in space with an interactive 3D map. Explore accurate orbital mechanics, scaled celestial bodies, and physics-based planetary simulation.",
-    image: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?q=80&w=600&auto=format&fit=crop",
+    image: "",
+    useSentientMesh: true,
+    meshShape: "svg",
+    svgUrl: "/svgs/solar-system-orbit.svg",
     link: "/modules/walk-in-solar-system",
     features: ["Interactive 3D celestial navigation", "Accurate orbital scaling & trajectories", "Bilingual guidance & rich details"]
   },
@@ -50,7 +57,10 @@ const SPACE_APPS: SpaceApp[] = [
     category: "Exploration",
     badge: "Topography & Orbits",
     desc: "Inspect high-resolution lunar topography, polar crater formations, real-time moon phase calculations, and LRO satellite orbital tracks.",
-    image: "https://images.unsplash.com/photo-1522030299830-16b8d3d049fe?q=80&w=600&auto=format&fit=crop",
+    image: "",
+    useSentientMesh: true,
+    meshShape: "svg",
+    svgUrl: "/svgs/lunar-topography.svg",
     link: "/modules/lunar-explorer",
     features: ["3D lunar surface rendering", "LRO satellite polar orbit track", "DSN telemetry uplink simulation"]
   },
@@ -61,86 +71,12 @@ const SPACE_APPS: SpaceApp[] = [
     category: "Calculators",
     badge: "Astronomical Calculations",
     desc: "Explore past and future solar and lunar eclipses. Inspect totality paths, penumbral coverage, and local obscuration details using our high-precision simulation engine.",
-    image: "https://images.unsplash.com/photo-1532693322450-2cb5c511067d?q=80&w=600&auto=format&fit=crop",
+    image: "",
+    useSentientMesh: true,
+    meshShape: "svg",
+    svgUrl: "/svgs/eclipse-geometry.svg",
     link: "/modules/eclipses-transits",
     features: ["Precision 2D/3D dynamic maps", "Custom local simulation & stats", "Syzygy shadow geometry solver"]
-  },
-  {
-    id: "satellite-doppler",
-    title: "Satellite Doppler Tracker",
-    titleAm: "የሳተላይት ዶፕለር መከታተያ",
-    category: "Telemetry",
-    badge: "Orbital Telemetry",
-    desc: "Track satellites in low Earth orbit, model Doppler radio frequency shifts during ground passes, and calculate pass times.",
-    image: "https://images.unsplash.com/photo-1517976487492-5750f3195933?q=80&w=600&auto=format&fit=crop",
-    link: "/modules/satellite-doppler",
-    features: ["Real-time Doppler shift curve", "AOS/LOS pass predictions", "Frequency offset graph"]
-  },
-  {
-    id: "exoplanet-lab",
-    title: "Exoplanet Transit & Radial Velocity Lab",
-    titleAm: "የኤክሶፕላኔት ዳሰሳ ላብ",
-    category: "Astrophysics",
-    badge: "Astrophysics Lab",
-    desc: "Simulate distant planetary transits across host stars and derive radial velocity wobbles and light curves for alien worlds.",
-    image: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=600&auto=format&fit=crop",
-    link: "/modules/exoplanet-lab",
-    features: ["Light curve generator", "Radial velocity graph", "Keplerian orbit parameter solver"]
-  },
-  {
-    id: "orbital-mechanics",
-    title: "Orbital Mechanics Lab",
-    titleAm: "የኦርቢታል ሜካኒክስ ላብ",
-    category: "Astrodynamics",
-    badge: "Astrodynamics",
-    desc: "Compute Hohmann transfer orbits, orbital eccentricity variations, delta-v burn maneuvers, and Keplerian orbital parameters.",
-    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=600&auto=format&fit=crop",
-    link: "/modules/orbital-mechanics",
-    features: ["Hohmann transfer calculator", "Delta-v requirement plot", "Keplerian orbit solver"]
-  },
-  {
-    id: "rocket-ballistics",
-    title: "Rocket Ballistics Simulator",
-    titleAm: "የሮኬት ባሊስቲክስ ሲሙሌተር",
-    category: "Engineering",
-    badge: "Aerospace Sim",
-    desc: "Simulate multi-stage rocket launches, atmospheric drag forces, thrust-to-weight ratios, and suborbital/orbital insertions.",
-    image: "https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?q=80&w=600&auto=format&fit=crop",
-    link: "/modules/rocket-ballistics",
-    features: ["Multi-stage rocket burn timeline", "Atmospheric drag density model", "Apogee & velocity profile"]
-  },
-  {
-    id: "slingshot-sandbox",
-    title: "Gravity Assist Slingshot Sandbox",
-    titleAm: "የስበት ድጋፍ ግራቪቲ አሲስት ላብ",
-    category: "Astrodynamics",
-    badge: "Orbital Gravity",
-    desc: "Execute gravity assist slingshot maneuvers around planets to boost probe velocity without expending fuel.",
-    image: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=600&auto=format&fit=crop",
-    link: "/modules/slingshot-sandbox",
-    features: ["Vector trajectory bending", "Velocity gain telemetry", "N-body gravitational solver"]
-  },
-  {
-    id: "cosmic-ladder",
-    title: "Cosmic Distance Ladder",
-    titleAm: "የኮስሚክ ርቀት መሰላል",
-    category: "Cosmology",
-    badge: "Cosmology",
-    desc: "Explore astronomical distance measurement methods from trigonometric parallax to Cepheid variables and Hubble redshift.",
-    image: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?q=80&w=600&auto=format&fit=crop",
-    link: "/modules/cosmic-ladder",
-    features: ["Stellar parallax measurement", "Cepheid period-luminosity relation", "Hubble expansion redshift"]
-  },
-  {
-    id: "aperture-synthesis",
-    title: "Aperture Synthesis & Interferometry",
-    titleAm: "የአፐርቸር ሲንቴሲስ ኢንተርፌሮሜትሪ",
-    category: "Radio Science",
-    badge: "Radio Astronomy",
-    desc: "Simulate radio telescope baseline arrays, UV plane sampling coverage, and Fourier synthesis image reconstruction.",
-    image: "https://images.unsplash.com/photo-1543722530-d2c3201371e7?q=80&w=600&auto=format&fit=crop",
-    link: "/modules/aperture-synthesis",
-    features: ["UV plane baseline coverage", "Fourier transform synthesis", "Clean algorithm beam view"]
   }
 ];
 
@@ -150,7 +86,7 @@ export default function AppsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const categories = ["All", "Exploration", "Calculators", "Telemetry", "Astrophysics", "Astrodynamics", "Engineering", "Cosmology", "Radio Science"];
+  const categories = ["All", "Navigators", "Exploration", "Calculators"];
 
   const filteredApps = SPACE_APPS.filter((app) => {
     const matchesCategory = selectedCategory === "All" || app.category === selectedCategory;
@@ -161,22 +97,41 @@ export default function AppsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-black light:bg-white text-zinc-100 light:text-zinc-900 transition-colors duration-200 font-sans">
+    <div className="min-h-screen bg-black light:bg-white text-zinc-100 light:text-zinc-900 font-sans">
       <UniversalNavbar />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-zinc-700 light:border-zinc-200 bg-zinc-900 light:bg-zinc-100 text-zinc-300 light:text-zinc-700 text-xs font-mono font-bold uppercase tracking-widest">
-            <Rocket size={14} /> Interactive Suite
-          </span>
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white light:text-zinc-900">
-            Space <span className="text-zinc-400 light:text-zinc-500">Applications</span>
-          </h2>
-          <p className="text-sm sm:text-base text-zinc-400 light:text-zinc-600">
-            Explore 10 physics-based space simulators, orbital transfer calculators, satellite Doppler trackers, and exoplanet photometries.
-          </p>
-        </div>
+        {/* STELLAR YELLOW MISSION BANNER FOR SPACE APPS (CENTERED & MINIMALIST) */}
+        <section className="mb-12">
+          <div className="bg-[#FFEA4B] rounded-[2.5rem] p-10 sm:p-14 text-black shadow-2xl relative overflow-hidden text-center">
+            {/* Centered Non-Interactable Black Low-Poly-Fabric Sentient Mesh Background */}
+            <div className="absolute inset-0 w-full h-full pointer-events-none opacity-25 mix-blend-multiply z-0">
+              <SentientMeshCanvas
+                activeObject="low-poly-fabric"
+                themeColor="#000000"
+                darkMode={false}
+                bgColor="bg-transparent"
+                autoRotate={false}
+                interactive={false}
+                complexity="low"
+              />
+            </div>
+
+            <div className="absolute inset-0 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.06] pointer-events-none" />
+            <div className="relative z-10 space-y-3 max-w-2xl mx-auto">
+              <span className="inline-block text-xs font-mono font-bold uppercase tracking-widest text-black/80 bg-black/10 px-4 py-1.5 rounded-full">
+                Space Applications & Future Modules
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+                Interactive Space Visualizers
+              </h2>
+              <p className="text-sm sm:text-base text-zinc-900 leading-relaxed font-medium">
+                Explore 3D space visualizers—Walk in the Solar System, 3D Lunar Explorer, and Solar & Lunar Eclipse Predictor—with new interactive applications continuously in development.
+              </p>
+            </div>
+          </div>
+        </section>
 
         {/* Filter Controls */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
@@ -187,7 +142,7 @@ export default function AppsPage() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-2 rounded-xl text-xs font-mono font-bold tracking-wider transition-all cursor-pointer ${
                   selectedCategory === cat
-                    ? "bg-[#FBE04C] text-black shadow-lg shadow-[#FBE04C]/20"
+                    ? "bg-[#FFEA4B] text-black shadow-lg shadow-[#FFEA4B]/20"
                     : "bg-zinc-900 light:bg-zinc-100 border border-zinc-800 light:border-zinc-200 text-zinc-400 light:text-zinc-600 hover:text-white light:hover:text-zinc-900 hover:border-zinc-700 light:hover:border-zinc-300"
                 }`}
               >
@@ -221,6 +176,9 @@ export default function AppsPage() {
                 title={language === "am" ? app.titleAm : app.title}
                 description={app.desc}
                 image={app.image}
+                useSentientMesh={app.useSentientMesh}
+                meshShape={app.meshShape}
+                svgUrl={app.svgUrl}
                 href={app.link}
                 badge={app.badge}
                 category={app.category}

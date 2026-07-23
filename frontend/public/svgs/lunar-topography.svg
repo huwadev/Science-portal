@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="lunar-topography" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <!-- Outer Lunar Rim -->
+  <circle cx="300" cy="300" r="230" fill="none" stroke="#FFFFFF" stroke-width="16" />
+  <!-- Crater 1 (Tycho Impact) -->
+  <ellipse cx="230" cy="220" rx="65" ry="45" fill="none" stroke="#FFFFFF" stroke-width="14" />
+  <circle cx="230" cy="220" r="18" fill="none" stroke="#FFFFFF" stroke-width="12" />
+  <!-- Crater 2 (Copernicus Impact) -->
+  <ellipse cx="380" cy="340" rx="75" ry="50" fill="none" stroke="#FFFFFF" stroke-width="14" />
+  <circle cx="380" cy="340" r="22" fill="none" stroke="#FFFFFF" stroke-width="12" />
+  <!-- Crater 3 (Polar Crater) -->
+  <ellipse cx="320" cy="150" rx="45" ry="28" fill="none" stroke="#FFFFFF" stroke-width="12" />
+  <!-- Mare Imbrium Ridge -->
+  <path d="M120,380 C180,440 280,460 360,420 C420,390 450,330 460,280" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-dasharray="24 16" />
+  <!-- Orbital Telemetry Grid Lines -->
+  <ellipse cx="300" cy="300" rx="230" ry="90" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-dasharray="20 14" opacity="0.85" />
+  <ellipse cx="300" cy="300" rx="90" ry="230" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-dasharray="20 14" opacity="0.85" />
+</svg>

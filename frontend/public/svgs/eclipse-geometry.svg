@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="eclipse-geometry" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <!-- Sun Sphere -->
+  <circle cx="130" cy="300" r="90" fill="none" stroke="#FFFFFF" stroke-width="16" />
+  <!-- Earth Sphere -->
+  <circle cx="340" cy="300" r="50" fill="none" stroke="#FFFFFF" stroke-width="14" />
+  <!-- Moon Sphere -->
+  <circle cx="470" cy="300" r="26" fill="none" stroke="#FFFFFF" stroke-width="12" />
+  <!-- Umbra Shadow Cone Lines -->
+  <polygon points="130,210 470,274 470,326 130,390" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-dasharray="18 12" />
+  <!-- Penumbra Shadow Cone Lines -->
+  <line x1="130" y1="210" x2="530" y2="415" stroke="#FFFFFF" stroke-width="10" stroke-dasharray="14 10" />
+  <line x1="130" y1="390" x2="530" y2="185" stroke="#FFFFFF" stroke-width="10" stroke-dasharray="14 10" />
+  <!-- Solar Corona Rays -->
+  <circle cx="130" cy="300" r="115" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-dasharray="14 14" opacity="0.9" />
+</svg>

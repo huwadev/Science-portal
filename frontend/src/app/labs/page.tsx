@@ -21,6 +21,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import SiteCard from "@/components/SiteCard";
+import SentientMeshCanvas from "@/components/SentientMeshCanvas";
 import UniversalNavbar from "@/components/UniversalNavbar";
 import UniversalFooter from "@/components/UniversalFooter";
 
@@ -37,6 +38,9 @@ interface ScienceModule {
   href: string;
   image: string;
   icon: React.ReactNode;
+  useSentientMesh?: boolean;
+  meshShape?: string;
+  svgUrl?: string;
 }
 
 const LAB_MODULES: ScienceModule[] = [
@@ -51,7 +55,10 @@ const LAB_MODULES: ScienceModule[] = [
     tech: "WebGL • Physics Engine • Light Simulation",
     status: "build",
     href: "/modules/eclipses-transits",
-    image: "https://images.unsplash.com/photo-1532693322450-2cb5c511067d?q=80&w=600&auto=format&fit=crop",
+    image: "",
+    useSentientMesh: true,
+    meshShape: "svg",
+    svgUrl: "/svgs/eclipse-geometry.svg",
     icon: <Globe className="w-6 h-6 text-zinc-300" />
   },
   {
@@ -65,7 +72,10 @@ const LAB_MODULES: ScienceModule[] = [
     tech: "Three.js • Chart.js • MathJax",
     status: "build",
     href: "/modules/cosmic-ladder",
-    image: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?q=80&w=600&auto=format&fit=crop",
+    image: "",
+    useSentientMesh: true,
+    meshShape: "svg",
+    svgUrl: "/svgs/solar-system-orbit.svg",
     icon: <Sparkles className="w-6 h-6 text-zinc-300" />
   },
   {
@@ -79,7 +89,10 @@ const LAB_MODULES: ScienceModule[] = [
     tech: "NASA Astronify • Chart.js",
     status: "build",
     href: "/modules/exoplanet-lab",
-    image: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=600&auto=format&fit=crop",
+    image: "",
+    useSentientMesh: true,
+    meshShape: "svg",
+    svgUrl: "/svgs/exoplanet-transit.svg",
     icon: <Orbit className="w-6 h-6 text-zinc-300" />
   },
   {
@@ -93,7 +106,10 @@ const LAB_MODULES: ScienceModule[] = [
     tech: "Matter.js • HTML5 Canvas",
     status: "build",
     href: "/modules/slingshot-sandbox",
-    image: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=600&auto=format&fit=crop",
+    image: "",
+    useSentientMesh: true,
+    meshShape: "svg",
+    svgUrl: "/svgs/gravity-slingshot.svg",
     icon: <Layers className="w-6 h-6 text-zinc-300" />
   },
   {
@@ -107,7 +123,10 @@ const LAB_MODULES: ScienceModule[] = [
     tech: "Barrowman Equations • Chart.js",
     status: "build",
     href: "/modules/rocket-ballistics",
-    image: "https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?q=80&w=600&auto=format&fit=crop",
+    image: "",
+    useSentientMesh: true,
+    meshShape: "svg",
+    svgUrl: "/svgs/rocket-trajectory.svg",
     icon: <Cpu className="w-6 h-6 text-zinc-300" />
   },
   {
@@ -121,7 +140,10 @@ const LAB_MODULES: ScienceModule[] = [
     tech: "SatNOGS • satellite.js • Leaflet.js",
     status: "build",
     href: "/modules/satellite-doppler",
-    image: "https://images.unsplash.com/photo-1517976487492-5750f3195933?q=80&w=600&auto=format&fit=crop",
+    image: "",
+    useSentientMesh: true,
+    meshShape: "svg",
+    svgUrl: "/svgs/satellite-tracker.svg",
     icon: <Radio className="w-6 h-6 text-zinc-300" />
   },
   {
@@ -135,7 +157,10 @@ const LAB_MODULES: ScienceModule[] = [
     tech: "NASA Open MCT • Canvas",
     status: "build",
     href: "/modules/aperture-synthesis",
-    image: "https://images.unsplash.com/photo-1543722530-d2c3201371e7?q=80&w=600&auto=format&fit=crop",
+    image: "",
+    useSentientMesh: true,
+    meshShape: "svg",
+    svgUrl: "/svgs/radio-interferometer.svg",
     icon: <Radio className="w-6 h-6 text-zinc-300" />
   },
   {
@@ -149,7 +174,10 @@ const LAB_MODULES: ScienceModule[] = [
     tech: "2D Physics • Vector Math",
     status: "build",
     href: "/modules/orbital-mechanics",
-    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=600&auto=format&fit=crop",
+    image: "",
+    useSentientMesh: true,
+    meshShape: "svg",
+    svgUrl: "/svgs/atmospheric-drag.svg",
     icon: <Orbit className="w-6 h-6 text-zinc-300" />
   }
 ];
@@ -171,22 +199,41 @@ export default function LabsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-black light:bg-white text-zinc-100 light:text-zinc-900 transition-colors duration-200 font-sans">
+    <div className="min-h-screen bg-black light:bg-white text-zinc-100 light:text-zinc-900 font-sans">
       <UniversalNavbar />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-zinc-700 light:border-zinc-200 bg-zinc-900 light:bg-zinc-100 text-zinc-300 light:text-zinc-700 text-xs font-mono font-bold uppercase tracking-widest">
-            <FlaskConical size={14} /> Modular Scientific Suite
-          </span>
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white light:text-zinc-900">
-            Interactive <span className="text-zinc-400 light:text-zinc-500">Science Laboratories</span>
-          </h2>
-          <p className="text-sm sm:text-base text-zinc-400 light:text-zinc-600">
-            Access dedicated interactive physics engines, orbital mechanics tools, exoplanet light curve solvers, and radio astronomy simulators.
-          </p>
-        </div>
+        {/* STELLAR YELLOW MISSION BANNER FOR SCIENCE LABS (CENTERED & MINIMALIST) */}
+        <section className="mb-12">
+          <div className="bg-[#FFEA4B] rounded-[2.5rem] p-10 sm:p-16 text-black shadow-2xl relative overflow-hidden text-center">
+            {/* Centered Non-Interactable Black Low-Poly-Fabric Sentient Mesh Background */}
+            <div className="absolute inset-0 w-full h-full pointer-events-none opacity-25 mix-blend-multiply z-0">
+              <SentientMeshCanvas
+                activeObject="low-poly-fabric"
+                themeColor="#000000"
+                darkMode={false}
+                bgColor="bg-transparent"
+                autoRotate={false}
+                interactive={false}
+                complexity="low"
+              />
+            </div>
+
+            <div className="absolute inset-0 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.06] pointer-events-none" />
+            <div className="relative z-10 space-y-4 max-w-3xl mx-auto">
+              <span className="inline-block text-xs font-mono font-bold uppercase tracking-widest text-black/80 bg-black/10 px-4 py-1.5 rounded-full">
+                Modular Science Labs
+              </span>
+              <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+                Hands-On Astrophysical & Engineering Simulators
+              </h2>
+              <p className="text-base sm:text-lg text-zinc-900 leading-relaxed font-medium">
+                Our Modular Science Labs allow students and researchers to perform hands-on virtual experiments—from deriving exoplanet transit light curves and executing gravitational slingshot assists to modeling rocket drag ballistics and radio telescope aperture synthesis.
+              </p>
+            </div>
+          </div>
+        </section>
 
         {/* Filter Controls */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
@@ -197,7 +244,7 @@ export default function LabsPage() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-2 rounded-xl text-xs font-mono font-bold tracking-wider transition-all cursor-pointer ${
                   selectedCategory === cat
-                    ? "bg-[#FBE04C] text-black shadow-lg shadow-[#FBE04C]/20"
+                    ? "bg-[#FFEA4B] text-black shadow-lg shadow-[#FFEA4B]/20"
                     : "bg-zinc-900 light:bg-zinc-100 border border-zinc-800 light:border-zinc-200 text-zinc-400 light:text-zinc-600 hover:text-white light:hover:text-zinc-900 hover:border-zinc-700 light:hover:border-zinc-300"
                 }`}
               >
@@ -226,6 +273,9 @@ export default function LabsPage() {
               title={mod.title}
               description={mod.concept}
               image={mod.image}
+              useSentientMesh={mod.useSentientMesh}
+              meshShape={mod.meshShape}
+              svgUrl={mod.svgUrl}
               href={mod.href}
               badge={`MOD ${mod.num}`}
               category={mod.category}

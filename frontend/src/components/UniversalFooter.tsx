@@ -46,7 +46,7 @@ export const UniversalFooter: React.FC = () => {
   return (
     <footer
       ref={footerRef}
-      className="w-full bg-zinc-950 text-zinc-400 border-t border-zinc-800/80 transition-colors duration-200 light:bg-slate-50 light:text-zinc-600 light:border-zinc-200 font-sans"
+      className="w-full bg-zinc-950 text-zinc-400 border-t border-zinc-800/80 light:bg-slate-50 light:text-zinc-600 light:border-zinc-200 font-sans"
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-8 pt-14 pb-12">
         
@@ -57,7 +57,7 @@ export const UniversalFooter: React.FC = () => {
             <p className="text-xs sm:text-sm text-zinc-400 light:text-zinc-600 leading-relaxed font-normal pt-1">
               {language === "am"
                 ? "የኢትዮጵያ ስፔስ ሳይንስ ማህበር በ2004 እ.ኤ.አ በ47 መስራች አባላት የተመሰረተ ለትርፍ ያልቆመ ማህበር ነው። በአሁኑ ወቅት ከ20,000 በላይ አባላት፣ 32 ቅርንጫፎች፣ 58 ተቋማዊ አባላት እና ከ100 በላይ የስፔስ ክለቦች አሉት።"
-                : "Ethiopian Space Science Society was established in 2004, with 47 founding members. It is a non-profit organization consisting of members from Astronomy, Astrophysics, Space Science, and Technology. Today, the society has over 20,000 individual members, 32 branch associations, 58 institutional members, and 100+ Space School Clubs."}
+                : "Ethiopian Space Science Society was established in 2004, with 47 founding members. It is a non-profit organization consisting of members from Astronomy, Astrophysics, Space Science, and Technology. Today, the society has over 20,000 individual members, 32 branch associations, 68 institutional members, and 100+ Space School Clubs."}
             </p>
           </div>
 
@@ -164,11 +164,11 @@ export const UniversalFooter: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 sm:gap-12 pt-12 mb-12">
           
           {/* Column 1: Explore More */}
-          <div className="space-y-4">
-            <h4 className="text-xs font-mono font-extrabold uppercase tracking-widest text-[#FBE04C] light:text-[#403517] font-outfit">
+          <div className="space-y-0">
+            <h4 className="text-sm sm:text-base font-mono font-extrabold uppercase tracking-wider text-[#FFEA4B] light:text-[#3C3318] font-outfit mb-6">
               {language === "am" ? "የበለጠ ይመርምሩ" : "Explore More"}
             </h4>
-            <ul className="space-y-2.5 text-xs sm:text-sm">
+            <ul className="pl-3 space-y-2.5 text-xs sm:text-sm">
               <li>
                 <a
                   href="https://hewa.ethiosss.org"
@@ -196,8 +196,8 @@ export const UniversalFooter: React.FC = () => {
                   href="https://science.ethiosss.org"
                   className="hover:text-white light:hover:text-zinc-900 transition-colors flex items-center justify-between font-bold text-zinc-100 light:text-zinc-900 group py-0.5"
                 >
-                  <span className="text-[#FBE04C] light:text-[#403517] font-extrabold">Science Portal & Labs</span>
-                  <ArrowUpRight size={14} className="text-[#FBE04C] light:text-[#403517]" />
+                  <span className="text-[#FFEA4B] light:text-[#3C3318] font-extrabold">Science Portal & Labs</span>
+                  <ArrowUpRight size={14} className="text-[#FFEA4B] light:text-[#3C3318]" />
                 </a>
               </li>
               <li>
@@ -226,11 +226,11 @@ export const UniversalFooter: React.FC = () => {
           </div>
 
           {/* Column 2: Space Applications */}
-          <div className="space-y-4">
-            <h4 className="text-xs font-mono font-extrabold uppercase tracking-widest text-zinc-200 light:text-zinc-900 font-outfit">
+          <div className="space-y-0">
+            <h4 className="text-sm sm:text-base font-mono font-extrabold uppercase tracking-wider text-zinc-200 light:text-zinc-900 font-outfit mb-6">
               {language === "am" ? "የስፔስ መተግበሪያዎች" : "Space Applications"}
             </h4>
-            <ul className="space-y-2.5 text-xs sm:text-sm text-zinc-400 light:text-zinc-600 font-normal">
+            <ul className="pl-3 space-y-2.5 text-xs sm:text-sm text-zinc-400 light:text-zinc-600 font-normal">
               <li>
                 <Link href="/modules/walk-in-solar-system" className="hover:text-white light:hover:text-zinc-900 transition-colors block py-0.5">
                   Walk in the Solar System
@@ -260,11 +260,11 @@ export const UniversalFooter: React.FC = () => {
           </div>
 
           {/* Column 3: Science Laboratories */}
-          <div className="space-y-4">
-            <h4 className="text-xs font-mono font-extrabold uppercase tracking-widest text-zinc-200 light:text-zinc-900 font-outfit">
+          <div className="space-y-0">
+            <h4 className="text-sm sm:text-base font-mono font-extrabold uppercase tracking-wider text-zinc-200 light:text-zinc-900 font-outfit mb-6">
               {language === "am" ? "የሳይንስ ላብራቶሪዎች" : "Science Laboratories"}
             </h4>
-            <ul className="space-y-2.5 text-xs sm:text-sm text-zinc-400 light:text-zinc-600 font-normal">
+            <ul className="pl-3 space-y-2.5 text-xs sm:text-sm text-zinc-400 light:text-zinc-600 font-normal">
               <li>
                 <Link href="/modules/orbital-mechanics" className="hover:text-white light:hover:text-zinc-900 transition-colors block py-0.5">
                   Orbital Mechanics Sandbox
@@ -294,14 +294,14 @@ export const UniversalFooter: React.FC = () => {
           </div>
 
           {/* Column 4: Contact Us & Observatory */}
-          <div className="space-y-4">
-            <h4 className="text-xs font-mono font-extrabold uppercase tracking-widest text-zinc-200 light:text-zinc-900 font-outfit">
+          <div className="space-y-0">
+            <h4 className="text-sm sm:text-base font-mono font-extrabold uppercase tracking-wider text-zinc-200 light:text-zinc-900 font-outfit mb-6">
               {language === "am" ? "እኛን ለማግኘት" : "Contact & Location"}
             </h4>
-            <div className="space-y-3 text-xs sm:text-sm text-zinc-400 light:text-zinc-600">
+            <div className="pl-3 space-y-4 text-xs sm:text-sm">
               <div className="flex items-start gap-3">
-                <Phone size={15} className="text-zinc-400 light:text-zinc-500 mt-0.5 flex-shrink-0" />
-                <div className="space-y-0.5 font-mono text-xs font-medium text-zinc-300 light:text-zinc-700">
+                <Phone size={16} className="text-[#FFEA4B] light:text-[#3C3318] mt-0.5 flex-shrink-0 opacity-80" />
+                <div className="space-y-1 font-mono text-xs font-medium text-zinc-300 light:text-zinc-700">
                   <div>+251 11 867 7699</div>
                   <div>+251 11 126 1200</div>
                   <div>+251 980 720 026</div>
@@ -309,15 +309,18 @@ export const UniversalFooter: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-3">
-                <Mail size={15} className="text-zinc-400 light:text-zinc-500 flex-shrink-0" />
+                <Mail size={16} className="text-[#FFEA4B] light:text-[#3C3318] flex-shrink-0 opacity-80" />
                 <a href="mailto:info@ethiosss.org" className="hover:text-white light:hover:text-zinc-900 transition-colors font-mono text-xs font-medium text-zinc-300 light:text-zinc-700">
                   info@ethiosss.org
                 </a>
               </div>
 
               <div className="flex items-start gap-3">
-                <MapPin size={15} className="text-zinc-400 light:text-zinc-500 mt-0.5 flex-shrink-0" />
-                <span className="leading-relaxed text-xs text-zinc-400 light:text-zinc-500">P.O Box: 8214 •AAU, CTBE, 407, Addis Ababa, Ethiopia</span>
+                <MapPin size={16} className="text-[#FFEA4B] light:text-[#3C3318] mt-0.5 flex-shrink-0 opacity-80" />
+                <span className="leading-relaxed text-xs text-zinc-300 light:text-zinc-700 font-medium">
+                  P.O. Box: 8214 • AAU, CTBE 407,<br />
+                  Addis Ababa, Ethiopia
+                </span>
               </div>
             </div>
           </div>
@@ -371,7 +374,7 @@ export const UniversalFooter: React.FC = () => {
                   <button
                     onClick={() => handleSelectLanguage("en")}
                     className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
-                      language === "en" ? "bg-[#FBE04C] text-black font-bold" : "text-zinc-300 light:text-zinc-600 hover:bg-zinc-900 light:hover:bg-zinc-100 hover:text-white light:hover:text-zinc-900"
+                      language === "en" ? "bg-[#FFEA4B] text-black font-bold" : "text-zinc-300 light:text-zinc-600 hover:bg-zinc-900 light:hover:bg-zinc-100 hover:text-white light:hover:text-zinc-900"
                     }`}
                   >
                     <span>English</span>
@@ -380,7 +383,7 @@ export const UniversalFooter: React.FC = () => {
                   <button
                     onClick={() => handleSelectLanguage("am")}
                     className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
-                      language === "am" ? "bg-[#FBE04C] text-black font-bold" : "text-zinc-300 light:text-zinc-600 hover:bg-zinc-900 light:hover:bg-zinc-100 hover:text-white light:hover:text-zinc-900"
+                      language === "am" ? "bg-[#FFEA4B] text-black font-bold" : "text-zinc-300 light:text-zinc-600 hover:bg-zinc-900 light:hover:bg-zinc-100 hover:text-white light:hover:text-zinc-900"
                     }`}
                   >
                     <span>አማርኛ</span>

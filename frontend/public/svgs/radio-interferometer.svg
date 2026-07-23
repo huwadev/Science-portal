@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="radio-interferometer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <!-- Parabolic Dish Arc -->
+  <path d="M130,360 C210,470 390,470 470,360" fill="none" stroke="#FFFFFF" stroke-width="16" />
+  <!-- Central Receiver Feed Antenna -->
+  <line x1="300" y1="415" x2="300" y2="210" stroke="#FFFFFF" stroke-width="14" />
+  <circle cx="300" cy="210" r="22" fill="none" stroke="#FFFFFF" stroke-width="14" />
+  <!-- Incoming Radio Wave Signals -->
+  <path d="M170,130 C210,170 390,170 430,130" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-dasharray="16 10" />
+  <path d="M210,170 C240,200 360,200 390,170" fill="none" stroke="#FFFFFF" stroke-width="12" />
+  <!-- Support Struts -->
+  <line x1="170" y1="390" x2="300" y2="210" stroke="#FFFFFF" stroke-width="12" />
+  <line x1="430" y1="390" x2="300" y2="210" stroke="#FFFFFF" stroke-width="12" />
+</svg>

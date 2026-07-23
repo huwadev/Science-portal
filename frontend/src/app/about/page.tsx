@@ -23,43 +23,46 @@ export default function AboutPage() {
   const { theme, setTheme } = usePortalStore();
 
   return (
-    <div className="min-h-screen bg-black light:bg-white text-zinc-100 light:text-zinc-900 transition-colors duration-200 font-sans">
+    <div className="min-h-screen bg-black light:bg-white text-zinc-100 light:text-zinc-900 font-sans">
       <UniversalNavbar />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 space-y-20">
         {/* Page Hero */}
-        <div className="text-center max-w-3xl mx-auto space-y-6">
+        <div className="text-center max-w-4xl mx-auto space-y-6">
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-800 light:border-zinc-200 bg-zinc-900 light:bg-zinc-100 text-zinc-300 light:text-zinc-700 text-xs font-mono font-bold uppercase tracking-widest">
-            <Sparkles size={14} /> Ethiopian Space Science Society
+            <Sparkles size={14} /> ESSS Science Portal
           </span>
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white light:text-zinc-900 leading-tight">
-            Inspiring Africa's <span className="text-zinc-400 light:text-zinc-500">Space Future</span>
+            Democratizing Space <span className="text-zinc-400 light:text-zinc-500">Science Learning</span>
           </h1>
-          <p className="text-base sm:text-lg text-zinc-400 light:text-zinc-600 leading-relaxed">
-            Ethiopian Space Science Society was established in 2004 with 47 founding members. It is a non-profit organization consisting of members from Astronomy, Astrophysics, Space Science, and Technology.
+          <p className="text-base sm:text-lg text-zinc-400 light:text-zinc-600 leading-relaxed max-w-3xl mx-auto">
+            The ESSS Science Portal is a free interactive platform designed to visualize space science, astrophysics, and orbital technology. Our mission is to make advanced celestial physics accessible to students, educators, and space enthusiasts throughout Ethiopia and Africa.
+          </p>
+          <p className="text-sm text-zinc-500 light:text-zinc-400 max-w-2xl mx-auto pt-4 border-t border-zinc-800/40 light:border-zinc-200">
+            Through high-performance 3D visualizers—including our interactive Moon explorer, solar & lunar eclipse calculators, and a full solar system simulator adapted from the Hewa+ app functionalities—we turn theoretical calculations into immersive visual learning experiences. All resources on this portal are 100% free to access.
           </p>
         </div>
 
         {/* Official ESSS Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="border border-zinc-800 light:border-zinc-200 bg-zinc-950/80 light:bg-zinc-50 p-8 rounded-2xl text-center space-y-3 shadow-xl">
-            <Users className="w-8 h-8 text-[#FBE04C] light:text-[#403517] mx-auto" />
+            <Users className="w-8 h-8 text-[#FFEA4B] light:text-[#3C3318] mx-auto" />
             <div className="text-4xl font-black text-white light:text-zinc-900">20,000+</div>
             <div className="text-xs font-mono text-zinc-400 light:text-zinc-600 uppercase tracking-wider">Individual Members</div>
           </div>
           <div className="border border-zinc-800 light:border-zinc-200 bg-zinc-950/80 light:bg-zinc-50 p-8 rounded-2xl text-center space-y-3 shadow-xl">
-            <Target className="w-8 h-8 text-[#FBE04C] light:text-[#403517] mx-auto" />
+            <Target className="w-8 h-8 text-[#FFEA4B] light:text-[#3C3318] mx-auto" />
             <div className="text-4xl font-black text-white light:text-zinc-900">32</div>
             <div className="text-xs font-mono text-zinc-400 light:text-zinc-600 uppercase tracking-wider">Branch Associations</div>
           </div>
           <div className="border border-zinc-800 light:border-zinc-200 bg-zinc-950/80 light:bg-zinc-50 p-8 rounded-2xl text-center space-y-3 shadow-xl">
-            <Building className="w-8 h-8 text-[#FBE04C] light:text-[#403517] mx-auto" />
+            <Building className="w-8 h-8 text-[#FFEA4B] light:text-[#3C3318] mx-auto" />
             <div className="text-4xl font-black text-white light:text-zinc-900">58+</div>
             <div className="text-xs font-mono text-zinc-400 light:text-zinc-600 uppercase tracking-wider">Institutional Members</div>
           </div>
           <div className="border border-zinc-800 light:border-zinc-200 bg-zinc-950/80 light:bg-zinc-50 p-8 rounded-2xl text-center space-y-3 shadow-xl">
-            <Award className="w-8 h-8 text-[#FBE04C] light:text-[#403517] mx-auto" />
+            <Award className="w-8 h-8 text-[#FFEA4B] light:text-[#3C3318] mx-auto" />
             <div className="text-4xl font-black text-white light:text-zinc-900">100+</div>
             <div className="text-xs font-mono text-zinc-400 light:text-zinc-600 uppercase tracking-wider">Space School Clubs</div>
           </div>

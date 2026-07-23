@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="rocket-trajectory" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <!-- Rocket Body Silhouette -->
+  <path d="M300,90 C325,150 325,320 325,345 L275,345 C275,320 275,150 300,90 Z" fill="none" stroke="#FFFFFF" stroke-width="14" />
+  <!-- Rocket Fins -->
+  <polygon points="275,300 230,365 275,345" fill="none" stroke="#FFFFFF" stroke-width="12" />
+  <polygon points="325,300 370,365 325,345" fill="none" stroke="#FFFFFF" stroke-width="12" />
+  <!-- Parabolic Launch Trajectory Arc -->
+  <path d="M90,500 C140,200 460,200 510,500" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-dasharray="18 14" />
+  <!-- Thrust Exhaust Cone Waves -->
+  <path d="M275,355 L255,430 L345,430 L325,355" fill="none" stroke="#FFFFFF" stroke-width="12" />
+</svg>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="exoplanet-transit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <!-- Host Star Sphere -->
+  <circle cx="300" cy="300" r="145" fill="none" stroke="#FFFFFF" stroke-width="16" />
+  <!-- Transiting Exoplanet Disk -->
+  <circle cx="210" cy="300" r="36" fill="none" stroke="#FFFFFF" stroke-width="14" />
+  <!-- Planetary Transit Path Vector -->
+  <line x1="90" y1="300" x2="510" y2="300" stroke="#FFFFFF" stroke-width="12" stroke-dasharray="18 12" />
+  <!-- Photometric Light Curve Dip graph at bottom -->
+  <path d="M110,480 L220,480 L260,540 L340,540 L380,480 L490,480" fill="none" stroke="#FFFFFF" stroke-width="14" />
+  <!-- Stellar Flare Arc -->
+  <path d="M170,200 C210,140 280,140 320,180" fill="none" stroke="#FFFFFF" stroke-width="12" />
+</svg>

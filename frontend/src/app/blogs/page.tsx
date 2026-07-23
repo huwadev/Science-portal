@@ -88,7 +88,7 @@ export default function BlogsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-black light:bg-white text-zinc-100 light:text-zinc-900 transition-colors duration-200 font-sans">
+    <div className="min-h-screen bg-black light:bg-white text-zinc-100 light:text-zinc-900 font-sans">
       <UniversalNavbar />
 
       {/* Main Content */}
@@ -114,7 +114,7 @@ export default function BlogsPage() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-2 rounded-xl text-xs font-mono font-bold tracking-wider transition-all cursor-pointer ${
                   selectedCategory === cat
-                    ? "bg-[#FBE04C] text-black shadow-lg shadow-[#FBE04C]/20"
+                    ? "bg-[#FFEA4B] text-black shadow-lg shadow-[#FFEA4B]/20"
                     : "bg-zinc-900 light:bg-zinc-100 border border-zinc-800 light:border-zinc-200 text-zinc-400 light:text-zinc-600 hover:text-white light:hover:text-zinc-900 hover:border-zinc-700 light:hover:border-zinc-300"
                 }`}
               >

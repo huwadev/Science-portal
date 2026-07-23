@@ -33,7 +33,7 @@ export interface UniversalNavbarProps {
 
 export const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
   currentApp = "science",
-  accentColor = "#FBE04C",
+  accentColor = "#FFEA4B",
   navLinks,
   brandLogo,
   onOpenSearch
@@ -110,7 +110,7 @@ export const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
   return (
     <header
       ref={navRef}
-      className="sticky top-0 z-50 w-full bg-zinc-950/90 backdrop-blur-xl border-b border-[#3E3E3E]/60 transition-colors duration-200 light:bg-white/95 light:border-zinc-200 font-sans"
+      className="sticky top-0 z-50 w-full bg-zinc-950/90 backdrop-blur-xl border-b border-[#3E3E3E]/60 light:bg-white/95 light:border-zinc-200 font-sans"
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-8 h-20 flex items-center justify-between relative">
         
@@ -124,7 +124,7 @@ export const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
           <div className="relative hidden lg:block">
             <button
               onClick={toggleNetworkDropdown}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#3E3E3E] light:border-zinc-200 bg-zinc-900/80 light:bg-zinc-100/80 text-xs font-mono font-bold text-zinc-300 light:text-zinc-700 hover:text-white light:hover:text-zinc-900 hover:border-[#FBE04C] light:hover:border-[#403517] transition-all cursor-pointer shadow-sm active:scale-95"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#3E3E3E] light:border-zinc-200 bg-zinc-900/80 light:bg-zinc-100/80 text-xs font-mono font-bold text-zinc-300 light:text-zinc-700 hover:text-white light:hover:text-zinc-900 hover:border-[#FFEA4B] light:hover:border-[#3C3318] transition-all cursor-pointer shadow-sm active:scale-95"
             >
               <Layers size={13} style={{ color: accentColor }} />
               <span>Explore More</span>
@@ -145,14 +145,14 @@ export const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
                   onClick={() => setIsNetworkDropdownOpen(false)}
                   className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-colors ${
                     currentApp === "hewa"
-                      ? "bg-[#FBE04C] text-black font-bold"
-                      : "text-zinc-200 light:text-zinc-700 hover:bg-zinc-900 light:hover:bg-zinc-100 hover:text-[#FBE04C] light:hover:text-[#403517]"
+                      ? "bg-[#FFEA4B] text-black font-bold"
+                      : "text-zinc-200 light:text-zinc-700 hover:bg-zinc-900 light:hover:bg-zinc-100 hover:text-[#FFEA4B] light:hover:text-[#3C3318]"
                   }`}
                 >
                   <div>
                     <div className="font-bold flex items-center gap-1">
                       <span>Hewa+</span>
-                      {currentApp === "hewa" && <span className="text-[9px] px-1.5 py-0.5 rounded bg-black text-[#FBE04C] font-mono">ACTIVE</span>}
+                      {currentApp === "hewa" && <span className="text-[9px] px-1.5 py-0.5 rounded bg-black text-[#FFEA4B] font-mono">ACTIVE</span>}
                     </div>
                     <div className="text-[11px] text-zinc-400 font-normal mt-0.5">Updates space news and Blog</div>
                   </div>
@@ -167,14 +167,14 @@ export const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
                   onClick={() => setIsNetworkDropdownOpen(false)}
                   className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-colors ${
                     currentApp === "felek"
-                      ? "bg-[#FBE04C] text-black font-bold"
-                      : "text-zinc-200 light:text-zinc-700 hover:bg-zinc-900 light:hover:bg-zinc-100 hover:text-[#FBE04C] light:hover:text-[#403517]"
+                      ? "bg-[#FFEA4B] text-black font-bold"
+                      : "text-zinc-200 light:text-zinc-700 hover:bg-zinc-900 light:hover:bg-zinc-100 hover:text-[#FFEA4B] light:hover:text-[#3C3318]"
                   }`}
                 >
                   <div>
                     <div className="font-bold flex items-center gap-1">
                       <span>Felek</span>
-                      {currentApp === "felek" && <span className="text-[9px] px-1.5 py-0.5 rounded bg-black text-[#FBE04C] font-mono">ACTIVE</span>}
+                      {currentApp === "felek" && <span className="text-[9px] px-1.5 py-0.5 rounded bg-black text-[#FFEA4B] font-mono">ACTIVE</span>}
                     </div>
                     <div className="text-[11px] text-zinc-400 font-normal mt-0.5">The Space Science E-Learning Platform</div>
                   </div>
@@ -187,15 +187,15 @@ export const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
                   onClick={() => setIsNetworkDropdownOpen(false)}
                   className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-colors ${
                     currentApp === "science"
-                      ? "bg-[#FBE04C] text-black font-bold shadow-md"
-                      : "text-zinc-200 light:text-zinc-700 hover:bg-zinc-900 light:hover:bg-zinc-100 hover:text-[#FBE04C] light:hover:text-[#403517]"
+                      ? "bg-[#FFEA4B] text-black font-bold shadow-md"
+                      : "text-zinc-200 light:text-zinc-700 hover:bg-zinc-900 light:hover:bg-zinc-100 hover:text-[#FFEA4B] light:hover:text-[#3C3318]"
                   }`}
                 >
                   <div>
                     <div className="font-bold flex items-center gap-1.5">
                       <span>Science Portal & Labs</span>
                       {currentApp === "science" && (
-                        <span className="text-[9px] uppercase tracking-wider font-mono font-bold px-1.5 py-0.5 rounded bg-black text-[#FBE04C]">
+                        <span className="text-[9px] uppercase tracking-wider font-mono font-bold px-1.5 py-0.5 rounded bg-black text-[#FFEA4B]">
                           ACTIVE
                         </span>
                       )}
@@ -215,14 +215,14 @@ export const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
                   onClick={() => setIsNetworkDropdownOpen(false)}
                   className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-colors ${
                     currentApp === "membership"
-                      ? "bg-[#FBE04C] text-black font-bold"
-                      : "text-zinc-200 light:text-zinc-700 hover:bg-zinc-900 light:hover:bg-zinc-100 hover:text-[#FBE04C] light:hover:text-[#403517]"
+                      ? "bg-[#FFEA4B] text-black font-bold"
+                      : "text-zinc-200 light:text-zinc-700 hover:bg-zinc-900 light:hover:bg-zinc-100 hover:text-[#FFEA4B] light:hover:text-[#3C3318]"
                   }`}
                 >
                   <div>
                     <div className="font-bold flex items-center gap-1">
                       <span>ESSS Membership</span>
-                      {currentApp === "membership" && <span className="text-[9px] px-1.5 py-0.5 rounded bg-black text-[#FBE04C] font-mono">ACTIVE</span>}
+                      {currentApp === "membership" && <span className="text-[9px] px-1.5 py-0.5 rounded bg-black text-[#FFEA4B] font-mono">ACTIVE</span>}
                     </div>
                     <div className="text-[11px] text-zinc-400 font-normal mt-0.5">Become a member today</div>
                   </div>
@@ -245,7 +245,7 @@ export const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
                 href={link.href}
                 className={`transition-all duration-150 font-bold border-b-2 pb-1 ${
                   isActive
-                    ? "text-white light:text-zinc-900 border-[#FBE04C] light:border-[#403517]"
+                    ? "text-white light:text-zinc-900 border-[#FFEA4B] light:border-[#3C3318]"
                     : "text-zinc-400 light:text-zinc-500 hover:text-white light:hover:text-zinc-900 border-transparent"
                 }`}
               >
@@ -262,7 +262,7 @@ export const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
             <button
               onClick={onOpenSearch}
               style={{ padding: "9px 20px", borderRadius: "9999px" }}
-              className="flex items-center gap-2.5 border border-[#3E3E3E] light:border-zinc-200 bg-zinc-900/90 light:bg-zinc-100/90 text-xs text-zinc-200 light:text-zinc-700 hover:text-white light:hover:text-zinc-900 hover:border-[#FBE04C] light:hover:border-[#403517] transition-all cursor-pointer shadow-md font-sans active:scale-95"
+              className="flex items-center gap-2.5 border border-[#3E3E3E] light:border-zinc-200 bg-zinc-900/90 light:bg-zinc-100/90 text-xs text-zinc-200 light:text-zinc-700 hover:text-white light:hover:text-zinc-900 hover:border-[#FFEA4B] light:hover:border-[#3C3318] transition-all cursor-pointer shadow-md font-sans active:scale-95"
             >
               <Search className="w-3.5 h-3.5 text-zinc-400 light:text-zinc-500 flex-shrink-0" />
               <span className="hidden sm:inline font-semibold">Search...</span>
@@ -289,7 +289,7 @@ export const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
                 <button
                   onClick={() => handleSelectLanguage("en")}
                   className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
-                    language === "en" ? "bg-[#FBE04C] text-black font-bold" : "text-zinc-300 light:text-zinc-700 hover:bg-zinc-900 light:hover:bg-zinc-100 hover:text-white light:hover:text-zinc-900"
+                    language === "en" ? "bg-[#FFEA4B] text-black font-bold" : "text-zinc-300 light:text-zinc-700 hover:bg-zinc-900 light:hover:bg-zinc-100 hover:text-white light:hover:text-zinc-900"
                   }`}
                 >
                   <span>English</span>
@@ -298,7 +298,7 @@ export const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
                 <button
                   onClick={() => handleSelectLanguage("am")}
                   className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
-                    language === "am" ? "bg-[#FBE04C] text-black font-bold" : "text-zinc-300 light:text-zinc-700 hover:bg-zinc-900 light:hover:bg-zinc-100 hover:text-white light:hover:text-zinc-900"
+                    language === "am" ? "bg-[#FFEA4B] text-black font-bold" : "text-zinc-300 light:text-zinc-700 hover:bg-zinc-900 light:hover:bg-zinc-100 hover:text-white light:hover:text-zinc-900"
                   }`}
                 >
                   <span>አማርኛ</span>
@@ -319,7 +319,7 @@ export const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
             className="flex items-center gap-2 border border-[#3E3E3E] light:border-zinc-200 bg-zinc-900/90 light:bg-zinc-100/90 text-xs font-semibold text-zinc-200 light:text-zinc-700 hover:border-zinc-500 light:hover:border-zinc-400 transition-all cursor-pointer shadow-md font-sans active:scale-95"
             title="Toggle Theme"
           >
-            <Sun className="w-4 h-4 text-[#FBE04C] flex-shrink-0 hidden dark:block" />
+            <Sun className="w-4 h-4 text-[#FFEA4B] flex-shrink-0 hidden dark:block" />
             <Moon className="w-4 h-4 text-zinc-400 light:text-zinc-500 flex-shrink-0 block dark:hidden" />
           </button>
 
@@ -345,7 +345,7 @@ export const UniversalNavbar: React.FC<UniversalNavbarProps> = ({
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={isActive ? "text-[#FBE04C] light:text-[#403517] font-bold" : "text-zinc-400 light:text-zinc-500 hover:text-white light:hover:text-zinc-900"}
+                className={isActive ? "text-[#FFEA4B] light:text-[#3C3318] font-bold" : "text-zinc-400 light:text-zinc-500 hover:text-white light:hover:text-zinc-900"}
               >
                 {link.label}
               </Link>
