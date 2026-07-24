@@ -22,6 +22,7 @@ import {
 import UniversalNavbar from "@/components/UniversalNavbar";
 import UniversalFooter from "@/components/UniversalFooter";
 import SentientMeshCanvas from "@/components/SentientMeshCanvas";
+import JigsawPuzzleSphereCanvas from "@/components/JigsawPuzzleSphereCanvas";
 
 const GithubIcon = ({ size = 18 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -76,7 +77,7 @@ export default function AboutPage() {
           </motion.div>
         </section>
 
-        {/* 2. SENTIENT MESH & EDUCATOR SECTION (Directly on Flat BG - No Container Box) */}
+        {/* 2. SENTIENT MESH & EDUCATOR SECTION (Flat on Page BG with Black Hole Mesh) */}
         <section className="relative w-full min-h-[420px] sm:min-h-[460px] flex flex-col items-center justify-center text-center py-8">
           {/* Background 3D Sentient Mesh Canvas */}
           <div className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-40 light:opacity-30">
@@ -94,7 +95,7 @@ export default function AboutPage() {
           {/* Overlaid Centered Content Directly on Page BG */}
           <div className="relative z-20 w-full max-w-3xl mx-auto px-4 text-center flex flex-col items-center justify-center space-y-6">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFEA4B] text-black font-mono font-bold text-xs uppercase tracking-widest shadow-sm">
-              <GraduationCap size={16} /> FOR EDUCATORS & OPEN SOURCE LABS
+              <GraduationCap size={16} /> FOR EDUCATORS & LABS
             </span>
 
             <h2 className="text-3xl sm:text-5xl font-black text-white light:text-zinc-900 leading-tight">
@@ -102,20 +103,8 @@ export default function AboutPage() {
             </h2>
 
             <p className="text-base sm:text-lg text-zinc-300 light:text-zinc-700 leading-relaxed max-w-2xl mx-auto font-medium">
-              Built on an open-source model where educators, researchers, and developers can contribute to modular apps and interactive labs — making astronomy and space physics accessible, intuitive, and hands-on across Africa.
+              Empowering educators, students, and space school clubs with zero-installation 3D WebGL models. Live interactive manifolds make abstract gravitational fields, planetary bodies, and orbital geometry effortless to explain.
             </p>
-
-            <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
-              <a
-                href="https://github.com/ESSS-Ethiopia"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#FFEA4B] text-black font-mono font-bold text-xs uppercase tracking-wider hover:bg-yellow-300 transition-all cursor-pointer shadow-md hover:scale-105"
-              >
-                <GithubIcon size={16} />
-                <span>CONTRIBUTE ON GITHUB</span>
-              </a>
-            </div>
           </div>
         </section>
 
@@ -189,9 +178,14 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* 5. OPEN SOURCE & MODULAR COMMUNITY SECTION */}
-        <section className="py-6 text-center">
-          <div className="flex flex-col items-center justify-center space-y-6 max-w-3xl mx-auto">
+        {/* 5. OPEN SOURCE & MODULAR COMMUNITY SECTION (With 3D Wikipedia-Style Jigsaw Sphere Background) */}
+        <section className="relative w-full min-h-[460px] sm:min-h-[500px] flex flex-col items-center justify-center text-center py-8">
+          {/* Background 3D Wikipedia-Style Jigsaw Puzzle Sphere */}
+          <div className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-45 light:opacity-35">
+            <JigsawPuzzleSphereCanvas />
+          </div>
+
+          <div className="relative z-20 flex flex-col items-center justify-center space-y-6 max-w-3xl mx-auto px-4 text-center">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFEA4B] text-black font-mono font-bold text-xs uppercase tracking-widest shadow-md">
               <Code2 size={16} /> OPEN SOURCE PAN-AFRICAN INITIATIVE
             </span>
@@ -201,7 +195,7 @@ export default function AboutPage() {
             </h2>
 
             <p className="text-base sm:text-lg text-zinc-300 light:text-zinc-700 leading-relaxed text-center font-medium max-w-2xl">
-              We empower educators, scientists, and software developers across Africa to build and contribute custom modular 3D apps and interactive science labs — democratizing astronomy education for every student.
+              We empower educators, scientists, and software developers across Africa to build and contribute custom modular 3D apps and interactive science labs like pieces of an evolving puzzle — democratizing astronomy education for every student.
             </p>
 
             <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
