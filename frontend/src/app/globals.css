@@ -218,3 +218,25 @@ html.light body {
   color: #000000 !important;
 }
 
+/* Universal Mouse Text Selection Styling (#FFF7B8 Background) */
+::-moz-selection {
+  background-color: #FFF7B8 !important;
+  color: #000000 !important;
+}
+
+::selection {
+  background-color: #FFF7B8 !important;
+  color: #000000 !important;
+}
+
+*, *::before, *::after {
+  &::-moz-selection {
+    background-color: #FFF7B8 !important;
+    color: #000000 !important;
+  }
+  &::selection {
+    background-color: #FFF7B8 !important;
+    color: #000000 !important;
+  }
+}
+
