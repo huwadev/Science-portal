@@ -496,11 +496,6 @@ export default function Home() {
               className="w-full h-[400px] sm:h-[480px] object-cover filter grayscale contrast-125 brightness-95 group-hover:grayscale-0 group-hover:contrast-110 transition-all duration-700 ease-out group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-[#FFEA4B]/0 group-hover:bg-[#FFEA4B]/25 transition-all duration-700 pointer-events-none mix-blend-overlay" />
-            <div className="absolute top-6 left-6 z-10">
-              <span className="px-4 py-1.5 rounded-full bg-black/85 text-[#FFEA4B] text-xs font-mono font-bold uppercase tracking-widest backdrop-blur-md">
-                Student Learning
-              </span>
-            </div>
           </div>
 
           <div className="lg:col-span-6 space-y-8">
@@ -554,8 +549,6 @@ export default function Home() {
             meshShape="svg"
             svgUrl="/svgs/solar-system-orbit.svg"
             href="/modules/walk-in-solar-system"
-            badge="3D Navigation"
-            category="Navigators"
             aspectRatio="h-[340px]"
           />
           <SiteCard
@@ -566,8 +559,6 @@ export default function Home() {
             meshShape="svg"
             svgUrl="/svgs/lunar-topography.svg"
             href="/modules/lunar-explorer"
-            badge="Topography"
-            category="Exploration"
             aspectRatio="h-[340px]"
           />
           <SiteCard
@@ -578,8 +569,6 @@ export default function Home() {
             meshShape="svg"
             svgUrl="/svgs/eclipse-geometry.svg"
             href="/modules/eclipses-transits"
-            badge="Ephemerides"
-            category="Calculators"
             aspectRatio="h-[340px]"
           />
         </div>
@@ -652,8 +641,6 @@ export default function Home() {
             meshShape="svg"
             svgUrl="/svgs/exoplanet-transit.svg"
             href="/modules/exoplanet-lab"
-            badge="MOD 01"
-            category="Astrophysics"
             aspectRatio="h-[340px]"
           />
           <SiteCard
@@ -664,8 +651,6 @@ export default function Home() {
             meshShape="svg"
             svgUrl="/svgs/gravity-slingshot.svg"
             href="/modules/slingshot-sandbox"
-            badge="MOD 02"
-            category="Astrophysics"
             aspectRatio="h-[340px]"
           />
           <SiteCard
@@ -676,8 +661,6 @@ export default function Home() {
             meshShape="svg"
             svgUrl="/svgs/radio-interferometer.svg"
             href="/modules/aperture-synthesis"
-            badge="MOD 05"
-            category="Radio Science"
             aspectRatio="h-[340px]"
           />
           <SiteCard
@@ -688,8 +671,6 @@ export default function Home() {
             meshShape="svg"
             svgUrl="/svgs/satellite-tracker.svg"
             href="/modules/satellite-doppler"
-            badge="MOD 04"
-            category="Aerospace Engineering"
             aspectRatio="h-[340px]"
           />
         </div>
@@ -706,11 +687,6 @@ export default function Home() {
               className="w-full h-[400px] sm:h-[480px] object-cover filter grayscale contrast-125 brightness-95 group-hover:grayscale-0 group-hover:contrast-110 transition-all duration-700 ease-out group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-[#FFEA4B]/0 group-hover:bg-[#FFEA4B]/25 transition-all duration-700 pointer-events-none mix-blend-overlay" />
-            <div className="absolute top-6 left-6 z-10">
-              <span className="px-4 py-1.5 rounded-full bg-black/85 text-[#FFEA4B] text-xs font-mono font-bold uppercase tracking-widest backdrop-blur-md">
-                Hands-On Learning
-              </span>
-            </div>
           </div>
 
           <div className="lg:col-span-6 space-y-8">
