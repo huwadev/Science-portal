@@ -65,10 +65,10 @@ export const SiteCard: React.FC<SiteCardProps> = ({
           transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) ${tilt.isHovered ? "scale3d(1.02, 1.02, 1.02)" : "scale3d(1, 1, 1)"}`,
           transition: tilt.isHovered ? "transform 0.1s cubic-bezier(0.03, 0.98, 0.52, 0.99)" : "transform 0.5s ease-out"
         }}
-        className={`group relative block w-full overflow-hidden rounded-2xl sm:rounded-3xl bg-zinc-950 light:bg-[#f5f5f5] border border-zinc-800/80 light:border-zinc-200 shadow-xl hover:border-[#FFEA4B]/60 light:hover:border-zinc-400 hover:shadow-2xl cursor-pointer ${className}`}
+        className={`group relative block w-full overflow-hidden rounded-2xl sm:rounded-3xl bg-zinc-950 light:bg-white border border-zinc-800/80 light:border-zinc-200 shadow-xl hover:border-[#FFEA4B]/60 light:hover:border-zinc-400 hover:shadow-2xl cursor-pointer ${className}`}
       >
         {/* Top Image / Sentient Mesh Container */}
-        <div className={`relative w-full overflow-hidden ${aspectRatio}`} style={{ transform: "translateZ(20px)" }}>
+        <div className={`relative w-full overflow-hidden ${aspectRatio} bg-zinc-950 light:bg-white`} style={{ transform: "translateZ(20px)" }}>
           {useSentientMesh ? (
             <SentientMeshCanvas
               activeObject={meshShape}
@@ -78,6 +78,7 @@ export const SiteCard: React.FC<SiteCardProps> = ({
               autoRotate={true}
               renderOnHoverOnly={true}
               isHovered={tilt.isHovered}
+              bgColor="bg-zinc-950 light:bg-white"
             />
           ) : (
             <img
@@ -110,13 +111,13 @@ export const SiteCard: React.FC<SiteCardProps> = ({
             </div>
           )}
 
-          {/* Dark Gradient Overlay over image for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-opacity duration-300 group-hover:opacity-15" />
+          {/* Gradient Overlay over image for text readability (dark in dark mode, light gradient in light mode) */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent light:from-white/90 light:via-white/40 light:to-transparent transition-opacity duration-300 group-hover:opacity-15" />
 
           {/* Optional Description overlay */}
           {description && (
             <div className="absolute bottom-4 left-5 right-5 z-10 space-y-2 transition-all duration-300 group-hover:opacity-0 group-hover:translate-y-2" style={{ transform: "translateZ(25px)" }}>
-              <p className="text-xs sm:text-sm text-zinc-200 font-medium line-clamp-2 leading-relaxed drop-shadow-md">
+              <p className="text-xs sm:text-sm text-zinc-200 light:text-zinc-700 font-medium line-clamp-2 leading-relaxed drop-shadow-md">
                 {description}
               </p>
             </div>

@@ -1,116 +1,230 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { usePortalStore } from "@/store/usePortalStore";
 import {
-  Sun,
-  Moon,
-  ArrowLeft,
-  Globe,
-  Award,
+  Sparkles,
+  Rocket,
+  GraduationCap,
+  BookOpen,
   Users,
   Building,
   Target,
-  Sparkles,
-  ArrowRight
+  Award,
+  ArrowRight,
+  Atom,
+  Telescope,
+  GitBranch,
+  Code2
 } from "lucide-react";
 import UniversalNavbar from "@/components/UniversalNavbar";
 import UniversalFooter from "@/components/UniversalFooter";
+import SentientMeshCanvas from "@/components/SentientMeshCanvas";
+
+const GithubIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+  </svg>
+);
 
 export default function AboutPage() {
-  const { theme, setTheme } = usePortalStore();
+  const [activeMeshShape, setActiveMeshShape] = useState<string>("black-hole");
 
   return (
-    <div className="min-h-screen bg-black light:bg-white text-zinc-100 light:text-zinc-900 font-sans">
+    <div className="min-h-screen bg-black light:bg-white text-zinc-100 light:text-zinc-900 font-sans transition-colors duration-300">
       <UniversalNavbar />
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 space-y-20">
-        {/* Page Hero */}
-        <div className="text-center max-w-4xl mx-auto space-y-6">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-800 light:border-zinc-200 bg-zinc-900 light:bg-zinc-100 text-zinc-300 light:text-zinc-700 text-xs font-mono font-bold uppercase tracking-widest">
-            <Sparkles size={14} /> ESSS Science Portal
-          </span>
-          <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white light:text-zinc-900 leading-tight">
-            Democratizing Space <span className="text-zinc-400 light:text-zinc-500">Science Learning</span>
-          </h1>
-          <p className="text-base sm:text-lg text-zinc-400 light:text-zinc-600 leading-relaxed max-w-3xl mx-auto">
-            The ESSS Science Portal is a free interactive platform designed to visualize space science, astrophysics, and orbital technology. Our mission is to make advanced celestial physics accessible to students, educators, and space enthusiasts throughout Ethiopia and Africa.
-          </p>
-          <p className="text-sm text-zinc-500 light:text-zinc-400 max-w-2xl mx-auto pt-4 border-t border-zinc-800/40 light:border-zinc-200">
-            Through high-performance 3D visualizers—including our interactive Moon explorer, solar & lunar eclipse calculators, and a full solar system simulator adapted from the Hewa+ app functionalities—we turn theoretical calculations into immersive visual learning experiences. All resources on this portal are 100% free to access.
-          </p>
-        </div>
+      {/* Main Content Container */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 space-y-24">
+        {/* 1. HERO SECTION: VIBRANT YELLOW HERO CONTAINER CARD */}
+        <section className="flex justify-center w-full">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="relative w-full rounded-[2.5rem] bg-[#FFEA4B] text-black p-10 sm:p-16 text-center flex flex-col items-center justify-center space-y-6 shadow-2xl overflow-hidden"
+          >
+            {/* Subtle background grid pattern */}
+            <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px]" />
 
-        {/* Official ESSS Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="border border-zinc-800 light:border-zinc-200 bg-zinc-950/80 light:bg-zinc-50 p-8 rounded-2xl text-center space-y-3 shadow-xl">
-            <Users className="w-8 h-8 text-[#FFEA4B] light:text-[#3C3318] mx-auto" />
-            <div className="text-4xl font-black text-white light:text-zinc-900">20,000+</div>
-            <div className="text-xs font-mono text-zinc-400 light:text-zinc-600 uppercase tracking-wider">Individual Members</div>
-          </div>
-          <div className="border border-zinc-800 light:border-zinc-200 bg-zinc-950/80 light:bg-zinc-50 p-8 rounded-2xl text-center space-y-3 shadow-xl">
-            <Target className="w-8 h-8 text-[#FFEA4B] light:text-[#3C3318] mx-auto" />
-            <div className="text-4xl font-black text-white light:text-zinc-900">32</div>
-            <div className="text-xs font-mono text-zinc-400 light:text-zinc-600 uppercase tracking-wider">Branch Associations</div>
-          </div>
-          <div className="border border-zinc-800 light:border-zinc-200 bg-zinc-950/80 light:bg-zinc-50 p-8 rounded-2xl text-center space-y-3 shadow-xl">
-            <Building className="w-8 h-8 text-[#FFEA4B] light:text-[#3C3318] mx-auto" />
-            <div className="text-4xl font-black text-white light:text-zinc-900">58+</div>
-            <div className="text-xs font-mono text-zinc-400 light:text-zinc-600 uppercase tracking-wider">Institutional Members</div>
-          </div>
-          <div className="border border-zinc-800 light:border-zinc-200 bg-zinc-950/80 light:bg-zinc-50 p-8 rounded-2xl text-center space-y-3 shadow-xl">
-            <Award className="w-8 h-8 text-[#FFEA4B] light:text-[#3C3318] mx-auto" />
-            <div className="text-4xl font-black text-white light:text-zinc-900">100+</div>
-            <div className="text-xs font-mono text-zinc-400 light:text-zinc-600 uppercase tracking-wider">Space School Clubs</div>
-          </div>
-        </div>
+            <h1 className="relative z-10 text-4xl sm:text-6xl font-black tracking-tight text-black leading-tight text-center">
+              Democratizing Space Science <br />
+              <span className="font-normal text-zinc-900">Through Sentient Visualization</span>
+            </h1>
 
-        {/* Entoto Observatory Highlight */}
-        <div className="border border-zinc-800 light:border-zinc-200 bg-zinc-950/80 light:bg-zinc-50 p-8 sm:p-12 rounded-3xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center shadow-2xl">
-          <div className="space-y-6">
-            <span className="text-xs font-mono font-bold text-zinc-400 light:text-zinc-500 uppercase tracking-widest">// ASTROPHYSICAL OBSERVATORY</span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white light:text-zinc-900">
-              Entoto Observatory & Research Center
-            </h2>
-            <p className="text-base text-zinc-400 light:text-zinc-600 leading-relaxed">
-              Situated at an elevation of 3,200 meters above sea level on Mount Entoto, the observatory operates twin 1-meter optical telescopes for deep-sky photometry, exoplanet transit monitoring, and binary star observations.
+            <p className="relative z-10 text-base sm:text-lg text-zinc-900 max-w-3xl mx-auto leading-relaxed font-medium text-center">
+              The Ethiopian Space Science Society (ESSS) Science Portal is an open-access platform designed to bring astrophysics, orbital mechanics, and satellite technology to life. By pairing real-time data visualizers with our 3D Sentient Mesh topological engine, we transform complex space physics into intuitive, hands-on learning tools.
             </p>
 
-            {/* Clean Monochrome Buttons */}
-            <div className="pt-4 flex flex-wrap items-center gap-4">
-              <Link
-                href="/labs"
-                className="px-6 py-3 bg-white light:bg-zinc-900 text-black light:text-white hover:bg-zinc-200 light:hover:bg-zinc-800 text-xs font-mono font-bold tracking-wider uppercase rounded-xl transition-all flex items-center gap-2 cursor-pointer shadow-lg"
-              >
-                <span>EXPLORE LABS</span>
-                <ArrowRight size={14} />
-              </Link>
+            <div className="relative z-10 flex flex-wrap items-center justify-center gap-4 pt-6 sm:pt-8 mx-auto">
               <Link
                 href="/apps"
-                className="px-6 py-3 bg-zinc-900 light:bg-zinc-200 border border-zinc-700 light:border-zinc-300 text-zinc-200 light:text-zinc-800 hover:text-white light:hover:text-black hover:border-zinc-500 text-xs font-mono font-bold tracking-wider uppercase rounded-xl transition-all flex items-center gap-2 cursor-pointer"
+                className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-black text-white font-mono font-bold text-xs uppercase tracking-wider hover:bg-zinc-800 transition-all cursor-pointer shadow-lg hover:scale-105"
               >
-                <span>SPACE APPS</span>
+                <span>LAUNCH SPACE APPS</span>
+                <ArrowRight size={15} />
+              </Link>
+              <Link
+                href="/labs"
+                className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full border border-black text-black font-mono font-bold text-xs uppercase tracking-wider hover:bg-black/10 transition-all cursor-pointer"
+              >
+                <span>EXPLORE SCIENCE LABS</span>
+              </Link>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* 2. SENTIENT MESH & EDUCATOR SECTION (Directly on Flat BG - No Container Box) */}
+        <section className="relative w-full min-h-[420px] sm:min-h-[460px] flex flex-col items-center justify-center text-center py-8">
+          {/* Background 3D Sentient Mesh Canvas */}
+          <div className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-40 light:opacity-30">
+            <SentientMeshCanvas
+              activeObject="black-hole"
+              meshScale={0.5}
+              meshPosition={[0, 0, 0]}
+              cameraFov={50}
+              autoRotate={true}
+              interactive={false}
+              bgColor="bg-transparent"
+            />
+          </div>
+
+          {/* Overlaid Centered Content Directly on Page BG */}
+          <div className="relative z-20 w-full max-w-3xl mx-auto px-4 text-center flex flex-col items-center justify-center space-y-6">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFEA4B] text-black font-mono font-bold text-xs uppercase tracking-widest shadow-sm">
+              <GraduationCap size={16} /> FOR EDUCATORS & OPEN SOURCE LABS
+            </span>
+
+            <h2 className="text-3xl sm:text-5xl font-black text-white light:text-zinc-900 leading-tight">
+              3D Topological Physics for the Classroom
+            </h2>
+
+            <p className="text-base sm:text-lg text-zinc-300 light:text-zinc-700 leading-relaxed max-w-2xl mx-auto font-medium">
+              Built on an open-source model where educators, researchers, and developers can contribute to modular apps and interactive labs — making astronomy and space physics accessible, intuitive, and hands-on across Africa.
+            </p>
+
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
+              <a
+                href="https://github.com/ESSS-Ethiopia"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#FFEA4B] text-black font-mono font-bold text-xs uppercase tracking-wider hover:bg-yellow-300 transition-all cursor-pointer shadow-md hover:scale-105"
+              >
+                <GithubIcon size={16} />
+                <span>CONTRIBUTE ON GITHUB</span>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* 3. PLATFORM PILLARS (Centered Directly on BG) */}
+        <section className="py-4 space-y-10 text-center">
+          <div className="space-y-2 text-center max-w-2xl mx-auto">
+            <span className="text-xs font-mono font-bold text-[#FFEA4B] light:text-zinc-900 uppercase tracking-widest block">
+              // CORE PLATFORM
+            </span>
+            <h2 className="text-2xl sm:text-4xl font-black text-white light:text-zinc-900 text-center">
+              Integrated Space Ecosystem
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div className="space-y-3 flex flex-col items-center justify-center text-center">
+              <div className="w-11 h-11 rounded-2xl bg-[#FFEA4B] text-black flex items-center justify-center font-bold shadow-md">
+                <Rocket size={22} />
+              </div>
+              <h3 className="text-xl font-bold text-white light:text-zinc-900 text-center">Space Applications</h3>
+              <p className="text-sm text-zinc-400 light:text-zinc-600 leading-relaxed text-center max-w-xs">
+                Real-time space weather, satellite tracking, and solar calculators built on Hewa+ framework.
+              </p>
+            </div>
+
+            <div className="space-y-3 flex flex-col items-center justify-center text-center">
+              <div className="w-11 h-11 rounded-2xl bg-[#FFEA4B] text-black flex items-center justify-center font-bold shadow-md">
+                <Atom size={22} />
+              </div>
+              <h3 className="text-xl font-bold text-white light:text-zinc-900 text-center">Interactive Labs</h3>
+              <p className="text-sm text-zinc-400 light:text-zinc-600 leading-relaxed text-center max-w-xs">
+                Hands-on physics experiments covering atmospheric drag, gravity wells, and photometric curves.
+              </p>
+            </div>
+
+            <div className="space-y-3 flex flex-col items-center justify-center text-center">
+              <div className="w-11 h-11 rounded-2xl bg-[#FFEA4B] text-black flex items-center justify-center font-bold shadow-md">
+                <BookOpen size={22} />
+              </div>
+              <h3 className="text-xl font-bold text-white light:text-zinc-900 text-center">Research & Blogs</h3>
+              <p className="text-sm text-zinc-400 light:text-zinc-600 leading-relaxed text-center max-w-xs">
+                Scientific articles, technical guides, and space science news curated by ESSS specialists.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* 4. ESSS STATS (Directly on BG - No Card / No Shadow) */}
+        <section className="py-6 border-t border-b border-zinc-800/80 light:border-zinc-200">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+            <div className="space-y-2">
+              <Users className="w-6 h-6 text-[#FFEA4B] light:text-zinc-900 mx-auto" />
+              <div className="text-4xl font-black text-white light:text-zinc-900">20,000+</div>
+              <div className="text-xs font-mono text-zinc-400 light:text-zinc-600 uppercase tracking-wider">Individual Members</div>
+            </div>
+            <div className="space-y-2">
+              <Target className="w-6 h-6 text-[#FFEA4B] light:text-zinc-900 mx-auto" />
+              <div className="text-4xl font-black text-white light:text-zinc-900">32</div>
+              <div className="text-xs font-mono text-zinc-400 light:text-zinc-600 uppercase tracking-wider">Branch Associations</div>
+            </div>
+            <div className="space-y-2">
+              <Building className="w-6 h-6 text-[#FFEA4B] light:text-zinc-900 mx-auto" />
+              <div className="text-4xl font-black text-white light:text-zinc-900">58+</div>
+              <div className="text-xs font-mono text-zinc-400 light:text-zinc-600 uppercase tracking-wider">Institutional Members</div>
+            </div>
+            <div className="space-y-2">
+              <Award className="w-6 h-6 text-[#FFEA4B] light:text-zinc-900 mx-auto" />
+              <div className="text-4xl font-black text-white light:text-zinc-900">100+</div>
+              <div className="text-xs font-mono text-zinc-400 light:text-zinc-600 uppercase tracking-wider">Space School Clubs</div>
+            </div>
+          </div>
+        </section>
+
+        {/* 5. OPEN SOURCE & MODULAR COMMUNITY SECTION */}
+        <section className="py-6 text-center">
+          <div className="flex flex-col items-center justify-center space-y-6 max-w-3xl mx-auto">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFEA4B] text-black font-mono font-bold text-xs uppercase tracking-widest shadow-md">
+              <Code2 size={16} /> OPEN SOURCE PAN-AFRICAN INITIATIVE
+            </span>
+
+            <h2 className="text-3xl sm:text-5xl font-black text-white light:text-zinc-900 leading-tight text-center">
+              Modular Apps & Community Contribution
+            </h2>
+
+            <p className="text-base sm:text-lg text-zinc-300 light:text-zinc-700 leading-relaxed text-center font-medium max-w-2xl">
+              We empower educators, scientists, and software developers across Africa to build and contribute custom modular 3D apps and interactive science labs — democratizing astronomy education for every student.
+            </p>
+
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
+              <a
+                href="https://github.com/ESSS-Ethiopia"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-[#FFEA4B] text-black font-mono font-bold text-xs uppercase tracking-wider hover:bg-yellow-300 transition-all cursor-pointer shadow-lg hover:scale-105"
+              >
+                <GithubIcon size={18} />
+                <span>CONTRIBUTE ON GITHUB</span>
+              </a>
+              <Link
+                href="/apps"
+                className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full border border-zinc-700 light:border-zinc-300 text-zinc-200 light:text-zinc-800 font-mono font-bold text-xs uppercase tracking-wider hover:bg-zinc-800 light:hover:bg-zinc-100 transition-all cursor-pointer"
+              >
+                <span>EXPLORE MODULAR APPS</span>
               </Link>
             </div>
           </div>
-
-          <div className="relative rounded-2xl overflow-hidden border border-zinc-800 light:border-zinc-200 shadow-2xl h-88">
-            <img
-              src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop"
-              alt="Entoto Observatory"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex items-end p-6">
-              <span className="text-xs font-mono font-bold text-zinc-300 tracking-widest">
-                AAU, CTBE, 407 • ADDIS ABABA
-              </span>
-            </div>
-          </div>
-        </div>
+        </section>
       </main>
+
       <UniversalFooter />
     </div>
   );

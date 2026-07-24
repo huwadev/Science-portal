@@ -310,7 +310,7 @@ export default function Home() {
 
       {/* 1. SPACE APPS HERO CAROUSEL */}
       <section
-        className="relative w-full overflow-hidden bg-black text-white group/carousel"
+        className="relative w-full overflow-hidden bg-black light:bg-white text-white light:text-zinc-900 group/carousel"
         onMouseEnter={() => setIsCarouselPaused(true)}
         onMouseLeave={() => setIsCarouselPaused(false)}
       >
@@ -327,13 +327,13 @@ export default function Home() {
                   transition={{ duration: 0.6 }}
                   className="absolute inset-0 w-full h-full flex items-center"
                 >
-                  {/* Full-Bleed Sentient Mesh Background (No photo, no secondary container) */}
+                  {/* Full-Bleed Sentient Mesh Background */}
                   <div className="absolute inset-0 w-full h-full pointer-events-none">
                     <SentientMeshCanvas activeObject={app.meshShape} svgUrl={app.svgUrl} autoRotate={false} />
                   </div>
 
-                  {/* Dark Gradient Overlay for text contrast */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent pointer-events-none z-10" />
+                  {/* Gradient Overlay for text contrast */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent light:from-white light:via-white/50 light:to-transparent pointer-events-none z-10" />
 
                   {/* Content Layer with Inset Side Margins (Clears Nav Arrows) */}
                   <div
@@ -341,29 +341,29 @@ export default function Home() {
                     className="relative max-w-7xl mx-auto z-20 w-full flex flex-col justify-end"
                   >
                     <div className="max-w-2xl space-y-6">
-                      <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-900/90 border border-white/15 text-zinc-200 text-xs font-mono font-bold uppercase tracking-widest rounded-xl backdrop-blur-md">
+                      <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-900/90 light:bg-white/90 border border-white/15 light:border-zinc-300 text-zinc-200 light:text-zinc-800 text-xs font-mono font-bold uppercase tracking-widest rounded-xl backdrop-blur-md shadow-sm">
                         <Rocket size={14} /> {app.badge}
                       </div>
 
-                      <h1 className="text-4xl sm:text-6xl font-black text-white leading-tight drop-shadow-2xl">
+                      <h1 className="text-4xl sm:text-6xl font-black text-white light:text-zinc-900 leading-tight drop-shadow-2xl">
                         {language === "am" ? app.titleAm : app.title}
                       </h1>
 
-                      <p className="text-base sm:text-xl text-zinc-300 leading-relaxed font-normal max-w-xl">
+                      <p className="text-base sm:text-xl text-zinc-300 light:text-zinc-600 leading-relaxed font-normal max-w-xl">
                         {language === "am" ? app.oneSentenceDescAm : app.oneSentenceDesc}
                       </p>
 
                       <div className="pt-4 flex items-center gap-4">
                         <Link
                           href={app.link}
-                          className="group/btn relative inline-flex items-center justify-between gap-4 px-8 py-3.5 rounded-full bg-zinc-950/90 light:bg-zinc-100 border border-white/25 light:border-zinc-300 hover:!bg-[#FFEA4B] light:hover:!bg-[#FFEA4B] hover:!border-[#FFEA4B] light:hover:!border-[#FFEA4B] transition-all duration-200 shadow-2xl cursor-pointer"
+                          className="group/btn relative inline-flex items-center justify-between gap-4 px-8 py-3.5 rounded-full bg-zinc-950/90 light:bg-white border border-white/25 light:border-zinc-300 hover:!bg-[#FFEA4B] light:hover:!bg-[#FFEA4B] hover:!border-[#FFEA4B] light:hover:!border-[#FFEA4B] transition-all duration-200 shadow-2xl cursor-pointer"
                         >
                           <span className="text-xs font-mono font-bold tracking-widest uppercase text-white light:text-zinc-900 group-hover/btn:!text-black transition-colors duration-200">
                             LAUNCH APPLICATION
                           </span>
                           <div className="flex items-center justify-center w-6 h-6">
                             <svg
-                              className="w-5 h-5 text-white group-hover/btn:hidden transition-all duration-300"
+                              className="w-5 h-5 text-white light:text-zinc-900 group-hover/btn:hidden transition-all duration-300"
                               viewBox="0 0 24 24"
                               fill="none"
                               stroke="currentColor"
@@ -399,21 +399,21 @@ export default function Home() {
           {/* Nav Controls */}
           <button
             onClick={handlePrevCarousel}
-            className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-30 p-3.5 rounded-full bg-zinc-900/70 hover:bg-zinc-900 border border-white/15 text-white backdrop-blur-md transition-all cursor-pointer shadow-lg"
+            className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-30 p-3.5 rounded-full bg-zinc-900/70 light:bg-white/80 hover:bg-zinc-900 light:hover:bg-white border border-white/15 light:border-zinc-300 text-white light:text-zinc-900 backdrop-blur-md transition-all cursor-pointer shadow-lg"
             aria-label="Previous Slide"
           >
             <ChevronLeft size={24} />
           </button>
           <button
             onClick={handleNextCarousel}
-            className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-30 p-3.5 rounded-full bg-zinc-900/70 hover:bg-zinc-900 border border-white/15 text-white backdrop-blur-md transition-all cursor-pointer shadow-lg"
+            className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-30 p-3.5 rounded-full bg-zinc-900/70 light:bg-white/80 hover:bg-zinc-900 light:hover:bg-white border border-white/15 light:border-zinc-300 text-white light:text-zinc-900 backdrop-blur-md transition-all cursor-pointer shadow-lg"
             aria-label="Next Slide"
           >
             <ChevronRight size={24} />
           </button>
 
           {/* Ultra-Thin Gradient Progress Bar Line */}
-          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-white/10 z-30">
+          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-white/10 light:bg-zinc-200 z-30">
             <div
               className="h-full bg-gradient-to-r from-transparent via-[#FFEA4B] to-[#FFF7B8] transition-all ease-linear shadow-[0_0_10px_#FFEA4B]"
               style={{ width: `${progress}%` }}
@@ -433,7 +433,7 @@ export default function Home() {
                   className={`relative flex items-center justify-center transition-all cursor-pointer backdrop-blur-md ${
                     isActive
                       ? "bg-[#FFEA4B] text-black border-2 border-[#FFEA4B] scale-110 shadow-lg shadow-[#FFEA4B]/40 font-bold"
-                      : "bg-zinc-900/80 border border-white/20 text-zinc-400 hover:text-white hover:border-white/40 hover:bg-zinc-800"
+                      : "bg-zinc-900/80 light:bg-white/90 border border-white/20 light:border-zinc-300 text-zinc-400 light:text-zinc-600 hover:text-white light:hover:text-zinc-900 hover:border-white/40 light:hover:border-zinc-400 hover:bg-zinc-800 light:hover:bg-zinc-100"
                   }`}
                   title={app.title}
                 >
