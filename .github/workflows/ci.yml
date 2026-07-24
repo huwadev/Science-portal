@@ -1,0 +1,75 @@
+name: CI & Quality Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate Code & Configuration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate JSON Files
+        run: |
+          node -e '
+            const fs = require("fs");
+            const files = ["manifest.json", "package.json", "wiki_extracts.json", "modules-data.js"];
+            files.forEach(file => {
+              if (fs.existsSync(file) && file.endsWith(".json")) {
+                JSON.parse(fs.readFileSync(file, "utf8"));
+                console.log(`✓ ${file} is valid JSON`);
+              }
+            });
+          '
+
+      - name: Validate JavaScript Syntax
+        run: |
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            const { execSync } = require("child_process");
+
+            function getJsFiles(dir) {
+              let results = [];
+              const list = fs.readdirSync(dir);
+              list.forEach(file => {
+                const filePath = path.join(dir, file);
+                const stat = fs.statSync(filePath);
+                if (stat && stat.isDirectory()) {
+                  if (file !== "node_modules" && file !== ".git" && file !== "scratch") {
+                    results = results.concat(getJsFiles(filePath));
+                  }
+                } else if (file.endsWith(".js") && !file.startsWith("temp_")) {
+                  results.push(filePath);
+                }
+              });
+              return results;
+            }
+
+            const files = getJsFiles(".");
+            console.log(`Found ${files.length} JavaScript files to check.`);
+            files.forEach(file => {
+              try {
+                execSync(`node --check "${file}"`);
+                console.log(`✓ ${file}`);
+              } catch (err) {
+                console.error(`✕ Syntax error in ${file}`);
+                process.exit(1);
+              }
+            });
+          '

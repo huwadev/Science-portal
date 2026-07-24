@@ -1,0 +1,31 @@
+name: Sync to Public Repo
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    name: Sync Main Branch to ESSS-Science-Public
+    runs-on: ubuntu-latest
+    # Only run on the main repository to prevent infinite workflow loops
+    if: github.repository == 'huwadev/Science-portal'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push commits to ESSS-Science-Public
+        env:
+          PUBLIC_REPO_TOKEN: ${{ secrets.PUBLIC_REPO_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git remote add public https://x-access-token:${PUBLIC_REPO_TOKEN}@github.com/huwadev/ESSS-Science-Public.git || git remote set-url public https://x-access-token:${PUBLIC_REPO_TOKEN}@github.com/huwadev/ESSS-Science-Public.git
+          git push public main --force

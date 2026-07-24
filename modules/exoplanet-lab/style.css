@@ -265,3 +265,41 @@ input[type=range]::-webkit-slider-runnable-track {
     background: #FFF;
     color: var(--color-cosmic-base);
 }
+
+/* Responsive Layout */
+@media (max-width: 1024px) {
+    .module-body {
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+    }
+    .lab-workspace {
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+    }
+    .pane {
+        height: auto;
+        min-height: 400px;
+    }
+}
+
+@media (max-width: 640px) {
+    .lab-header {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .lab-title-group h1 {
+        font-size: 1.15rem;
+    }
+    .telemetry-grid {
+        grid-template-columns: 1fr;
+        padding: 16px;
+    }
+    .controls-panel {
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px;
+    }
+}

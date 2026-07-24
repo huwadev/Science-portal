@@ -534,3 +534,35 @@ details[open] summary {
     color: var(--color-neutral-base);
     margin: 0;
 }
+
+/* Responsive Layout */
+@media (max-width: 1024px) {
+    .module-body {
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+    }
+    .lab-workspace {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
+    }
+    .pane {
+        height: auto;
+        min-height: 400px;
+    }
+}
+
+@media (max-width: 640px) {
+    .lab-header {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .lab-title-group h1 {
+        font-size: 1.1rem;
+    }
+    .image-grid {
+        grid-template-columns: 1fr;
+    }
+}

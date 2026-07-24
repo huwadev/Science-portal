@@ -3,6 +3,7 @@
 Thumbs.db
 *.log
 *.tmp
+temp_*
 .vscode/
 .idea/
 

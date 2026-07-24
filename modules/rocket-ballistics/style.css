@@ -568,3 +568,39 @@ canvas#simCanvas {
     background: var(--color-cosmic-base);
     border-color: var(--color-cosmic-base);
 }
+
+/* Responsive Layout */
+@media (max-width: 1024px) {
+    .module-body {
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+    }
+    .lab-workspace {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
+    }
+    .pane {
+        height: auto;
+        min-height: 400px;
+    }
+    .canvas-container {
+        min-height: 320px;
+    }
+}
+
+@media (max-width: 640px) {
+    .lab-header {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .lab-title-group h1 {
+        font-size: 1.1rem;
+    }
+    .telemetry-grid {
+        grid-template-columns: 1fr 1fr;
+        padding: 12px;
+    }
+}

@@ -1934,4 +1934,24 @@ body.hide-tabs-mode .tab-pane {
     transform: translate(-50%, -50%) scale(1.4);
 }
 
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .workspace {
+        grid-template-columns: 1fr !important;
+        height: auto !important;
+        min-height: 100vh;
+        overflow-y: auto;
+    }
+    .sidebar {
+        width: 100% !important;
+        max-height: 400px;
+    }
+    .pane-layout, .pane-layout-3d {
+        grid-template-columns: 1fr !important;
+    }
+    .stats-panel, .info-sidebar {
+        width: 100% !important;
+    }
+}
+
 

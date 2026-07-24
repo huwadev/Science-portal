@@ -1215,3 +1215,45 @@ body.module-body {
     gap: 12px;
     flex-wrap: wrap;
 }
+
+/* Responsive Layout */
+@media (max-width: 1024px) {
+    body.module-body {
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+    }
+    .lab-workspace {
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+    }
+    .sim-pane {
+        height: 500px;
+    }
+    .analysis-pane {
+        max-width: 100%;
+        min-width: 0;
+        border-left: none;
+        border-top: 1px solid rgba(222, 235, 255, 0.08);
+    }
+    .controls-dock {
+        height: auto;
+        padding: 16px;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 640px) {
+    .lab-header {
+        padding: 0 12px;
+        flex-wrap: wrap;
+    }
+    .lab-title-group {
+        position: static;
+        transform: none;
+    }
+    .lab-title {
+        font-size: 0.9rem;
+    }
+}

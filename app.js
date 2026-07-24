@@ -304,8 +304,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Initialize with selected language
-    setLanguage(currentLang);
+    // Mobile Menu Toggle
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mainNav = document.querySelector('.main-nav');
+    if (mobileMenuToggle && mainNav) {
+        mobileMenuToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            mainNav.classList.toggle('mobile-active');
+        });
+        document.addEventListener('click', (e) => {
+            if (!mainNav.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
+                mainNav.classList.remove('mobile-active');
+            }
+        });
+        mainNav.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                mainNav.classList.remove('mobile-active');
+            });
+        });
+    }
 
 
     // 2. ORBIT SYSTEM INTERACTIVE TELEMETRY HOVER EFFECT
